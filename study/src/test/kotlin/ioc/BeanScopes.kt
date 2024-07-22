@@ -46,7 +46,7 @@ class BeanScopes : FreeSpec({
         val secondSingletonObject = applicationContext.getBean("singletonBean", SampleObject::class.java)
 
         // 싱글톤 스코프로 정의된 Bean은 여러 번 요청해도 동일한 인스턴스를 반환합니다.
-        firstSingletonObject shouldBe null // secondSingletonObject
+        firstSingletonObject shouldBe secondSingletonObject
     }
 
     """
@@ -66,7 +66,7 @@ class BeanScopes : FreeSpec({
         val secondPrototypeObject = applicationContext.getBean("prototypeBean", SampleObject::class.java)
 
         // 프로토타입 스코프로 정의된 Bean은 요청할 때마다 새로운 인스턴스를 생성합니다.
-        firstPrototypeObject shouldBe null // secondPrototypeObject
+        firstPrototypeObject shouldNotBe secondPrototypeObject
     }
 
     """
@@ -77,6 +77,10 @@ class BeanScopes : FreeSpec({
     컨테이너가 싱글톤 Bean을 인스턴스화하고 해당 의존성을 주입할 때 한 번만 발생하므로 프로토타입 Bean을 싱글톤 Bean에 의존성 주입할 수 없습니다.
     런타임에 프로토타입 Bean의 새 인스턴스가 두 번 이상 필요한 경우 메서드 주입(method injection)을 참조하세요.
     메서드 주입은 강의에서 다루지 않습니다. 필요하다면 공식 문서를 참고하세요.
+    
+    메서드 주입
+    @Lookup("prototypeBean") -> 을 통해 런타임에서 스프링에 의해 새로운 프로토타입 bean을 반환할 수 있도록 한다.
+    value에는 주입하고자하는 bean의 이름을 필수적으로 넣어야 한다.
     """ - {
 
         """
@@ -92,7 +96,9 @@ class BeanScopes : FreeSpec({
             firstPrototypeIntoSingleton shouldBe secondPrototypeIntoSingleton
 
             // ❓프로토타입 Bean인데 왜 같은 인스턴스를 반환할까요?
-            firstPrototypeIntoSingleton.prototypeBean shouldBe null // secondPrototypeIntoSingleton.prototypeBean
+            // 싱글톤 Bean(PrototypeIntoSingleton) 생성 시 하나의 인스턴스만 생성하기때문에, 이때 주입되는 prototypeBean은
+            // 한번만 생성되어 주입되므로 PrototypeIntoSingleton가 가지는 SampleObject는 동일하다
+            firstPrototypeIntoSingleton.prototypeBean shouldBe secondPrototypeIntoSingleton.prototypeBean
         }
 
         """
@@ -109,7 +115,7 @@ class BeanScopes : FreeSpec({
             firstSingletonIntoPrototype shouldNotBe secondSingletonIntoPrototype
 
             // 프로토타입 Bean이 의존하는 싱글톤 Bean은 동일한 인스턴스를 사용합니다.
-            firstSingletonIntoPrototype.singletonBean shouldBe null // secondSingletonIntoPrototype.singletonBean
+            firstSingletonIntoPrototype.singletonBean shouldBe secondSingletonIntoPrototype.singletonBean
         }
     }
 })
