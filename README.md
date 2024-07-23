@@ -34,3 +34,17 @@
 
 ### 프로토타입 스코프
 <img src="docs/images/prototype.png" alt="prototype">
+
+## 1단계 - DI 컨테이너 구현하기
+- BeanDefinition
+  - SingletonBeanDefinition, PrototypeBeanDefinition을 저장한다
+  - 어떤 타입인지 반환할 수 있다
+- initialize
+  - beanDefinitionMap에 `@Component`가 달려있는 모든 클래스를 스캔하여 저장한다
+  - beanDefinitionMap에 저장된 클래스 중 싱글톤 빈들만 필터링하여 stream을 돌린다
+    - 이때 생성할 수 있는 방법은 총 2가지다
+      - `@Autowired`가 없다면 기본 생성자를 우선한다
+      - `@Autowired`가 달려있다면 `@Autowired` 생성자를 우선한다
+        1. 만약 파라미터가 필요한 생성자라면 이미 생성된 bean에 있는지 확인한다
+        2. 파라미터 요청 bean 중 이미 생성된 bean이 없다면 다음 빈 생성으로 넘어간다
+        3. 다음 빈 생성에서 이전 bean과 동일하다면 순환참조 예외를 발생시킨다
