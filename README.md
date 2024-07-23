@@ -38,6 +38,7 @@
 ## 1단계 - DI 컨테이너 구현하기
 - BeanDefinition
   - SingletonBeanDefinition, PrototypeBeanDefinition을 저장한다
+  - Scope가 다른 bean을 구현체로 생성하려하는 경우 예외가 발생한다
   - 어떤 타입인지 반환할 수 있다
 - initialize
   - beanDefinitionMap에 `@Component`가 달려있는 모든 클래스를 스캔하여 저장한다
