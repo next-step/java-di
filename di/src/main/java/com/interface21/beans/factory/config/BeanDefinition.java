@@ -5,4 +5,6 @@ public interface BeanDefinition {
     Class<?> getType();
 
     String getBeanClassName();
+
+    BeanScope getScope();
 }
