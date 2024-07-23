@@ -4,7 +4,7 @@ import com.interface21.context.annotation.Scope;
 
 public class SingletonBeanDefinition implements BeanDefinition {
 
-    private final BeanScope beanScope = BeanScope.SINGLETON;
+    private static final BeanScope BEAN_SCOPE = BeanScope.SINGLETON;
     private final Class<?> type;
 
     public SingletonBeanDefinition(Class<?> type) {
@@ -17,7 +17,7 @@ public class SingletonBeanDefinition implements BeanDefinition {
             return;
         }
         Scope scope = type.getAnnotation(Scope.class);
-        if (scope.value() != BeanScope.SINGLETON) {
+        if (scope.value() != BEAN_SCOPE) {
             throw new IllegalStateException("싱글톤이 아닌 빈으로 생성할 수 없습니다.");
         }
     }
@@ -34,6 +34,6 @@ public class SingletonBeanDefinition implements BeanDefinition {
 
     @Override
     public BeanScope getScope() {
-        return BeanScope.SINGLETON;
+        return BEAN_SCOPE;
     }
 }
