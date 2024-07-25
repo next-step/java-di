@@ -40,6 +40,8 @@
   - SingletonBeanDefinition, PrototypeBeanDefinition을 저장한다
   - Scope가 다른 bean을 구현체로 생성하려하는 경우 예외가 발생한다
   - 어떤 타입인지 반환할 수 있다
+- registry
+  - 클래스와 BeanDefinition을 받아 저장한다
 - initialize
   - beanDefinitionMap에 `@Component`가 달려있는 모든 클래스를 스캔하여 저장한다
   - beanDefinitionMap에 저장된 클래스 중 싱글톤 빈들만 필터링하여 stream을 돌린다
