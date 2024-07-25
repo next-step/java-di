@@ -39,7 +39,19 @@ public class DefaultListableBeanFactory implements BeanFactory, BeanDefinitionRe
 
     @Override
     public void registerBeanDefinition(Class<?> clazz, BeanDefinition beanDefinition) {
+        if (!isComponentPresent(clazz)) {
+            throw new IllegalArgumentException("Component가 있는 클래스만 저장할 수 있습니다.");
+        }
         beanDefinitionMap.put(clazz.getSimpleName(), beanDefinition);
+    }
+
+    private boolean isComponentPresent(Class<?> clazz) {
+        if (clazz.isAnnotationPresent(Component.class)) {
+            return true;
+        }
+        return Arrays.stream(clazz.getAnnotations())
+                .map(Annotation::annotationType)
+                .anyMatch(annotation -> annotation.isAnnotationPresent(Component.class));
     }
 
     public Map<String, BeanDefinition> getBeanDefinitionMap() {
