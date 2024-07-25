@@ -1,5 +1,7 @@
 package com.interface21.beans.factory.support;
 
+import com.interface21.beans.factory.config.SingletonBeanDefinition;
+import com.interface21.context.stereotype.Controller;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.reflections.Reflections;
@@ -9,6 +11,7 @@ import java.lang.annotation.Annotation;
 import java.util.HashSet;
 import java.util.Set;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 class DefaultListableBeanFactoryTest {
@@ -22,6 +25,12 @@ class DefaultListableBeanFactoryTest {
         reflections = new Reflections("samples");
         beanFactory = new DefaultListableBeanFactory();
         beanFactory.initialize();
+    }
+
+    @Test
+    void beanDefinition을_받아_저장한다() {
+        beanFactory.registerBeanDefinition(TestController.class, new SingletonBeanDefinition(TestController.class));
+        assertThat(beanFactory.getBeanDefinitionMap()).containsKey("TestController");
     }
 
     @Test
@@ -42,5 +51,10 @@ class DefaultListableBeanFactoryTest {
             beans.addAll(reflections.getTypesAnnotatedWith(annotation));
         }
         return beans;
+    }
+
+    @Controller
+    public class TestController {
+
     }
 }
