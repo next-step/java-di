@@ -6,6 +6,7 @@ import com.interface21.context.stereotype.Controller;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.reflections.Reflections;
+import samples.JdbcSampleRepository;
 import samples.SampleController;
 
 import java.lang.annotation.Annotation;
@@ -14,6 +15,7 @@ import java.util.Set;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 class DefaultListableBeanFactoryTest {
@@ -26,7 +28,6 @@ class DefaultListableBeanFactoryTest {
     void setUp() {
         reflections = new Reflections("samples");
         beanFactory = new DefaultListableBeanFactory();
-        beanFactory.initialize();
     }
 
     @Test
@@ -40,6 +41,17 @@ class DefaultListableBeanFactoryTest {
         assertThatThrownBy(() -> beanFactory.registerBeanDefinition(NoComponentController.class, new SingletonBeanDefinition(NoComponentController.class)))
                 .isInstanceOf(IllegalArgumentException.class)
                 .hasMessage("Component가 있는 클래스만 저장할 수 있습니다.");
+    }
+
+    @Test
+    void 기본생성자만_있는_클래스의_빈을_생성한다() {
+        beanFactory.registerBeanDefinition(JdbcSampleRepository.class, new SingletonBeanDefinition(JdbcSampleRepository.class));
+        beanFactory.initialize();
+
+        assertAll(
+                () -> assertThat(beanFactory.getSingletonObjects()).containsKey(JdbcSampleRepository.class),
+                () -> assertThat(beanFactory.getSingletonObjects().get(JdbcSampleRepository.class)).isInstanceOf(JdbcSampleRepository.class)
+        );
     }
 
     @Test
