@@ -14,6 +14,8 @@ import java.lang.reflect.Parameter;
 import java.util.*;
 import java.util.stream.Collectors;
 
+import static com.interface21.beans.factory.support.BeanConstructor.createTargetConstructor;
+
 public class DefaultListableBeanFactory implements BeanFactory, BeanDefinitionRegistry {
 
     private static final Random RANDOM = new Random();
@@ -47,25 +49,11 @@ public class DefaultListableBeanFactory implements BeanFactory, BeanDefinitionRe
     }
 
     private Object createNewBean(BeanDefinition beanDefinition) {
-        Constructor<?> targetConstructor = getTargetConstructor(beanDefinition.getType());
-        List<Class<?>> parameterTypes = Arrays.stream(targetConstructor.getParameterTypes())
-                .toList();
-        if (parameterTypes.isEmpty()) {
+        BeanConstructor targetConstructor = createTargetConstructor(beanDefinition.getType());
+        if (targetConstructor.isNoArgument()) {
             return createNoArgConstructorBean(beanDefinition);
         }
-        return createArgConstructorBean(beanDefinition, parameterTypes, targetConstructor);
-    }
-
-    private Constructor<?> getTargetConstructor(Class<?> beanType) {
-        Constructor<?>[] constructors = beanType.getConstructors();
-        return Arrays.stream(constructors)
-                .filter(constructor -> constructor.getParameterCount() == 0)
-                .findAny()
-                .orElseGet(() -> randomConstructor(constructors));
-    }
-
-    private Constructor<?> randomConstructor(Constructor<?>[] constructors) {
-        return constructors[RANDOM.nextInt(constructors.length)];
+        return createArgConstructorBean(beanDefinition, targetConstructor);
     }
 
     private Object createNoArgConstructorBean(BeanDefinition beanDefinition) {
@@ -73,12 +61,13 @@ public class DefaultListableBeanFactory implements BeanFactory, BeanDefinitionRe
         return singletonObjects.put(beanDefinition.getType(), bean);
     }
 
-    private Object createArgConstructorBean(BeanDefinition beanDefinition, List<Class<?>> parameterTypes, Constructor<?> targetConstructor) {
-        Object[] constructorParameters = parameterTypes.stream()
+    private Object createArgConstructorBean(BeanDefinition beanDefinition, BeanConstructor beanConstructor) {
+        Object[] constructorParameters = beanConstructor.getParameterTypes()
+                .stream()
                 .map(this::getBeanDefinition)
                 .map(this::createBean)
                 .toArray();
-        Object bean = BeanUtils.instantiateClass(targetConstructor, constructorParameters);
+        Object bean = BeanUtils.instantiateClass(beanConstructor.getConstructor(), constructorParameters);
         return singletonObjects.put(beanDefinition.getType(), bean);
     }
 
