@@ -9,13 +9,12 @@ import org.slf4j.LoggerFactory;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Constructor;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
+import java.util.stream.Collectors;
 
 public class DefaultListableBeanFactory implements BeanFactory, BeanDefinitionRegistry {
 
+    private static final Random RANDOM = new Random();
     private static final Logger log = LoggerFactory.getLogger(DefaultListableBeanFactory.class);
 
     private final Map<String, BeanDefinition> beanDefinitionMap = new HashMap<>();
@@ -42,13 +41,14 @@ public class DefaultListableBeanFactory implements BeanFactory, BeanDefinitionRe
 
     private Constructor<?> getTargetConstructor(Class<?> beanType) {
         Constructor<?>[] constructors = beanType.getConstructors();
+        return Arrays.stream(constructors)
+                .filter(constructor -> constructor.getParameterCount() == 0)
+                .findAny()
+                .orElseGet(() -> randomConstructor(constructors));
+    }
 
-        for (Constructor<?> constructor : constructors) {
-            if (constructor.getParameters().length == 0) {
-                return constructor;
-            }
-        }
-        throw new RuntimeException();
+    private Constructor<?> randomConstructor(Constructor<?>[] constructors) {
+        return constructors[RANDOM.nextInt(constructors.length)];
     }
 
     @Override
