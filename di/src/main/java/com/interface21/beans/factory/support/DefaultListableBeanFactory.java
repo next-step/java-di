@@ -1,5 +1,6 @@
 package com.interface21.beans.factory.support;
 
+import com.interface21.beans.BeanInstantiationException;
 import com.interface21.beans.BeanUtils;
 import com.interface21.beans.factory.BeanFactory;
 import com.interface21.beans.factory.config.BeanDefinition;
@@ -9,6 +10,7 @@ import org.slf4j.LoggerFactory;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Constructor;
+import java.lang.reflect.Parameter;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -37,16 +39,31 @@ public class DefaultListableBeanFactory implements BeanFactory, BeanDefinitionRe
         }
     }
 
-    private void createBean(BeanDefinition beanDefinition) {
+    private Object createBean(BeanDefinition beanDefinition) {
         if (singletonObjects.containsKey(beanDefinition.getType())) {
-            return;
+            return singletonObjects.get(beanDefinition.getType());
         }
-        singletonObjects.put(beanDefinition.getType(), instantiateBean(beanDefinition));
+        Constructor<?> targetConstructor = getTargetConstructor(beanDefinition.getType());
+        Class<?>[] parameterTypes = targetConstructor.getParameterTypes();
+        if (parameterTypes.length == 0) {
+            Object bean = BeanUtils.instantiateClass(targetConstructor);
+            return singletonObjects.put(beanDefinition.getType(), bean);
+        }
+
+        Object[] constructorParameters = Arrays.stream(parameterTypes)
+                .map(this::getBeanDefinition)
+                .map(this::createBean)
+                .toArray();
+        Object bean = BeanUtils.instantiateClass(targetConstructor, constructorParameters);
+        return singletonObjects.put(beanDefinition.getType(), bean);
     }
 
-    private Object instantiateBean(BeanDefinition beanDefinition) {
-        Constructor<?> targetConstructor = getTargetConstructor(beanDefinition.getType());
-        return BeanUtils.instantiateClass(targetConstructor);
+    private BeanDefinition getBeanDefinition(Class<?> clazz) {
+        return beanDefinitionMap.values()
+                .stream()
+                .filter(beanDefinition -> clazz.isAssignableFrom(beanDefinition.getType()))
+                .findAny()
+                .orElseThrow(() -> new BeanInstantiationException(clazz, "생성할 수 있는 빈이 아닙니다."));
     }
 
     private Constructor<?> getTargetConstructor(Class<?> beanType) {

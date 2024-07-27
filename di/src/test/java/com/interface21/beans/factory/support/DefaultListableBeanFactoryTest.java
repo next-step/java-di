@@ -67,6 +67,17 @@ class DefaultListableBeanFactoryTest {
     }
 
     @Test
+    void 생성자에_파라미터가_빈이_아닌_경우_빈이_생성된_후_다시_생성한다() {
+        beanFactory.registerBeanDefinition(JdbcSampleRepository.class, new SingletonBeanDefinition(JdbcSampleRepository.class));
+        beanFactory.registerBeanDefinition(SampleService.class, new SingletonBeanDefinition(SampleService.class));
+        beanFactory.initialize();
+
+        assertAll(
+                () -> assertThat(beanFactory.getSingletonObjects()).containsKey(SampleService.class)
+        );
+    }
+
+    @Test
     public void di() {
         final var sampleController = beanFactory.getBean(SampleController.class);
 
