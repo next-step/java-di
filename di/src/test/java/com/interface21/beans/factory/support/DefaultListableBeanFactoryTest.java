@@ -8,6 +8,7 @@ import org.junit.jupiter.api.Test;
 import org.reflections.Reflections;
 import samples.JdbcSampleRepository;
 import samples.SampleController;
+import samples.SampleService;
 
 import java.lang.annotation.Annotation;
 import java.util.HashSet;
@@ -52,6 +53,17 @@ class DefaultListableBeanFactoryTest {
                 () -> assertThat(beanFactory.getSingletonObjects()).containsKey(JdbcSampleRepository.class),
                 () -> assertThat(beanFactory.getSingletonObjects().get(JdbcSampleRepository.class)).isInstanceOf(JdbcSampleRepository.class)
         );
+    }
+
+    @Test
+    void 이미_빈으로_생성된_경우_재생성하지_않는다() {
+        beanFactory.registerBeanDefinition(JdbcSampleRepository.class, new SingletonBeanDefinition(JdbcSampleRepository.class));
+        beanFactory.initialize();
+        Object expected = beanFactory.getSingletonObjects().get(JdbcSampleRepository.class);
+        beanFactory.initialize();
+        Object actual = beanFactory.getSingletonObjects().get(JdbcSampleRepository.class);
+
+        assertThat(actual).isEqualTo(expected);
     }
 
     @Test
