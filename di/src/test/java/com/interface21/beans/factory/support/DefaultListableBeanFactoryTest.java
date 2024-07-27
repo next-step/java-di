@@ -8,6 +8,7 @@ import org.junit.jupiter.api.Test;
 import org.reflections.Reflections;
 import samples.JdbcSampleRepository;
 import samples.SampleController;
+import samples.SampleRepository;
 import samples.SampleService;
 
 import java.lang.annotation.Annotation;
@@ -89,6 +90,15 @@ class DefaultListableBeanFactoryTest {
         beanFactory.initialize();
 
         JdbcSampleRepository actual = beanFactory.getBean(JdbcSampleRepository.class);
+        assertThat(beanFactory.getSingletonObjects()).containsValue(actual);
+    }
+
+    @Test
+    void 인터페이스로_빈을_반환한다() {
+        beanFactory.registerBeanDefinition(JdbcSampleRepository.class, new SingletonBeanDefinition(JdbcSampleRepository.class));
+        beanFactory.initialize();
+
+        SampleRepository actual = beanFactory.getBean(SampleRepository.class);
         assertThat(beanFactory.getSingletonObjects()).containsValue(actual);
     }
 

@@ -29,10 +29,12 @@ public class DefaultListableBeanFactory implements BeanFactory, BeanDefinitionRe
 
     @Override
     public <T> T getBean(final Class<T> clazz) {
-        if (!singletonObjects.containsKey(clazz)) {
-            throw new IllegalArgumentException("존재하지 않는 빈입니다.");
-        }
-        return (T) singletonObjects.get(clazz);
+        return (T) singletonObjects.entrySet()
+                .stream()
+                .filter(entry -> clazz.isAssignableFrom(entry.getKey()))
+                .findAny()
+                .map(Map.Entry::getValue)
+                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 빈입니다."));
     }
 
     public void initialize() {
