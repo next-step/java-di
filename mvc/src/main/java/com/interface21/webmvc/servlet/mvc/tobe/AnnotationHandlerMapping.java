@@ -22,7 +22,7 @@ public class AnnotationHandlerMapping implements HandlerMapping {
     }
 
     public void initialize() {
-        final var controllerScanner = new ControllerScanner();
+        final var controllerScanner = new BeanScanner();
         handlerExecutions.putAll(controllerScanner.scan(basePackage));
         log.info("Initialized AnnotationHandlerMapping!");
     }
