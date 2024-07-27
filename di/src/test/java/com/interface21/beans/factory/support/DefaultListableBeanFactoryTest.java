@@ -78,6 +78,13 @@ class DefaultListableBeanFactoryTest {
     }
 
     @Test
+    void 없는_bean을_가져가려하면_예외가_발생한다() {
+        assertThatThrownBy(() -> beanFactory.getBean(SampleService.class))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessage("존재하지 않는 빈입니다.");
+    }
+
+    @Test
     public void di() {
         final var sampleController = beanFactory.getBean(SampleController.class);
 

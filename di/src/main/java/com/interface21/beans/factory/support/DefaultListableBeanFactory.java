@@ -9,10 +9,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.lang.annotation.Annotation;
-import java.lang.reflect.Constructor;
-import java.lang.reflect.Parameter;
 import java.util.*;
-import java.util.stream.Collectors;
 
 import static com.interface21.beans.factory.support.BeanConstructor.createTargetConstructor;
 
@@ -32,6 +29,9 @@ public class DefaultListableBeanFactory implements BeanFactory, BeanDefinitionRe
 
     @Override
     public <T> T getBean(final Class<T> clazz) {
+        if (!singletonObjects.containsKey(clazz)) {
+            throw new IllegalArgumentException("존재하지 않는 빈입니다.");
+        }
         return null;
     }
 
