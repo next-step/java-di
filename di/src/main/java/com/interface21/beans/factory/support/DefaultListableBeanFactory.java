@@ -13,7 +13,7 @@ import java.util.*;
 
 import static com.interface21.beans.factory.support.BeanConstructor.createTargetConstructor;
 
-public class DefaultListableBeanFactory implements BeanFactory, BeanDefinitionRegistry {
+public class DefaultListableBeanFactory implements BeanFactory {
 
     private static final Random RANDOM = new Random();
     private static final Logger log = LoggerFactory.getLogger(DefaultListableBeanFactory.class);
@@ -37,6 +37,7 @@ public class DefaultListableBeanFactory implements BeanFactory, BeanDefinitionRe
                 .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 빈입니다."));
     }
 
+    @Override
     public void initialize() {
         for (BeanDefinition beanDefinition : beanDefinitionMap.values()) {
             createBean(beanDefinition);

@@ -1,5 +1,6 @@
 package com.interface21.webmvc.servlet.mvc.tobe;
 
+import com.interface21.beans.factory.BeanFactory;
 import com.interface21.beans.factory.config.BeanDefinition;
 import com.interface21.beans.factory.config.SingletonBeanDefinition;
 import com.interface21.context.stereotype.Component;
@@ -43,12 +44,12 @@ public class BeanScanner {
                 .collect(toMap(clazz -> clazz, SingletonBeanDefinition::new));
     }
 
-    public Map<HandlerKey, HandlerExecution> scan(Object... basePackage) {
+    public Map<HandlerKey, HandlerExecution> scan(BeanFactory beanFactory, Object... basePackage) {
         Reflections reflections = new Reflections(basePackage, Scanners.TypesAnnotated, Scanners.SubTypes, Scanners.MethodsAnnotated);
         final var handlers = new HashMap<HandlerKey, HandlerExecution>();
         final var controllers = reflections.getTypesAnnotatedWith(Controller.class);
         for (Class<?> controller : controllers) {
-            Object target = ReflectionUtils.newInstance(controller);
+            Object target = beanFactory.getBean(controller);
             addHandlerExecution(handlers, target, controller.getMethods());
         }
         return handlers;
