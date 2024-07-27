@@ -43,14 +43,38 @@ public class DefaultListableBeanFactory implements BeanFactory, BeanDefinitionRe
         if (singletonObjects.containsKey(beanDefinition.getType())) {
             return singletonObjects.get(beanDefinition.getType());
         }
-        Constructor<?> targetConstructor = getTargetConstructor(beanDefinition.getType());
-        Class<?>[] parameterTypes = targetConstructor.getParameterTypes();
-        if (parameterTypes.length == 0) {
-            Object bean = BeanUtils.instantiateClass(targetConstructor);
-            return singletonObjects.put(beanDefinition.getType(), bean);
-        }
+        return createNewBean(beanDefinition);
+    }
 
-        Object[] constructorParameters = Arrays.stream(parameterTypes)
+    private Object createNewBean(BeanDefinition beanDefinition) {
+        Constructor<?> targetConstructor = getTargetConstructor(beanDefinition.getType());
+        List<Class<?>> parameterTypes = Arrays.stream(targetConstructor.getParameterTypes())
+                .toList();
+        if (parameterTypes.isEmpty()) {
+            return createNoArgConstructorBean(beanDefinition);
+        }
+        return createArgConstructorBean(beanDefinition, parameterTypes, targetConstructor);
+    }
+
+    private Constructor<?> getTargetConstructor(Class<?> beanType) {
+        Constructor<?>[] constructors = beanType.getConstructors();
+        return Arrays.stream(constructors)
+                .filter(constructor -> constructor.getParameterCount() == 0)
+                .findAny()
+                .orElseGet(() -> randomConstructor(constructors));
+    }
+
+    private Constructor<?> randomConstructor(Constructor<?>[] constructors) {
+        return constructors[RANDOM.nextInt(constructors.length)];
+    }
+
+    private Object createNoArgConstructorBean(BeanDefinition beanDefinition) {
+        Object bean = BeanUtils.instantiate(beanDefinition.getType());
+        return singletonObjects.put(beanDefinition.getType(), bean);
+    }
+
+    private Object createArgConstructorBean(BeanDefinition beanDefinition, List<Class<?>> parameterTypes, Constructor<?> targetConstructor) {
+        Object[] constructorParameters = parameterTypes.stream()
                 .map(this::getBeanDefinition)
                 .map(this::createBean)
                 .toArray();
@@ -64,18 +88,6 @@ public class DefaultListableBeanFactory implements BeanFactory, BeanDefinitionRe
                 .filter(beanDefinition -> clazz.isAssignableFrom(beanDefinition.getType()))
                 .findAny()
                 .orElseThrow(() -> new BeanInstantiationException(clazz, "생성할 수 있는 빈이 아닙니다."));
-    }
-
-    private Constructor<?> getTargetConstructor(Class<?> beanType) {
-        Constructor<?>[] constructors = beanType.getConstructors();
-        return Arrays.stream(constructors)
-                .filter(constructor -> constructor.getParameterCount() == 0)
-                .findAny()
-                .orElseGet(() -> randomConstructor(constructors));
-    }
-
-    private Constructor<?> randomConstructor(Constructor<?>[] constructors) {
-        return constructors[RANDOM.nextInt(constructors.length)];
     }
 
     @Override
