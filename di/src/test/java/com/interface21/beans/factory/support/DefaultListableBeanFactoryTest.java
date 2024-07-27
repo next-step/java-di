@@ -3,6 +3,8 @@ package com.interface21.beans.factory.support;
 import com.interface21.beans.factory.config.SingletonBeanDefinition;
 import com.interface21.context.annotation.Scope;
 import com.interface21.context.stereotype.Controller;
+import com.interface21.context.stereotype.Repository;
+import com.interface21.context.stereotype.Service;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.reflections.Reflections;
@@ -72,9 +74,8 @@ class DefaultListableBeanFactoryTest {
         beanFactory.registerBeanDefinition(SampleService.class, new SingletonBeanDefinition(SampleService.class));
         beanFactory.initialize();
 
-        assertAll(
-                () -> assertThat(beanFactory.getSingletonObjects()).containsKey(SampleService.class)
-        );
+        SampleService actual = (SampleService) beanFactory.getSingletonObjects().get(SampleService.class);
+        assertThat(actual.getSampleRepository()).isEqualTo(beanFactory.getSingletonObjects().get(JdbcSampleRepository.class));
     }
 
     @Test
@@ -114,6 +115,11 @@ class DefaultListableBeanFactoryTest {
 
     @Test
     public void di() {
+        Set<Class<?>> givenClasses = getTypesAnnotatedWith(Controller.class, Service.class, Repository.class);
+        for (Class<?> givenClass : givenClasses) {
+            beanFactory.registerBeanDefinition(givenClass, new SingletonBeanDefinition(givenClass));
+        }
+        beanFactory.initialize();
         final var sampleController = beanFactory.getBean(SampleController.class);
 
         assertNotNull(sampleController);

@@ -44,10 +44,16 @@ public class DefaultListableBeanFactory implements BeanFactory, BeanDefinitionRe
     }
 
     private Object createBean(BeanDefinition beanDefinition) {
-        if (singletonObjects.containsKey(beanDefinition.getType())) {
-            return singletonObjects.get(beanDefinition.getType());
+        if (isContainBean(beanDefinition.getType())) {
+            return getBean(beanDefinition.getType());
         }
         return createNewBean(beanDefinition);
+    }
+
+    private boolean isContainBean(Class<?> clazz) {
+        return singletonObjects.keySet()
+                .stream()
+                .anyMatch(clazz::isAssignableFrom);
     }
 
     private Object createNewBean(BeanDefinition beanDefinition) {
@@ -60,7 +66,8 @@ public class DefaultListableBeanFactory implements BeanFactory, BeanDefinitionRe
 
     private Object createNoArgConstructorBean(BeanDefinition beanDefinition) {
         Object bean = BeanUtils.instantiate(beanDefinition.getType());
-        return singletonObjects.put(beanDefinition.getType(), bean);
+        singletonObjects.put(beanDefinition.getType(), bean);
+        return bean;
     }
 
     private Object createArgConstructorBean(BeanDefinition beanDefinition, BeanConstructor beanConstructor) {
@@ -76,7 +83,7 @@ public class DefaultListableBeanFactory implements BeanFactory, BeanDefinitionRe
     private BeanDefinition getBeanDefinition(Class<?> clazz) {
         return beanDefinitionMap.values()
                 .stream()
-                .filter(beanDefinition -> clazz.isAssignableFrom(beanDefinition.getType()))
+                .filter(beanDefinition -> beanDefinition.isAssignableTo(clazz))
                 .findAny()
                 .orElseThrow(() -> new BeanInstantiationException(clazz, "생성할 수 있는 빈이 아닙니다."));
     }

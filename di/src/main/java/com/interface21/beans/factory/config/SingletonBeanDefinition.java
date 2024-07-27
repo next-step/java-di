@@ -36,4 +36,9 @@ public class SingletonBeanDefinition implements BeanDefinition {
     public BeanScope getScope() {
         return BEAN_SCOPE;
     }
+
+    @Override
+    public boolean isAssignableTo(Class<?> clazz) {
+        return clazz.isAssignableFrom(type);
+    }
 }

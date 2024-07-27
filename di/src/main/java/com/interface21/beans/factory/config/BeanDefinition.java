@@ -7,4 +7,6 @@ public interface BeanDefinition {
     String getBeanClassName();
 
     BeanScope getScope();
+
+    boolean isAssignableTo(Class<?> clazz);
 }
