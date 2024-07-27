@@ -32,7 +32,7 @@ public class DefaultListableBeanFactory implements BeanFactory, BeanDefinitionRe
         if (!singletonObjects.containsKey(clazz)) {
             throw new IllegalArgumentException("존재하지 않는 빈입니다.");
         }
-        return null;
+        return (T) singletonObjects.get(clazz);
     }
 
     public void initialize() {

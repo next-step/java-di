@@ -16,8 +16,7 @@ import java.util.Set;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.junit.jupiter.api.Assertions.assertAll;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.*;
 
 class DefaultListableBeanFactoryTest {
 
@@ -82,6 +81,15 @@ class DefaultListableBeanFactoryTest {
         assertThatThrownBy(() -> beanFactory.getBean(SampleService.class))
                 .isInstanceOf(IllegalArgumentException.class)
                 .hasMessage("존재하지 않는 빈입니다.");
+    }
+
+    @Test
+    void 생성된_빈을_반환한다() {
+        beanFactory.registerBeanDefinition(JdbcSampleRepository.class, new SingletonBeanDefinition(JdbcSampleRepository.class));
+        beanFactory.initialize();
+
+        JdbcSampleRepository actual = beanFactory.getBean(JdbcSampleRepository.class);
+        assertThat(beanFactory.getSingletonObjects()).containsValue(actual);
     }
 
     @Test
