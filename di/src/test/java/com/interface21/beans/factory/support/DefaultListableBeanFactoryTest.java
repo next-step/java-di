@@ -78,6 +78,16 @@ class DefaultListableBeanFactoryTest {
     }
 
     @Test
+    void beanClass들을_반환한다() {
+        beanFactory.registerBeanDefinition(JdbcSampleRepository.class, new SingletonBeanDefinition(JdbcSampleRepository.class));
+        beanFactory.registerBeanDefinition(SampleService.class, new SingletonBeanDefinition(SampleService.class));
+        beanFactory.initialize();
+
+        Set<Class<?>> actual = beanFactory.getBeanClasses();
+        assertThat(actual).contains(JdbcSampleRepository.class, SampleService.class);
+    }
+
+    @Test
     void 없는_bean을_가져가려하면_예외가_발생한다() {
         assertThatThrownBy(() -> beanFactory.getBean(SampleService.class))
                 .isInstanceOf(IllegalArgumentException.class)

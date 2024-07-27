@@ -24,7 +24,7 @@ public class DefaultListableBeanFactory implements BeanFactory, BeanDefinitionRe
 
     @Override
     public Set<Class<?>> getBeanClasses() {
-        return Set.of();
+        return singletonObjects.keySet();
     }
 
     @Override
