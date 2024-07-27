@@ -33,10 +33,20 @@ public class DefaultListableBeanFactory implements BeanFactory, BeanDefinitionRe
 
     public void initialize() {
         for (BeanDefinition beanDefinition : beanDefinitionMap.values()) {
-            Constructor<?> targetConstructor = getTargetConstructor(beanDefinition.getType());
-            Object bean = BeanUtils.instantiateClass(targetConstructor);
-            singletonObjects.put(beanDefinition.getType(), bean);
+            createBean(beanDefinition);
         }
+    }
+
+    private void createBean(BeanDefinition beanDefinition) {
+        if (singletonObjects.containsKey(beanDefinition.getType())) {
+            return;
+        }
+        singletonObjects.put(beanDefinition.getType(), instantiateBean(beanDefinition));
+    }
+
+    private Object instantiateBean(BeanDefinition beanDefinition) {
+        Constructor<?> targetConstructor = getTargetConstructor(beanDefinition.getType());
+        return BeanUtils.instantiateClass(targetConstructor);
     }
 
     private Constructor<?> getTargetConstructor(Class<?> beanType) {
