@@ -28,8 +28,27 @@ class SingletonBeanDefinitionTest {
                 .hasMessage("싱글톤이 아닌 빈으로 생성할 수 없습니다.");
     }
 
+    @Test
+    void 전달된_클래스가_상위타입인지_확인한다() {
+        boolean actual = new SingletonBeanDefinition(SingletonComponent.class).isAssignableTo(ComponentInterface.class);
+        assertThat(actual).isTrue();
+    }
+
+    @Test
+    void 전달된_클래스가_상위타입가_아닌지_확인한다() {
+        boolean actual = new SingletonBeanDefinition(SingletonComponent2.class).isAssignableTo(ComponentInterface.class);
+        assertThat(actual).isFalse();
+    }
+
+    public interface ComponentInterface {
+    }
+
     @Component
-    public class SingletonComponent {
+    public class SingletonComponent implements ComponentInterface {
+    }
+
+    @Component
+    public class SingletonComponent2 {
     }
 
     @Component
