@@ -14,12 +14,12 @@ public class DefaultBeanDefinitionRegistry implements BeanDefinitionRegistry {
 
     private final Map<String, BeanDefinition> beanDefinitionMap;
 
-    public DefaultBeanDefinitionRegistry() {
-        this.beanDefinitionMap = new HashMap<>();
-    }
-
     public DefaultBeanDefinitionRegistry(Map<String, BeanDefinition> beanDefinitionMap) {
         this.beanDefinitionMap = beanDefinitionMap;
+    }
+
+    public DefaultBeanDefinitionRegistry() {
+        this(new HashMap<>());
     }
 
     @Override

@@ -20,12 +20,12 @@ public class DefaultListableBeanFactory implements BeanFactory {
 
     private final Map<Class<?>, Object> singletonObjects = new HashMap<>();
 
-    public DefaultListableBeanFactory() {
-        this.beanDefinitionRegistry = new DefaultBeanDefinitionRegistry();
-    }
-
     public DefaultListableBeanFactory(BeanDefinitionRegistry beanDefinitionRegistry) {
         this.beanDefinitionRegistry = beanDefinitionRegistry;
+    }
+
+    public DefaultListableBeanFactory() {
+        this(new DefaultBeanDefinitionRegistry());
     }
 
     @Override
