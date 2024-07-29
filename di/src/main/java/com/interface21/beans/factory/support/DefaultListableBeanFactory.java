@@ -2,8 +2,6 @@ package com.interface21.beans.factory.support;
 
 import com.interface21.beans.BeanInstantiationException;
 import com.interface21.beans.factory.BeanFactory;
-import com.interface21.beans.factory.config.BeanDefinition;
-import com.interface21.beans.factory.config.SimpleBeanDefinition;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -12,33 +10,26 @@ import java.lang.reflect.InvocationTargetException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
-import java.util.function.Function;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 public class DefaultListableBeanFactory implements BeanFactory {
 
     private static final Logger log = LoggerFactory.getLogger(DefaultListableBeanFactory.class);
 
-    private final Map<Class<?>, BeanDefinition> beanDefinitionMap;
+    private final BeanDefinitions beanDefinitions;
 
     private final Map<Class<?>, Object> singletonObjects;
 
     public DefaultListableBeanFactory() {
         final BeanScanner beanScanner = new BeanScanner("samples");
-        beanDefinitionMap = beanScanner.scan()
-                .stream()
-                .map(SimpleBeanDefinition::new)
-                .collect(Collectors.toMap(
-                        SimpleBeanDefinition::getType,
-                        Function.identity()
-                ));
+        final Set<Class<?>> scan = beanScanner.scan();
+        beanDefinitions = new BeanDefinitions(scan);
         singletonObjects = new HashMap<>();
     }
 
     @Override
     public Set<Class<?>> getBeanClasses() {
-        return beanDefinitionMap.keySet();
+        return beanDefinitions.getBeanClasses();
     }
 
     @Override
@@ -53,7 +44,7 @@ public class DefaultListableBeanFactory implements BeanFactory {
     private Object initBean(final Class<?> beanClass) {
         final Class<?> concreteClass = BeanFactoryUtils.findConcreteClass(beanClass, getBeanClasses())
                 .orElseThrow(() -> new BeanInstantiationException(beanClass, "Could not autowire. No concrete class found for %s.".formatted(beanClass.getName())));
-        final Object createdBean = createBean(beanDefinitionMap.get(concreteClass).getConstructor());
+        final Object createdBean = createBean(beanDefinitions.getBeanConstructor(concreteClass));
         singletonObjects.put(beanClass, createdBean);
         return createdBean;
     }
@@ -81,7 +72,7 @@ public class DefaultListableBeanFactory implements BeanFactory {
 
     @Override
     public void clear() {
-        beanDefinitionMap.clear();
+        beanDefinitions.clear();
         singletonObjects.clear();
     }
 }
