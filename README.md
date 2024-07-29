@@ -41,22 +41,26 @@
   - Autowired가 있는 생성자를 우선한다
   - Autowired가 있는 생성자가 없다면 기본 생성자를 우선한다
   - 둘다 없다면 랜덤한 생성자를 사용한다
+
 - BeanDefinition
   - SingletonBeanDefinition, PrototypeBeanDefinition을 저장한다
   - Scope가 다른 bean을 구현체로 생성하려하는 경우 예외가 발생한다
   - 어떤 타입인지 반환할 수 있다
-- registry
-  - 클래스와 BeanDefinition을 받아 저장한다
-  - 클래스가 Component가 아닌 경우 예외가 발생한다
-- initialize
-  - beanDefinitionMap에 `@Component`가 달려있는 모든 클래스를 스캔하여 저장한다
-  - beanDefinitionMap에 저장된 클래스 중 싱글톤 빈들만 필터링하여 stream을 돌린다
-    1. 만약 파라미터가 필요한 생성자라면 이미 생성된 bean에 있는지 확인한다
-    2. 파라미터 요청 bean 중 이미 생성된 bean이 없다면 다음 빈 생성으로 넘어간다
-- getBean
-  - 없는 빈을 가져가려하는 경우 예외가 발생한다
 
-- BeanDefinitionRegistry
+- DefaultListableBeanFactory (implements BeanFactory)
+  - initialize
+    - beanDefinitionMap에 저장된 클래스 중 싱글톤 빈들만 필터링하여 stream을 돌려 빈을 생성한다
+      1. 만약 파라미터가 필요한 생성자라면 이미 생성된 bean에 있는지 확인한다
+      2. 파라미터 요청 bean 중 이미 생성된 bean이 없다면 다음 빈 생성으로 넘어간다
+      3. 다음 빈 생성이 되었다면 2로 돌아가 이전 bean 생성을 재개한다
+      4. 이미 생성된 빈이라면 생성하지 않고 생성된 빈을 사용하도록 한다
+  - getBean
+    - 요청된 클래스에 맞는 빈을 찾아 반환한다
+    - 생성되지 않은 빈을 가져가려하는 경우 예외가 발생한다
+  - getBeanClasses
+    - 생성된 모든 빈들의 클래스를 반환한다
+
+- DefaultBeanDefinitionRegistry (implements BeanDefinitionRegistry)
   - registerBeanDefinition
     - 클래스와 BeanDefinition을 받아 저장한다
     - 클래스가 Component가 아닌 경우 예외가 발생한다
