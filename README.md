@@ -55,3 +55,13 @@
     2. 파라미터 요청 bean 중 이미 생성된 bean이 없다면 다음 빈 생성으로 넘어간다
 - getBean
   - 없는 빈을 가져가려하는 경우 예외가 발생한다
+
+- BeanDefinitionRegistry
+  - registerBeanDefinition
+    - 클래스와 BeanDefinition을 받아 저장한다
+    - 클래스가 Component가 아닌 경우 예외가 발생한다
+  - getBeanDefinition
+    - 입력받은 클래스에 매핑되는 BeanDefinition을 찾아 반환한다
+    - 매핑되는 BeanDefinition이 없으면 생성 불가 예외를 던진다
+  - getBeanDefinitions
+    - 보유중인 모든 BeanDefinition을 반환한다
