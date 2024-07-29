@@ -13,7 +13,6 @@ import java.util.stream.Collectors;
 
 public class BeanScanner {
     private final List<Class<? extends Annotation>> beanAnnotations;
-
     private final Reflections reflections;
 
     public BeanScanner(final Object... basePackage) {

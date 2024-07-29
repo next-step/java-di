@@ -7,8 +7,8 @@ import java.lang.reflect.Constructor;
 import java.util.Set;
 
 public class SimpleBeanDefinition implements BeanDefinition {
-
     private static final int BEAN_CONSTRUCTOR_COUNT = 1;
+
     private final Class<?> beanClass;
     private final Constructor<?> constructor;
 

@@ -17,7 +17,6 @@ public class DefaultListableBeanFactory implements BeanFactory {
     private static final Logger log = LoggerFactory.getLogger(DefaultListableBeanFactory.class);
 
     private final BeanDefinitions beanDefinitions;
-
     private final Map<Class<?>, Object> singletonObjects;
 
     public DefaultListableBeanFactory(final Set<Class<?>> beanClasses) {
