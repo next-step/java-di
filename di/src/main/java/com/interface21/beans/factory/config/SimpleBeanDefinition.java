@@ -1,6 +1,6 @@
 package com.interface21.beans.factory.config;
 
-import com.interface21.beans.BeanInstantiationException;
+import com.interface21.beans.BeanDefinitionException;
 import com.interface21.beans.factory.support.BeanFactoryUtils;
 
 import java.lang.reflect.Constructor;
@@ -20,7 +20,7 @@ public class SimpleBeanDefinition implements BeanDefinition {
     private Constructor<?> findBeanConstructor(final Class<?> concreteClass) {
         final Set<Constructor> injectedConstructors = BeanFactoryUtils.getInjectedConstructors(concreteClass);
         if (injectedConstructors.size() > BEAN_CONSTRUCTOR_COUNT) {
-            throw new BeanInstantiationException(concreteClass, "Only one constructor can have @Autowired annotation");
+            throw new BeanDefinitionException(concreteClass.getName() + " - Only one constructor can have @Autowired annotation");
         }
 
         if (injectedConstructors.size() == BEAN_CONSTRUCTOR_COUNT) {
@@ -31,7 +31,7 @@ public class SimpleBeanDefinition implements BeanDefinition {
         if (constructors.length == BEAN_CONSTRUCTOR_COUNT) {
             return constructors[0];
         }
-        throw new BeanInstantiationException(concreteClass, "Class doesn't contain matching constructor for autowiring");
+        throw new BeanDefinitionException(concreteClass.getName() + " - Class doesn't contain matching constructor for autowiring");
     }
 
     @Override

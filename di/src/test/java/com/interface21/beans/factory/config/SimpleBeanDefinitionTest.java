@@ -1,7 +1,7 @@
 package com.interface21.beans.factory.config;
 
 
-import com.interface21.beans.BeanInstantiationException;
+import com.interface21.beans.BeanDefinitionException;
 import com.interface21.beans.factory.annotation.Autowired;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -56,7 +56,7 @@ class SimpleBeanDefinitionTest {
     @DisplayName("Autowired 없이 생성자가 여러개면 예외를 던진다.")
     void findBeanConstructorWithMultipleConstructors() {
         assertThatThrownBy(() -> new SimpleBeanDefinition(MultipleConstructorsClass.class))
-                .isInstanceOf(BeanInstantiationException.class)
+                .isInstanceOf(BeanDefinitionException.class)
                 .hasMessageContaining("Class doesn't contain matching constructor for autowiring");
     }
 
@@ -64,7 +64,7 @@ class SimpleBeanDefinitionTest {
     @DisplayName("Autowired 를 가진 생성자가 여러개면 예외를 던진다.")
     void findBeanConstructorWithMultipleAutowired() {
         assertThatThrownBy(() -> new SimpleBeanDefinition(MultipleAutowiredConstructorsClass.class))
-                .isInstanceOf(BeanInstantiationException.class)
+                .isInstanceOf(BeanDefinitionException.class)
                 .hasMessageContaining("Only one constructor can have @Autowired annotation");
     }
 
