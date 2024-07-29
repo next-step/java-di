@@ -3,7 +3,6 @@ package com.interface21.beans.factory.support;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import org.reflections.Reflections;
 import samples.JdbcSampleRepository;
 import samples.SampleController;
 import samples.SampleService;
@@ -16,14 +15,14 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 class DefaultListableBeanFactoryTest {
 
-    private Reflections reflections;
     private DefaultListableBeanFactory beanFactory;
 
     @BeforeEach
     @SuppressWarnings("unchecked")
     void setUp() {
-        reflections = new Reflections("samples");
-        beanFactory = new DefaultListableBeanFactory();
+        final BeanScanner beanScanner = new BeanScanner("samples");
+        this.beanFactory = new DefaultListableBeanFactory(beanScanner.scan());
+        beanFactory = new DefaultListableBeanFactory(beanScanner.scan());
         beanFactory.initialize();
     }
 

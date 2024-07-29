@@ -20,10 +20,8 @@ public class DefaultListableBeanFactory implements BeanFactory {
 
     private final Map<Class<?>, Object> singletonObjects;
 
-    public DefaultListableBeanFactory() {
-        final BeanScanner beanScanner = new BeanScanner("samples");
-        final Set<Class<?>> scan = beanScanner.scan();
-        beanDefinitions = new BeanDefinitions(scan);
+    public DefaultListableBeanFactory(final Set<Class<?>> beanClasses) {
+        beanDefinitions = new BeanDefinitions(beanClasses);
         singletonObjects = new HashMap<>();
     }
 

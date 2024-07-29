@@ -1,5 +1,6 @@
 package com.interface21.context.support;
 
+import com.interface21.beans.factory.support.BeanScanner;
 import com.interface21.beans.factory.support.DefaultListableBeanFactory;
 import com.interface21.context.ApplicationContext;
 
@@ -10,7 +11,8 @@ public class AnnotationConfigWebApplicationContext implements ApplicationContext
     private final DefaultListableBeanFactory beanFactory;
 
     public AnnotationConfigWebApplicationContext(final String... basePackages) {
-        this.beanFactory = new DefaultListableBeanFactory();
+        final BeanScanner beanScanner = new BeanScanner(basePackages);
+        this.beanFactory = new DefaultListableBeanFactory(beanScanner.scan());
     }
 
     @Override
