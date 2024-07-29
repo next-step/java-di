@@ -1,10 +1,8 @@
 package com.interface21.beans.factory;
 
-import com.interface21.beans.factory.support.BeanDefinitionRegistry;
-
 import java.util.Set;
 
-public interface BeanFactory extends BeanDefinitionRegistry {
+public interface BeanFactory {
 
     Set<Class<?>> getBeanClasses();
 

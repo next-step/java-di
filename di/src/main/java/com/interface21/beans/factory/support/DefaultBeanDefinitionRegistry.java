@@ -39,6 +39,7 @@ public class DefaultBeanDefinitionRegistry implements BeanDefinitionRegistry {
                 .anyMatch(annotation -> annotation.isAnnotationPresent(Component.class));
     }
 
+    @Override
     public BeanDefinition getBeanDefinition(Class<?> clazz) {
         return beanDefinitionMap.values()
                 .stream()
@@ -47,6 +48,7 @@ public class DefaultBeanDefinitionRegistry implements BeanDefinitionRegistry {
                 .orElseThrow(() -> new BeanInstantiationException(clazz, "생성할 수 있는 빈이 아닙니다."));
     }
 
+    @Override
     public List<BeanDefinition> getBeanDefinitions() {
         return beanDefinitionMap.values()
                 .stream()

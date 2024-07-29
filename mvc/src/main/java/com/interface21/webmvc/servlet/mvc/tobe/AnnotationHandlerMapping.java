@@ -2,6 +2,8 @@ package com.interface21.webmvc.servlet.mvc.tobe;
 
 import com.interface21.beans.factory.BeanFactory;
 import com.interface21.beans.factory.config.BeanDefinition;
+import com.interface21.beans.factory.support.BeanDefinitionRegistry;
+import com.interface21.beans.factory.support.DefaultBeanDefinitionRegistry;
 import com.interface21.beans.factory.support.DefaultListableBeanFactory;
 import com.interface21.web.bind.annotation.RequestMethod;
 import com.interface21.webmvc.servlet.mvc.HandlerMapping;
@@ -19,11 +21,13 @@ public class AnnotationHandlerMapping implements HandlerMapping {
 
     private final Object[] basePackage;
     private final BeanFactory beanFactory;
+    private final BeanDefinitionRegistry beanDefinitionRegistry;
     private final Map<HandlerKey, HandlerExecution> handlerExecutions;
 
     public AnnotationHandlerMapping(final Object... basePackage) {
         this.basePackage = basePackage;
-        this.beanFactory = new DefaultListableBeanFactory();
+        this.beanDefinitionRegistry = new DefaultBeanDefinitionRegistry();
+        this.beanFactory = new DefaultListableBeanFactory(this.beanDefinitionRegistry);
         this.handlerExecutions = new HashMap<>();
     }
 
@@ -31,7 +35,7 @@ public class AnnotationHandlerMapping implements HandlerMapping {
         final var beanScanner = new BeanScanner();
         Map<Class<?>, BeanDefinition> beanDefinitions = beanScanner.scanBean(basePackage);
         for (Entry<Class<?>, BeanDefinition> beanDefinitionEntry : beanDefinitions.entrySet()) {
-            beanFactory.registerBeanDefinition(beanDefinitionEntry.getKey(), beanDefinitionEntry.getValue());
+            beanDefinitionRegistry.registerBeanDefinition(beanDefinitionEntry.getKey(), beanDefinitionEntry.getValue());
         }
         beanFactory.initialize();
 
