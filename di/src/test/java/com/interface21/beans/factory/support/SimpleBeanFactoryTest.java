@@ -75,16 +75,6 @@ public class SimpleBeanFactoryTest {
         assertThat(beanFactory.containsBean(FirstTestBean.class)).isTrue();
     }
 
-    @Test
-    @DisplayName("@Controller 를 가진 Bean 들만 반환받을 수 있다.")
-    void getControllerTest() {
-        final ControllerBean controllerBean = new ControllerBean();
-        beanFactory.addBean(ControllerBean.class, controllerBean);
-        beanFactory.addBean(FirstTestBean.class, new FirstTestBean());
-
-        assertThat(beanFactory.getControllers()).containsExactly(entry(ControllerBean.class, controllerBean));
-    }
-
     public static class FirstTestBean {
     }
 

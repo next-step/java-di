@@ -2,12 +2,10 @@ package com.interface21.beans.factory.support;
 
 import com.interface21.beans.NoSuchBeanDefinitionException;
 import com.interface21.beans.factory.BeanFactory;
-import com.interface21.context.stereotype.Controller;
 
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 public class SimpleBeanFactory implements BeanFactory {
 
@@ -40,17 +38,6 @@ public class SimpleBeanFactory implements BeanFactory {
     @Override
     public void clear() {
         singletonObjects.clear();
-    }
-
-    @Override
-    public Map<Class<?>, Object> getControllers() {
-        return singletonObjects.entrySet()
-                .stream()
-                .filter(entry -> entry.getKey().isAnnotationPresent(Controller.class))
-                .collect(Collectors.toMap(
-                        Map.Entry::getKey,
-                        Map.Entry::getValue
-                ));
     }
 
     public boolean containsBean(final Class<?> parameterType) {
