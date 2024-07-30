@@ -1,5 +1,7 @@
 package com.interface21.webmvc.servlet.mvc.tobe;
 
+import com.interface21.beans.factory.support.BeanScanner;
+import com.interface21.beans.factory.support.DefaultListableBeanFactory;
 import com.interface21.web.bind.annotation.RequestMethod;
 import com.interface21.webmvc.servlet.mvc.HandlerMapping;
 import jakarta.servlet.http.HttpServletRequest;
@@ -22,8 +24,13 @@ public class AnnotationHandlerMapping implements HandlerMapping {
     }
 
     public void initialize() {
-        final var controllerScanner = new ControllerScanner();
-        handlerExecutions.putAll(controllerScanner.scan(basePackage));
+        final BeanScanner beanScanner = new BeanScanner(basePackage);
+        final DefaultListableBeanFactory beanFactory = new DefaultListableBeanFactory(beanScanner.scan());
+        beanFactory.initialize();
+        final Map<Class<?>, Object> controllers = beanFactory.getControllers();
+
+        final ControllerScanner controllerScanner = new ControllerScanner();
+        handlerExecutions.putAll(controllerScanner.init(controllers));
         log.info("Initialized AnnotationHandlerMapping!");
     }
 

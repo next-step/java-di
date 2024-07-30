@@ -1,13 +1,13 @@
 package com.interface21.webmvc.servlet.mvc.tobe;
 
-import com.interface21.context.stereotype.Controller;
-import com.interface21.core.util.ReflectionUtils;
 import com.interface21.web.bind.annotation.RequestMapping;
 import com.interface21.web.bind.annotation.RequestMethod;
 import com.interface21.web.method.support.HandlerMethodArgumentResolver;
-import com.interface21.webmvc.servlet.mvc.tobe.support.*;
-import org.reflections.Reflections;
-import org.reflections.scanners.Scanners;
+import com.interface21.webmvc.servlet.mvc.tobe.support.HttpRequestArgumentResolver;
+import com.interface21.webmvc.servlet.mvc.tobe.support.HttpResponseArgumentResolver;
+import com.interface21.webmvc.servlet.mvc.tobe.support.ModelArgumentResolver;
+import com.interface21.webmvc.servlet.mvc.tobe.support.PathVariableArgumentResolver;
+import com.interface21.webmvc.servlet.mvc.tobe.support.RequestParamArgumentResolver;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -23,21 +23,16 @@ public class ControllerScanner {
     private static final Logger log = LoggerFactory.getLogger(ControllerScanner.class);
 
     private static final List<HandlerMethodArgumentResolver> argumentResolvers = List.of(
-        new HttpRequestArgumentResolver(),
-        new HttpResponseArgumentResolver(),
-        new RequestParamArgumentResolver(),
-        new PathVariableArgumentResolver(),
-        new ModelArgumentResolver()
+            new HttpRequestArgumentResolver(),
+            new HttpResponseArgumentResolver(),
+            new RequestParamArgumentResolver(),
+            new PathVariableArgumentResolver(),
+            new ModelArgumentResolver()
     );
 
-    public Map<HandlerKey, HandlerExecution> scan(Object... basePackage) {
-        Reflections reflections = new Reflections(basePackage, Scanners.TypesAnnotated, Scanners.SubTypes, Scanners.MethodsAnnotated);
+    public Map<HandlerKey, HandlerExecution> init(final Map<Class<?>, Object> controllers) {
         final var handlers = new HashMap<HandlerKey, HandlerExecution>();
-        final var controllers = reflections.getTypesAnnotatedWith(Controller.class);
-        for (Class<?> controller : controllers) {
-            Object target = ReflectionUtils.newInstance(controller);
-            addHandlerExecution(handlers, target, controller.getMethods());
-        }
+        controllers.forEach((key, value) -> addHandlerExecution(handlers, value, key.getMethods()));
         return handlers;
     }
 
@@ -45,22 +40,22 @@ public class ControllerScanner {
                                      final Object target,
                                      final Method[] methods) {
         Arrays.stream(methods)
-            .filter(method -> method.isAnnotationPresent(RequestMapping.class))
-            .forEach(method -> {
-                final var requestMapping = method.getAnnotation(RequestMapping.class);
-                handlerExecutions.putAll(createHandlerExecutions(target, method, requestMapping));
-                log.debug("register handlerExecution : url is {}, request method : {}, method is {}",
-                    requestMapping.value(), requestMapping.method(), method);
-            });
+                .filter(method -> method.isAnnotationPresent(RequestMapping.class))
+                .forEach(method -> {
+                    final var requestMapping = method.getAnnotation(RequestMapping.class);
+                    handlerExecutions.putAll(createHandlerExecutions(target, method, requestMapping));
+                    log.debug("register handlerExecution : url is {}, request method : {}, method is {}",
+                            requestMapping.value(), requestMapping.method(), method);
+                });
     }
 
     private Map<HandlerKey, HandlerExecution> createHandlerExecutions(final Object target, final Method method, final RequestMapping requestMapping) {
         return mapHandlerKeys(requestMapping.value(), requestMapping.method())
-            .stream()
-            .collect(Collectors.toMap(
-                handlerKey -> handlerKey,
-                handlerKey -> new HandlerExecution(argumentResolvers, target, method)
-            ));
+                .stream()
+                .collect(Collectors.toMap(
+                        handlerKey -> handlerKey,
+                        handlerKey -> new HandlerExecution(argumentResolvers, target, method)
+                ));
     }
 
     private List<HandlerKey> mapHandlerKeys(final String value, final RequestMethod[] originalMethods) {
@@ -69,7 +64,7 @@ public class ControllerScanner {
             targetMethods = RequestMethod.values();
         }
         return Arrays.stream(targetMethods)
-            .map(method -> new HandlerKey(value, method))
-            .collect(Collectors.toList());
+                .map(method -> new HandlerKey(value, method))
+                .collect(Collectors.toList());
     }
 }
