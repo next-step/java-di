@@ -9,7 +9,7 @@ import java.util.logging.Logger;
 import javax.sql.DataSource;
 
 @Component
-public class JdbcDataSource implements DataSource {
+public class JdbcSampleDataSource implements DataSource {
     @Override
     public Connection getConnection() throws SQLException {
         return null;
