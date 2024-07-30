@@ -38,10 +38,10 @@
 
 ## 요구사항 정리 
 ### 🚀 1단계 - DI 컨테이너 구현하기
-- [] @Controller, @Service, @Repository 를 스캔해서 인스턴스를 생성하고 등록한다 
-- [] 의존관계 주입에는 @Autowired 를 사용한다 
+- [x] @Controller, @Service, @Repository 를 스캔해서 인스턴스를 생성하고 등록한다 
+- [x] 의존관계 주입에는 @Autowired 를 사용한다 
   - 위 세 개의 설정으로 생성된 인스턴스 간의 의존관계를 설정해야 한다. 
-- [] DefaultListableBeanFactoryTest 를 통과해야 한다 
+- [x] DefaultListableBeanFactoryTest 를 통과해야 한다 
 - [] MVC 프레임워크와 통합 
   - [] ControllerScanner를 DI 컨테이너가 있는 패키지로 옮긴다 
   - [] @Controller, @Service, @Repository에 대해 지원이 가능하도록 개선한다
