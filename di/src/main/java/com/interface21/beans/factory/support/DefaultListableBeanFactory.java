@@ -27,10 +27,9 @@ public class DefaultListableBeanFactory implements BeanFactory {
         this.basePackages = basePackages;
     }
 
-
     @Override
     public Set<Class<?>> getBeanClasses() {
-        return Set.of();
+        return singletonObjects.keySet();
     }
 
     @SuppressWarnings("unchecked")
