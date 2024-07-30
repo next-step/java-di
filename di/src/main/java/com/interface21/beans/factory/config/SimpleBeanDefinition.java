@@ -1,6 +1,7 @@
 package com.interface21.beans.factory.config;
 
 import com.interface21.beans.BeanDefinitionException;
+import com.interface21.beans.factory.annotation.Qualifier;
 import com.interface21.beans.factory.support.BeanFactoryUtils;
 
 import java.lang.reflect.Constructor;
@@ -45,6 +46,9 @@ public class SimpleBeanDefinition implements BeanDefinition {
 
     @Override
     public String getBeanClassName() {
+        if (beanClass.isAnnotationPresent(Qualifier.class)) {
+            return beanClass.getAnnotation(Qualifier.class).value();
+        }
         final String simpleName = beanClass.getSimpleName();
         return Character.toLowerCase(simpleName.charAt(0)) + simpleName.substring(1);
     }

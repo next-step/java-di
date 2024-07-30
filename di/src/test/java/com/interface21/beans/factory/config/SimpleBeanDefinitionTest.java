@@ -3,6 +3,7 @@ package com.interface21.beans.factory.config;
 
 import com.interface21.beans.BeanDefinitionException;
 import com.interface21.beans.factory.annotation.Autowired;
+import com.interface21.beans.factory.annotation.Qualifier;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
@@ -21,6 +22,15 @@ class SimpleBeanDefinitionTest {
         final String beanClassName = simpleBeanDefinition.getBeanClassName();
 
         assertThat(beanClassName).isEqualTo("noArgConstructorClass");
+    }
+    @Test
+    @DisplayName("@Qualifier 를 가지고 있다면 해당 value 가 beanClassName 이다.")
+    void beanClassNameWithQualifierTest() {
+        final SimpleBeanDefinition simpleBeanDefinition = SimpleBeanDefinition.from(NoArgConstructorWithQualifierClass.class);
+
+        final String beanClassName = simpleBeanDefinition.getBeanClassName();
+
+        assertThat(beanClassName).isEqualTo("classWithQualifier");
     }
 
     @Test
@@ -69,6 +79,10 @@ class SimpleBeanDefinitionTest {
     }
 
     public static class NoArgConstructorClass {
+    }
+
+    @Qualifier("classWithQualifier")
+    public static class NoArgConstructorWithQualifierClass {
     }
 
     public static class OneConstructorClass {
