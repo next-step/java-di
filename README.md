@@ -73,4 +73,3 @@
     - `ControllerScanner` 를 DI 컨테이너가 있는 패키지로 이동
     - `BeanSacnner` 로 이름을 변경
     - `AnnotationHandlerMapping`이 `BeanFactory`와 `BeanScanner`를 활용해 동작하도록 리팩터링
-    - Controller 만 가져오는 메서드 추가
