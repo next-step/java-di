@@ -1,7 +1,7 @@
 package camp.nextstep.controller;
 
-import camp.nextstep.dao.InMemoryUserDao;
 import camp.nextstep.dto.UserDto;
+import camp.nextstep.service.UserService;
 import com.interface21.context.stereotype.Controller;
 import com.interface21.web.bind.annotation.RequestMapping;
 import com.interface21.web.bind.annotation.RequestMethod;
@@ -13,16 +13,16 @@ import jakarta.servlet.http.HttpServletResponse;
 @Controller
 public class RegisterController {
 
-    private final InMemoryUserDao userDao;
+    private final UserService userService;
 
-    public RegisterController() {
-        this.userDao = new InMemoryUserDao();
+    public RegisterController(UserService userService) {
+        this.userService = userService;
     }
 
     @RequestMapping(value = "/register", method = RequestMethod.POST)
     public ModelAndView register(final UserDto userDto) {
         final var user = userDto.toEntity();
-        userDao.save(user);
+        userService.save(user);
         return new ModelAndView(new JspView("redirect:/index.jsp"));
     }
 

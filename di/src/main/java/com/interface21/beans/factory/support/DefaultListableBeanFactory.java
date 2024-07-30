@@ -3,12 +3,14 @@ package com.interface21.beans.factory.support;
 import com.interface21.beans.factory.BeanFactory;
 import com.interface21.beans.factory.config.BeanDefinition;
 import com.interface21.context.stereotype.Component;
+import java.lang.annotation.Annotation;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
@@ -42,22 +44,16 @@ public class DefaultListableBeanFactory implements BeanFactory {
     }
 
     public void initialize() {
-        // Bean을 스캔하고 등록하는 작업을 수행한다.
+        log.info("initialize DefaultListableBeanFactory");
         Reflections reflections = new Reflections(STEREOTYPE_PACKAGE, basePackages);
-
-        // @Component가 달렸거나, @Component를 갖고 있는 애노테이션(@Controller 등)이 달린 클래스 전부 스캔
         List<Class<?>> componentClasses = reflections.getTypesAnnotatedWith(Component.class)
                 .stream()
                 .filter(Predicate.not(Class::isAnnotation))
                 .toList();
 
-        // componentClass들에 대해 이름을 기반으로 BeanDefinition 생성하여 Map에 넣음
-        // 이는 추후
-
         for (Class<?> clazz : componentClasses) {
             doDependencyInjection(clazz, componentClasses);
         }
-        log.info("singletonObjects={}", singletonObjects);
     }
 
     private Object doDependencyInjection(Class<?> clazz, List<Class<?>> componentClasses) {
@@ -93,7 +89,6 @@ public class DefaultListableBeanFactory implements BeanFactory {
     private Constructor findAutoWiredConstructor(Class<?> clazz, List<Class<?>> componentClasses) {
         Class<?> aClass = clazz;
         if (clazz.isInterface()) {
-            log.info("class = {}", aClass);
             aClass = componentClasses.stream()
                     .filter(c -> {
                         Set<Class<?>> interfaces = Arrays.stream(c.getInterfaces())
@@ -114,5 +109,13 @@ public class DefaultListableBeanFactory implements BeanFactory {
 
     @Override
     public void clear() {
+    }
+
+    @Override
+    public Map<Class<?>, Object> getBeansAnnotatedWith(Class<? extends Annotation> annotationType) {
+        return singletonObjects.entrySet()
+                .stream()
+                .filter(entry -> entry.getKey().isAnnotationPresent(annotationType))
+                .collect(Collectors.toUnmodifiableMap(Entry::getKey, Entry::getValue));
     }
 }
