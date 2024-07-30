@@ -42,32 +42,19 @@ public class DefaultListableBeanFactory implements BeanFactory {
     public void initialize() {
         log.info("Start DefaultListableBeanFactory");
         BeanScanner beanScanner = new BeanScanner(basePackages);
-        List<Class<?>> componentClasses = beanScanner.scan();
+        List<Class<?>> beanClasses = beanScanner.scan();
 
-        for (Class<?> clazz : componentClasses) {
-            registerSingletonObject(clazz, componentClasses);
+        for (Class<?> beanClass : beanClasses) {
+            registerSingletonObject(beanClass, beanClasses);
         }
     }
 
-    private Object registerSingletonObject(Class<?> clazz, List<Class<?>> componentClasses) {
-        Constructor<?> constructor = findAutoWiredConstructor(clazz, componentClasses);
+    private Object registerSingletonObject(Class<?> beanClass, List<Class<?>> beanClasses) {
+        Constructor<?> constructor = findAutoWiredConstructor(beanClass, beanClasses);
+        Object[] constructorArgs = getConstructorArgs(beanClasses, constructor);
 
-        Object[] constructorArgs = Arrays.stream(constructor.getParameters())
-                .map(parameter -> {
-                    Class<?> parameterType = parameter.getType();  // 인터페이스일 수 있다.
-                    if (singletonObjects.containsKey(parameterType)) {
-                        return singletonObjects.get(parameterType);
-                    }
-                    // 없으면 생성 및 등록해야 하는데, 파라미터에 대해서도 위 전 과정을 전부 수행해야 한다.
-                    // 인터페이스는 구체 클래스로 수행해야 하는데..
-                    return registerSingletonObject(parameterType, componentClasses);
-                })
-                .toArray();
-
-        constructor.setAccessible(true);
         try {
-            // 완성된 Bean들을 등록
-            Object newInstance = constructor.newInstance(constructorArgs);
+            Object newInstance = createNewInstance(constructor, constructorArgs);
             singletonObjects.put(newInstance.getClass(), newInstance);
             return newInstance;
         } catch (InstantiationException | IllegalAccessException | InvocationTargetException e) {
@@ -75,25 +62,45 @@ public class DefaultListableBeanFactory implements BeanFactory {
         }
     }
 
-    private Constructor<?> findAutoWiredConstructor(Class<?> clazz, List<Class<?>> componentClasses) {
-        Class<?> aClass = clazz;
-        if (clazz.isInterface()) {
-            aClass = componentClasses.stream()
-                    .filter(c -> {
-                        Set<Class<?>> interfaces = Arrays.stream(c.getInterfaces())
-                                .collect(Collectors.toSet());
-                        return interfaces.contains(clazz);
-                    })
-                    .findAny()
-                    .get();
-        }
-
-        Constructor<?> autowiredConstructor = BeanFactoryUtils.getAutowiredConstructor(aClass);
+    private Constructor<?> findAutoWiredConstructor(Class<?> clazz, List<Class<?>> beanClasses) {
+        Class<?> concreteClass = convertToConcreteClass(clazz, beanClasses);
+        Constructor<?> autowiredConstructor = BeanFactoryUtils.getAutowiredConstructor(concreteClass);
         if (autowiredConstructor == null) {
-            return aClass.getDeclaredConstructors()[0];
+            return concreteClass.getDeclaredConstructors()[0];
         }
 
         return autowiredConstructor;
+    }
+
+    private Object[] getConstructorArgs(List<Class<?>> beanClasses, Constructor<?> constructor) {
+        return Arrays.stream(constructor.getParameters())
+                .map(parameter -> {
+                    Class<?> parameterType = parameter.getType();
+                    if (singletonObjects.containsKey(parameterType)) {
+                        return singletonObjects.get(parameterType);
+                    }
+                    return registerSingletonObject(parameterType, beanClasses);
+                })
+                .toArray();
+    }
+
+    private Object createNewInstance(Constructor<?> constructor, Object[] constructorArgs) throws InstantiationException, IllegalAccessException, InvocationTargetException {
+        constructor.setAccessible(true);
+        return constructor.newInstance(constructorArgs);
+    }
+
+    private Class<?> convertToConcreteClass(Class<?> clazz, List<Class<?>> beanClasses) {
+        if (clazz.isInterface()) {
+            return beanClasses.stream()
+                    .filter(beanClass -> {
+                        Set<Class<?>> interfaces = Set.of(beanClass.getInterfaces());
+                        return interfaces.contains(clazz);
+                    })
+                    .findAny()
+                    .orElseThrow(() -> new IllegalArgumentException("clazz는 beanClasses 내에 포함된 값이어야 합니다. clazz=%s, beanClasses=%s".formatted(clazz, beanClasses)));
+        }
+
+        return clazz;
     }
 
     @Override
