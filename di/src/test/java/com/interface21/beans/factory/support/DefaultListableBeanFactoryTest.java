@@ -1,11 +1,15 @@
 package com.interface21.beans.factory.support;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
+import com.interface21.context.stereotype.Controller;
 import java.lang.annotation.Annotation;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.reflections.Reflections;
 import samples.SampleController;
@@ -32,6 +36,13 @@ class DefaultListableBeanFactoryTest {
 
         final var sampleService = sampleController.getSampleService();
         assertNotNull(sampleService.getSampleRepository());
+    }
+
+    @DisplayName("특정 Annotation이 달려있는 Bean을 찾는다.")
+    @Test
+    void getBeansAnnotatedWith() {
+        Map<Class<?>, Object> controllerBeans = beanFactory.getBeansAnnotatedWith(Controller.class);
+        assertThat(controllerBeans).containsOnlyKeys(SampleController.class);
     }
 
     @SuppressWarnings("unchecked")
