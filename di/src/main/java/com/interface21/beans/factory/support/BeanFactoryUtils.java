@@ -18,7 +18,7 @@ public class BeanFactoryUtils {
     private static final Logger log = LoggerFactory.getLogger(BeanFactoryUtils.class);
 
     @SuppressWarnings({ "unchecked" })
-    public static Set<Method> getInjectedMethods(Class<?> clazz) {
+    public static Set<Method> getAutowiredMethods(Class<?> clazz) {
         return ReflectionUtils.getAllMethods(clazz, ReflectionUtils.withAnnotation(Autowired.class), ReflectionUtils.withReturnType(void.class));
     }
 
@@ -28,12 +28,12 @@ public class BeanFactoryUtils {
     }
 
     @SuppressWarnings({ "unchecked" })
-    public static Set<Field> getInjectedFields(Class<?> clazz) {
+    public static Set<Field> getAutowiredFields(Class<?> clazz) {
         return ReflectionUtils.getAllFields(clazz, ReflectionUtils.withAnnotation(Autowired.class));
     }
 
     @SuppressWarnings({ "rawtypes", "unchecked" })
-    public static Set<Constructor> getInjectedConstructors(Class<?> clazz) {
+    public static Set<Constructor> getAutowiredConstructors(Class<?> clazz) {
         return ReflectionUtils.getAllConstructors(clazz, ReflectionUtils.withAnnotation(Autowired.class));
     }
 
@@ -47,14 +47,14 @@ public class BeanFactoryUtils {
     }
 
     /**
-     * 인자로 전달하는 클래스의 생성자 중 @Inject 애노테이션이 설정되어 있는 생성자를 반환
+     * 인자로 전달하는 클래스의 생성자 중 @Autowired 애노테이션이 설정되어 있는 생성자를 반환
      * 
      * @Inject 애노테이션이 설정되어 있는 생성자는 클래스당 하나로 가정한다.
      * @param clazz
      * @return
      */
     @SuppressWarnings({ "rawtypes", "unchecked" })
-    public static Constructor<?> getInjectedConstructor(Class<?> clazz) {
+    public static Constructor<?> getAutowiredConstructor(Class<?> clazz) {
         Set<Constructor> injectedConstructors = ReflectionUtils.getAllConstructors(clazz, ReflectionUtils.withAnnotation(Autowired.class));
         if (injectedConstructors.isEmpty()) {
             return null;
