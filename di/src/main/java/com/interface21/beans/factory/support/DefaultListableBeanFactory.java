@@ -1,15 +1,12 @@
 package com.interface21.beans.factory.support;
 
 import com.interface21.beans.BeanInstantiationException;
-import com.interface21.beans.NoSuchBeanDefinitionException;
 import com.interface21.beans.factory.BeanFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
-import java.util.HashMap;
-import java.util.Map;
 import java.util.Set;
 import java.util.stream.Stream;
 
@@ -18,11 +15,11 @@ public class DefaultListableBeanFactory implements BeanFactory {
     private static final Logger log = LoggerFactory.getLogger(DefaultListableBeanFactory.class);
 
     private final BeanDefinitions beanDefinitions;
-    private final Map<Class<?>, Object> singletonObjects;
+    private final SimpleBeanFactory beanFactory;
 
     public DefaultListableBeanFactory(final Set<Class<?>> beanClasses) {
         beanDefinitions = new BeanDefinitions(beanClasses);
-        singletonObjects = new HashMap<>();
+        beanFactory = new SimpleBeanFactory();
     }
 
     @Override
@@ -31,13 +28,8 @@ public class DefaultListableBeanFactory implements BeanFactory {
     }
 
     @Override
-    @SuppressWarnings("unchecked")
     public <T> T getBean(final Class<T> clazz) {
-        return (T) getBeanClasses().stream()
-                .filter(clazz::isAssignableFrom)
-                .findFirst()
-                .map(singletonObjects::get)
-                .orElseThrow(() -> new NoSuchBeanDefinitionException(clazz));
+        return beanFactory.getBean(clazz);
     }
 
     public void initialize() {
@@ -48,7 +40,7 @@ public class DefaultListableBeanFactory implements BeanFactory {
         final Class<?> concreteClass = BeanFactoryUtils.findConcreteClass(beanClass, getBeanClasses())
                 .orElseThrow(() -> new BeanInstantiationException(beanClass, "Could not autowire. No concrete class found for %s.".formatted(beanClass.getName())));
         final Object createdBean = createBean(beanDefinitions.getBeanConstructor(concreteClass));
-        singletonObjects.put(beanClass, createdBean);
+        beanFactory.addBean(beanClass, createdBean);
         return createdBean;
     }
 
@@ -67,8 +59,8 @@ public class DefaultListableBeanFactory implements BeanFactory {
     }
 
     private Object getOrCreateBean(final Class<?> parameterType) {
-        if (singletonObjects.containsKey(parameterType)) {
-            return singletonObjects.get(parameterType);
+        if (beanFactory.containsBean(parameterType)) {
+            return beanFactory.getBean(parameterType);
         }
         return initBean(parameterType);
     }
@@ -76,6 +68,6 @@ public class DefaultListableBeanFactory implements BeanFactory {
     @Override
     public void clear() {
         beanDefinitions.clear();
-        singletonObjects.clear();
+        beanFactory.clear();
     }
 }
