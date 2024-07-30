@@ -7,6 +7,7 @@ import org.slf4j.LoggerFactory;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
+import java.util.Map;
 import java.util.Set;
 import java.util.stream.Stream;
 
@@ -69,5 +70,9 @@ public class DefaultListableBeanFactory implements BeanFactory {
     public void clear() {
         beanDefinitions.clear();
         beanFactory.clear();
+    }
+
+    public Map<Class<?>, Object> getControllers() {
+        return beanFactory.getControllers();
     }
 }

@@ -1,6 +1,7 @@
 package com.interface21.beans.factory.support;
 
 import com.interface21.beans.NoSuchBeanDefinitionException;
+import com.interface21.context.stereotype.Controller;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -9,8 +10,8 @@ import java.util.Set;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.assertj.core.api.Assertions.entry;
 import static org.assertj.core.api.SoftAssertions.assertSoftly;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class SimpleBeanFactoryTest {
 
@@ -67,17 +68,31 @@ public class SimpleBeanFactoryTest {
 
     @Test
     @DisplayName("해당 클래스의 Bean 이 등록되어 있는지 여부를 반환받을 수 있다.")
-    void testContainsBean() {
+    void containsBeanTest() {
         final FirstTestBean firstTestBean = new FirstTestBean();
         beanFactory.addBean(FirstTestBean.class, firstTestBean);
 
-        assertTrue(beanFactory.containsBean(FirstTestBean.class));
+        assertThat(beanFactory.containsBean(FirstTestBean.class)).isTrue();
+    }
+
+    @Test
+    @DisplayName("@Controller 를 가진 Bean 들만 반환받을 수 있다.")
+    void getControllerTest() {
+        final ControllerBean controllerBean = new ControllerBean();
+        beanFactory.addBean(ControllerBean.class, controllerBean);
+        beanFactory.addBean(FirstTestBean.class, new FirstTestBean());
+
+        assertThat(beanFactory.getControllers()).containsExactly(entry(ControllerBean.class, controllerBean));
     }
 
     public static class FirstTestBean {
     }
 
     public static class SecondTestBean {
+    }
+
+    @Controller
+    public static class ControllerBean {
     }
 
 }
