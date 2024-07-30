@@ -1,5 +1,6 @@
 package ioc
 
+import io.kotest.assertions.assertSoftly
 import io.kotest.core.spec.style.FreeSpec
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.types.shouldBeInstanceOf
@@ -31,7 +32,7 @@ class Introduction : FreeSpec({
         val sampleObject = beanFactory.getBean("sampleObject", SampleObject::class.java)
 
         // 조회한 Bean 객체가 SampleObject 타입인지 확인합니다.
-        sampleObject.shouldBeTypeOf<Object>()
+        sampleObject.shouldBeTypeOf<SampleObject>()
     }
 
     """
@@ -50,10 +51,10 @@ class Introduction : FreeSpec({
         val sampleObject = applicationContext.getBean("sampleObject", SampleObject::class.java)
 
         // 조회한 Bean 객체가 SampleObject 타입인지 확인합니다.
-        sampleObject.shouldBeTypeOf<Object>()
+        sampleObject.shouldBeTypeOf<SampleObject>()
 
         // ApplicationContext가 BeanFactory를 포함하는지 확인합시다.
-        applicationContext.shouldBeInstanceOf<Object>()
+        applicationContext.shouldBeInstanceOf<BeanFactory>()
     }
 
     """
@@ -73,6 +74,9 @@ class Introduction : FreeSpec({
         // beanObject 객체는 Bean입니다.
         val beanObject = applicationContext.getBean("sampleObject", SampleObject::class.java)
 
-        applicationContext.containsBean("sampleObject") shouldBe false
+        assertSoftly(applicationContext) {
+            containsBean("sampleObject") shouldBe true
+            containsBean("notBeanObject") shouldBe false
+        }
     }
 })

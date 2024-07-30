@@ -1,6 +1,12 @@
 package com.interface21.webmvc.servlet.mvc.tobe;
 
+import com.interface21.beans.factory.BeanFactory;
+import com.interface21.beans.factory.config.BeanDefinition;
+import com.interface21.beans.factory.config.SingletonBeanDefinition;
+import com.interface21.context.stereotype.Component;
 import com.interface21.context.stereotype.Controller;
+import com.interface21.context.stereotype.Repository;
+import com.interface21.context.stereotype.Service;
 import com.interface21.core.util.ReflectionUtils;
 import com.interface21.web.bind.annotation.RequestMapping;
 import com.interface21.web.bind.annotation.RequestMethod;
@@ -12,15 +18,15 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.lang.reflect.Method;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
-public class ControllerScanner {
+import static java.util.stream.Collectors.toMap;
 
-    private static final Logger log = LoggerFactory.getLogger(ControllerScanner.class);
+public class BeanScanner {
+
+    private static final Logger log = LoggerFactory.getLogger(BeanScanner.class);
 
     private static final List<HandlerMethodArgumentResolver> argumentResolvers = List.of(
         new HttpRequestArgumentResolver(),
@@ -30,12 +36,20 @@ public class ControllerScanner {
         new ModelArgumentResolver()
     );
 
-    public Map<HandlerKey, HandlerExecution> scan(Object... basePackage) {
+    public Map<Class<?>, BeanDefinition> scanBean(Object... basePackage) {
+        Reflections reflections = new Reflections(basePackage, Scanners.TypesAnnotated, Scanners.SubTypes);
+        return Stream.of(Component.class, Controller.class, Service.class, Repository.class)
+                .map(reflections::getTypesAnnotatedWith)
+                .flatMap(Collection::stream)
+                .collect(toMap(clazz -> clazz, SingletonBeanDefinition::new));
+    }
+
+    public Map<HandlerKey, HandlerExecution> scan(BeanFactory beanFactory, Object... basePackage) {
         Reflections reflections = new Reflections(basePackage, Scanners.TypesAnnotated, Scanners.SubTypes, Scanners.MethodsAnnotated);
         final var handlers = new HashMap<HandlerKey, HandlerExecution>();
         final var controllers = reflections.getTypesAnnotatedWith(Controller.class);
         for (Class<?> controller : controllers) {
-            Object target = ReflectionUtils.newInstance(controller);
+            Object target = beanFactory.getBean(controller);
             addHandlerExecution(handlers, target, controller.getMethods());
         }
         return handlers;

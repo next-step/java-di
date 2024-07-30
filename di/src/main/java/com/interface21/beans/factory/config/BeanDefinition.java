@@ -5,4 +5,8 @@ public interface BeanDefinition {
     Class<?> getType();
 
     String getBeanClassName();
+
+    BeanScope getScope();
+
+    boolean isAssignableTo(Class<?> clazz);
 }

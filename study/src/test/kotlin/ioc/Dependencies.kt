@@ -1,10 +1,11 @@
 package ioc
 
 import circular.CircularDependencyConfig
+import io.kotest.assertions.assertSoftly
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.FreeSpec
+import io.kotest.matchers.types.shouldBeInstanceOf
 import io.kotest.matchers.types.shouldBeTypeOf
-import org.springframework.beans.factory.BeanCurrentlyInCreationException
 import org.springframework.beans.factory.UnsatisfiedDependencyException
 import org.springframework.context.annotation.AnnotationConfigApplicationContext
 
@@ -61,7 +62,10 @@ class Dependencies : FreeSpec({
                 applicationContext.getBean("constructorMovieLister", ConstructorMovieLister::class.java)
 
             // 스프링 컨테이너가 DefaultMovieFinder를 주입했는지 확인합시다.
-            constructorMovieLister.movieFinder.shouldBeTypeOf<Object>()
+            assertSoftly(constructorMovieLister.movieFinder) {
+                shouldBeTypeOf<DefaultMovieFinder>()
+                shouldBeInstanceOf<MovieFinder>()
+            }
         }
 
         """
@@ -78,7 +82,10 @@ class Dependencies : FreeSpec({
             val setterMovieLister = applicationContext.getBean("setterMovieLister", SetterMovieLister::class.java)
 
             // 스프링 컨테이너가 DefaultMovieFinder를 주입했는지 확인합시다.
-            setterMovieLister.movieFinder.shouldBeTypeOf<Object>()
+            assertSoftly(setterMovieLister.movieFinder) {
+                shouldBeTypeOf<DefaultMovieFinder>()
+                shouldBeInstanceOf<MovieFinder>()
+            }
         }
 
         """
@@ -94,7 +101,7 @@ class Dependencies : FreeSpec({
         권장되지는 않지만 setter 주입을 사용하여 순환 의존성을 구성할 수 있습니다.
         """ {
             // CircularDependencyConfig 클래스에서 ACircularObject와 BCircularObject가 서로 의존하도록 설정했습니다.
-            shouldThrow<BeanCurrentlyInCreationException> {
+            shouldThrow<UnsatisfiedDependencyException> {
                 AnnotationConfigApplicationContext(CircularDependencyConfig::class.java)
             }
         }
