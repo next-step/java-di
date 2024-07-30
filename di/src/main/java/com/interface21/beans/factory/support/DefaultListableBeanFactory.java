@@ -1,6 +1,7 @@
 package com.interface21.beans.factory.support;
 
 import com.interface21.beans.BeanInstantiationException;
+import com.interface21.beans.NoSuchBeanDefinitionException;
 import com.interface21.beans.factory.BeanFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -30,8 +31,13 @@ public class DefaultListableBeanFactory implements BeanFactory {
     }
 
     @Override
+    @SuppressWarnings("unchecked")
     public <T> T getBean(final Class<T> clazz) {
-        return clazz.cast(singletonObjects.get(clazz));
+        return (T) getBeanClasses().stream()
+                .filter(clazz::isAssignableFrom)
+                .findFirst()
+                .map(singletonObjects::get)
+                .orElseThrow(() -> new NoSuchBeanDefinitionException(clazz));
     }
 
     public void initialize() {

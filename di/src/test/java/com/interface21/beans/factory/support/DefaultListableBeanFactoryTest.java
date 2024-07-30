@@ -1,12 +1,14 @@
 package com.interface21.beans.factory.support;
 
 import com.interface21.beans.BeanInstantiationException;
+import com.interface21.beans.NoSuchBeanDefinitionException;
 import com.interface21.beans.factory.annotation.Autowired;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import samples.JdbcSampleRepository;
 import samples.SampleController;
+import samples.SampleControllerInterface;
 import samples.SampleService;
 
 import java.util.Set;
@@ -40,6 +42,24 @@ class DefaultListableBeanFactoryTest {
     }
 
     @Test
+    @DisplayName("인터페이스 타입으로도 등록된 구현체 bean 을 찾을 수 있다.")
+    public void getBeanTest() {
+        final var sampleController = beanFactory.getBean(SampleControllerInterface.class);
+
+        assertThat(sampleController).isInstanceOf(SampleController.class);
+    }
+
+    @Test
+    @DisplayName("등록되지 않은 타입으로 bean 을 찾을 경우 예외를 던진다.")
+    public void getNoSuchBeanTest() {
+        assertThatThrownBy(() -> beanFactory.getBean(NoBeanClass.class))
+                .isInstanceOf(NoSuchBeanDefinitionException.class);
+    }
+
+    private static class NoBeanClass {
+    }
+
+    @Test
     @DisplayName("bean 들의 모든 class 정보를 가져올 수 있다.")
     void getBeanClassesTest() {
         final Set<Class<?>> beanClasses = beanFactory.getBeanClasses();
@@ -54,7 +74,8 @@ class DefaultListableBeanFactoryTest {
 
         assertSoftly(softly -> {
             softly.assertThat(beanFactory.getBeanClasses()).isEmpty();
-            softly.assertThat(beanFactory.getBean(SampleController.class)).isNull();
+            softly.assertThatThrownBy(() -> beanFactory.getBean(SampleController.class))
+                    .isInstanceOf(NoSuchBeanDefinitionException.class);
         });
     }
 
