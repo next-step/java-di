@@ -42,8 +42,13 @@
 - [x] 의존관계 주입에는 @Autowired 를 사용한다 
   - 위 세 개의 설정으로 생성된 인스턴스 간의 의존관계를 설정해야 한다. 
 - [x] DefaultListableBeanFactoryTest 를 통과해야 한다 
-- [] MVC 프레임워크와 통합 
-  - [] ControllerScanner를 DI 컨테이너가 있는 패키지로 옮긴다 
-  - [] @Controller, @Service, @Repository에 대해 지원이 가능하도록 개선한다
-  - [] 클래스 이름을 BeanScanner로 변경한다 
-  - [] AnnotationHandlerMapping이 BeanFactory와 BeanScanner를 활용해 동작하도록 변경한다 
+- [x] MVC 프레임워크와 통합 
+  - [x] @Controller, @Service, @Repository에 대해 지원이 가능하도록 개선한다
+  - 아래 요구사항은 HandlerExecutionFactory가 어울린다고 생각해서 제 기준대로 변경하였습니다. 
+  - [x] ControllerScanner를 DI 컨테이너가 있는 패키지로 옮긴다
+    - 기존 ControllerScanner를 HandlerExecutionFactory로 변경하고 이를 생성하는 책임 부여 
+  - [x] 클래스 이름을 BeanScanner로 변경한다 
+    - Bean을 스캔하는 BeanScanner는 따로 구현하였음 
+  - [x] AnnotationHandlerMapping이 BeanFactory와 BeanScanner를 활용해 동작하도록 변경한다
+    - ApplicationContext를 활용해 동작하도록 변경하였음 
+
