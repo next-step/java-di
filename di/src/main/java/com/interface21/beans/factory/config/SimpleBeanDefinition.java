@@ -12,12 +12,16 @@ public class SimpleBeanDefinition implements BeanDefinition {
     private final Class<?> beanClass;
     private final Constructor<?> constructor;
 
-    public SimpleBeanDefinition(final Class<?> beanClass) {
+    private SimpleBeanDefinition(final Class<?> beanClass, final Constructor<?> constructor) {
         this.beanClass = beanClass;
-        this.constructor = findBeanConstructor(beanClass);
+        this.constructor = constructor;
     }
 
-    private Constructor<?> findBeanConstructor(final Class<?> concreteClass) {
+    public static SimpleBeanDefinition from(final Class<?> beanClass) {
+        return new SimpleBeanDefinition(beanClass, findBeanConstructor(beanClass));
+    }
+
+    private static Constructor<?> findBeanConstructor(final Class<?> concreteClass) {
         final Set<Constructor> injectedConstructors = BeanFactoryUtils.getInjectedConstructors(concreteClass);
         if (injectedConstructors.size() > BEAN_CONSTRUCTOR_COUNT) {
             throw new BeanDefinitionException(concreteClass.getName() + " - Only one constructor can have @Autowired annotation");

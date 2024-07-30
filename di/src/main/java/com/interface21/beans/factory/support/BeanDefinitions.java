@@ -16,7 +16,7 @@ public class BeanDefinitions {
 
     public BeanDefinitions(final Set<Class<?>> beanClasses) {
         beanDefinitionMap = beanClasses.stream()
-                .map(SimpleBeanDefinition::new)
+                .map(SimpleBeanDefinition::from)
                 .collect(Collectors.toMap(
                         SimpleBeanDefinition::getType,
                         Function.identity()
