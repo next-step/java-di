@@ -44,13 +44,11 @@ public class BeanScanner {
                 .collect(toMap(clazz -> clazz, SingletonBeanDefinition::new));
     }
 
-    public Map<HandlerKey, HandlerExecution> scan(BeanFactory beanFactory, Object... basePackage) {
-        Reflections reflections = new Reflections(basePackage, Scanners.TypesAnnotated, Scanners.SubTypes, Scanners.MethodsAnnotated);
+    public Map<HandlerKey, HandlerExecution> scan(BeanFactory beanFactory) {
         final var handlers = new HashMap<HandlerKey, HandlerExecution>();
-        final var controllers = reflections.getTypesAnnotatedWith(Controller.class);
-        for (Class<?> controller : controllers) {
-            Object target = beanFactory.getBean(controller);
-            addHandlerExecution(handlers, target, controller.getMethods());
+        final var controllers = beanFactory.getControllers();
+        for (Map.Entry<Class<?>, Object> controller : controllers.entrySet()) {
+            addHandlerExecution(handlers, controller.getValue(), controller.getKey().getMethods());
         }
         return handlers;
     }
