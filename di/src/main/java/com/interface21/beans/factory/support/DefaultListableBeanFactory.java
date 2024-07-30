@@ -2,7 +2,6 @@ package com.interface21.beans.factory.support;
 
 import com.interface21.beans.factory.BeanFactory;
 import com.interface21.beans.factory.config.BeanDefinition;
-import com.interface21.context.stereotype.Component;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
@@ -12,17 +11,13 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
-import java.util.function.Predicate;
 import java.util.stream.Collectors;
-import org.reflections.Reflections;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class DefaultListableBeanFactory implements BeanFactory {
 
     private static final Logger log = LoggerFactory.getLogger(DefaultListableBeanFactory.class);
-
-    private static final String STEREOTYPE_PACKAGE = "com.interface21.context.stereotype";
 
     private final Map<String, BeanDefinition> beanDefinitionMap = new HashMap<>();
     private final Map<Class<?>, Object> singletonObjects = new HashMap<>();
@@ -38,31 +33,25 @@ public class DefaultListableBeanFactory implements BeanFactory {
         return Set.of();
     }
 
+    @SuppressWarnings("unchecked")
     @Override
     public <T> T getBean(final Class<T> clazz) {
         return (T) singletonObjects.get(clazz);
     }
 
     public void initialize() {
-        log.info("initialize DefaultListableBeanFactory");
-        Reflections reflections = new Reflections(STEREOTYPE_PACKAGE, basePackages);
-        List<Class<?>> componentClasses = reflections.getTypesAnnotatedWith(Component.class)
-                .stream()
-                .filter(Predicate.not(Class::isAnnotation))
-                .toList();
+        log.info("Start DefaultListableBeanFactory");
+        BeanScanner beanScanner = new BeanScanner(basePackages);
+        List<Class<?>> componentClasses = beanScanner.scan();
 
         for (Class<?> clazz : componentClasses) {
-            doDependencyInjection(clazz, componentClasses);
+            registerSingletonObject(clazz, componentClasses);
         }
     }
 
-    private Object doDependencyInjection(Class<?> clazz, List<Class<?>> componentClasses) {
-        // 클래스들에서 @Autowired가 달려있는 클래스 생성자 하나를 탐색
-        Constructor constructor = findAutoWiredConstructor(clazz, componentClasses);
+    private Object registerSingletonObject(Class<?> clazz, List<Class<?>> componentClasses) {
+        Constructor<?> constructor = findAutoWiredConstructor(clazz, componentClasses);
 
-        // 생성자를 돌면서 인스턴스화 및 등록
-        // 생성자 파라미터가 Bean으로 등록된 경우 그대로 사용
-        // 생성자 파라미터가 Bean으로 등록되지 않은 경우 생성 및 등록 후 사용
         Object[] constructorArgs = Arrays.stream(constructor.getParameters())
                 .map(parameter -> {
                     Class<?> parameterType = parameter.getType();  // 인터페이스일 수 있다.
@@ -71,7 +60,7 @@ public class DefaultListableBeanFactory implements BeanFactory {
                     }
                     // 없으면 생성 및 등록해야 하는데, 파라미터에 대해서도 위 전 과정을 전부 수행해야 한다.
                     // 인터페이스는 구체 클래스로 수행해야 하는데..
-                    return doDependencyInjection(parameterType, componentClasses);
+                    return registerSingletonObject(parameterType, componentClasses);
                 })
                 .toArray();
 
@@ -86,7 +75,7 @@ public class DefaultListableBeanFactory implements BeanFactory {
         }
     }
 
-    private Constructor findAutoWiredConstructor(Class<?> clazz, List<Class<?>> componentClasses) {
+    private Constructor<?> findAutoWiredConstructor(Class<?> clazz, List<Class<?>> componentClasses) {
         Class<?> aClass = clazz;
         if (clazz.isInterface()) {
             aClass = componentClasses.stream()
@@ -109,6 +98,7 @@ public class DefaultListableBeanFactory implements BeanFactory {
 
     @Override
     public void clear() {
+        singletonObjects.clear();
     }
 
     @Override
