@@ -101,6 +101,20 @@ class DefaultListableBeanFactoryTest {
     }
 
     @Test
+    void 컨트롤러_어노테이션이_있는_빈만_반환한다() {
+        DefaultBeanDefinitionRegistry registry = new DefaultBeanDefinitionRegistry(Map.of(
+                "JdbcSampleRepository", new SingletonBeanDefinition(JdbcSampleRepository.class),
+                "SampleService", new SingletonBeanDefinition(SampleService.class),
+                "SampleController", new SingletonBeanDefinition(SampleController.class)
+        ));
+        DefaultListableBeanFactory beanFactory = new DefaultListableBeanFactory(registry);
+        beanFactory.initialize();
+
+        Map<Class<?>, Object> actual = beanFactory.getControllers();
+        assertThat(actual).containsOnlyKeys(SampleController.class);
+    }
+
+    @Test
     public void di() {
         Set<Class<?>> givenClasses = getTypesAnnotatedWith(Controller.class, Service.class, Repository.class);
         BeanDefinitionRegistry registry = new DefaultBeanDefinitionRegistry();

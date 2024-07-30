@@ -3,6 +3,7 @@ package com.interface21.beans.factory.support;
 import com.interface21.beans.BeanUtils;
 import com.interface21.beans.factory.BeanFactory;
 import com.interface21.beans.factory.config.BeanDefinition;
+import com.interface21.context.stereotype.Controller;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -11,6 +12,7 @@ import java.util.Map;
 import java.util.Set;
 
 import static com.interface21.beans.factory.support.BeanConstructor.createTargetConstructor;
+import static java.util.stream.Collectors.toMap;
 
 public class DefaultListableBeanFactory implements BeanFactory {
 
@@ -41,6 +43,14 @@ public class DefaultListableBeanFactory implements BeanFactory {
                 .findAny()
                 .map(Map.Entry::getValue)
                 .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 빈입니다."));
+    }
+
+    @Override
+    public Map<Class<?>, Object> getControllers() {
+        return singletonObjects.entrySet()
+                .stream()
+                .filter(entry -> entry.getKey().isAnnotationPresent(Controller.class))
+                .collect(toMap(Map.Entry::getKey, Map.Entry::getValue));
     }
 
     @Override
