@@ -15,17 +15,17 @@ public class DefaultListableBeanFactory implements BeanFactory {
 
     private static final Logger log = LoggerFactory.getLogger(DefaultListableBeanFactory.class);
 
-    private final SimpleBeanDefinitionRegistry simpleBeanDefinitionRegistry;
+    private final BeanDefinitionRegistry beanDefinitionRegistry;
     private final SimpleBeanFactory beanFactory;
 
-    public DefaultListableBeanFactory(final Set<Class<?>> beanClasses) {
-        simpleBeanDefinitionRegistry = new SimpleBeanDefinitionRegistry(beanClasses);
+    public DefaultListableBeanFactory(final BeanDefinitionRegistry beanDefinitionRegistry) {
+        this.beanDefinitionRegistry = beanDefinitionRegistry;
         beanFactory = new SimpleBeanFactory();
     }
 
     @Override
     public Set<Class<?>> getBeanClasses() {
-        return simpleBeanDefinitionRegistry.getBeanClasses();
+        return beanDefinitionRegistry.getBeanClasses();
     }
 
     @Override
@@ -40,7 +40,7 @@ public class DefaultListableBeanFactory implements BeanFactory {
     private Object initBean(final Class<?> beanClass) {
         final Class<?> concreteClass = BeanFactoryUtils.findConcreteClass(beanClass, getBeanClasses())
                 .orElseThrow(() -> new BeanInstantiationException(beanClass, "Could not autowire. No concrete class found for %s.".formatted(beanClass.getName())));
-        final Object createdBean = createBean(simpleBeanDefinitionRegistry.getBeanConstructor(concreteClass));
+        final Object createdBean = createBean(beanDefinitionRegistry.getBeanConstructor(concreteClass));
         beanFactory.addBean(beanClass, createdBean);
         return createdBean;
     }
@@ -68,7 +68,7 @@ public class DefaultListableBeanFactory implements BeanFactory {
 
     @Override
     public void clear() {
-        simpleBeanDefinitionRegistry.clear();
+        beanDefinitionRegistry.clear();
         beanFactory.clear();
     }
 

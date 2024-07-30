@@ -28,10 +28,12 @@ public class SimpleBeanDefinitionRegistry implements BeanDefinitionRegistry {
                 ));
     }
 
+    @Override
     public Set<Class<?>> getBeanClasses() {
         return beanDefinitionMap.keySet();
     }
 
+    @Override
     public Constructor<?> getBeanConstructor(final Class<?> clazz) {
         final BeanDefinition beanDefinition = beanDefinitionMap.get(clazz);
         if (beanDefinition == null) {
@@ -40,6 +42,7 @@ public class SimpleBeanDefinitionRegistry implements BeanDefinitionRegistry {
         return beanDefinition.getConstructor();
     }
 
+    @Override
     public void clear() {
         beanDefinitionMap.clear();
     }

@@ -82,7 +82,8 @@ class DefaultListableBeanFactoryTest {
     @Test
     @DisplayName("Bean 생성 시 생성자에서 예외가 던져지면 실패한다.")
     void initializeFailWithExceptionTest() {
-        final DefaultListableBeanFactory wrongBeanFactory = new DefaultListableBeanFactory(Set.of(ConstructorExceptionClass.class));
+        final SimpleBeanDefinitionRegistry beanDefinitionRegistry = new SimpleBeanDefinitionRegistry(Set.of(ConstructorExceptionClass.class));
+        final DefaultListableBeanFactory wrongBeanFactory = new DefaultListableBeanFactory(beanDefinitionRegistry);
 
         assertThatThrownBy(wrongBeanFactory::initialize)
                 .isInstanceOf(BeanInstantiationException.class)
@@ -100,7 +101,8 @@ class DefaultListableBeanFactoryTest {
     @Test
     @DisplayName("구체 클래스가 아닌 클래스로 Bean 생성 시 예외가 던져지면 실패한다.")
     void initializeFailWithNotConcreteClassTest() {
-        final DefaultListableBeanFactory wrongBeanFactory = new DefaultListableBeanFactory(Set.of(AbstractClass.class));
+        final SimpleBeanDefinitionRegistry beanDefinitionRegistry = new SimpleBeanDefinitionRegistry(Set.of(AbstractClass.class));
+        final DefaultListableBeanFactory wrongBeanFactory = new DefaultListableBeanFactory(beanDefinitionRegistry);
 
         assertThatThrownBy(wrongBeanFactory::initialize)
                 .isInstanceOf(BeanInstantiationException.class)
@@ -117,7 +119,8 @@ class DefaultListableBeanFactoryTest {
     @Test
     @DisplayName("Bean 생성 시 생성자가 private 이면 실패한다.")
     void initializeFailWithPrivateTest() {
-        final DefaultListableBeanFactory wrongBeanFactory = new DefaultListableBeanFactory(Set.of(PrivateConstructorClass.class));
+        final SimpleBeanDefinitionRegistry beanDefinitionRegistry = new SimpleBeanDefinitionRegistry(Set.of(PrivateConstructorClass.class));
+        final DefaultListableBeanFactory wrongBeanFactory = new DefaultListableBeanFactory(beanDefinitionRegistry);
 
         assertThatThrownBy(wrongBeanFactory::initialize)
                 .isInstanceOf(BeanInstantiationException.class)
