@@ -63,12 +63,13 @@ public class DefaultListableBeanFactory implements BeanFactory {
     }
 
     private Constructor<?> findAutoWiredConstructor(Class<?> clazz, List<Class<?>> beanClasses) {
-        Class<?> concreteClass = convertToConcreteClass(clazz, beanClasses);
+        Class<?> concreteClass = BeanFactoryUtils.findConcreteClass(clazz, beanClasses)
+                .orElseThrow(() -> new IllegalArgumentException("clazz는 beanClasses 내에 포함된 값이어야 합니다. clazz=%s, beanClasses=%s".formatted(clazz, beanClasses)));
+
         Constructor<?> autowiredConstructor = BeanFactoryUtils.getAutowiredConstructor(concreteClass);
         if (autowiredConstructor == null) {
             return concreteClass.getDeclaredConstructors()[0];
         }
-
         return autowiredConstructor;
     }
 
@@ -87,20 +88,6 @@ public class DefaultListableBeanFactory implements BeanFactory {
     private Object createNewInstance(Constructor<?> constructor, Object[] constructorArgs) throws InstantiationException, IllegalAccessException, InvocationTargetException {
         constructor.setAccessible(true);
         return constructor.newInstance(constructorArgs);
-    }
-
-    private Class<?> convertToConcreteClass(Class<?> clazz, List<Class<?>> beanClasses) {
-        if (clazz.isInterface()) {
-            return beanClasses.stream()
-                    .filter(beanClass -> {
-                        Set<Class<?>> interfaces = Set.of(beanClass.getInterfaces());
-                        return interfaces.contains(clazz);
-                    })
-                    .findAny()
-                    .orElseThrow(() -> new IllegalArgumentException("clazz는 beanClasses 내에 포함된 값이어야 합니다. clazz=%s, beanClasses=%s".formatted(clazz, beanClasses)));
-        }
-
-        return clazz;
     }
 
     @Override

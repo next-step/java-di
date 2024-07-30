@@ -1,6 +1,7 @@
 package com.interface21.beans.factory.support;
 
 import com.interface21.beans.factory.annotation.Autowired;
+import java.util.List;
 import org.reflections.ReflectionUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -66,22 +67,24 @@ public class BeanFactoryUtils {
      * 인자로 전달되는 클래스의 구현 클래스. 만약 인자로 전달되는 Class가 인터페이스가 아니면 전달되는 인자가 구현 클래스,
      * 인터페이스인 경우 BeanFactory가 관리하는 모든 클래스 중에 인터페이스를 구현하는 클래스를 찾아 반환
      * 
-     * @param injectedClazz
-     * @param preInstanticateBeans
-     * @return
+     * @param clazz 구현 클래스를 찾아야 할 대상
+     * @param beanClasses 구현 클래스가 들어있는 List
+     * @return clazz가 구현 클래스인 경우 그대로 반환, 인터페이스인 경우 구현 클래스를 찾아서 반환
      */
-    public static Optional<Class<?>> findConcreteClass(Class<?> injectedClazz, Set<Class<?>> preInstanticateBeans) {
-        if (!injectedClazz.isInterface()) {
-            return Optional.of(injectedClazz);
+    public static Optional<Class<?>> findConcreteClass(Class<?> clazz, List<Class<?>> beanClasses) {
+        if (clazz == null) {
+            return Optional.empty();
         }
 
-        for (Class<?> clazz : preInstanticateBeans) {
-            Set<Class<?>> interfaces = Set.of(clazz.getInterfaces());
-            if (interfaces.contains(injectedClazz)) {
-                return Optional.of(clazz);
-            }
+        if (clazz.isInterface()) {
+            return beanClasses.stream()
+                    .filter(beanClass -> {
+                        Set<Class<?>> interfaces = Set.of(beanClass.getInterfaces());
+                        return interfaces.contains(clazz);
+                    })
+                    .findAny();
         }
 
-        return Optional.empty();
+        return Optional.of(clazz);
     }
 }
