@@ -76,3 +76,11 @@
   - 빈 생성 중 순환참조가 발생하면 예외가 발생한다.
 - BeanScanner
   - BeanFactory에서 받은 Controller로 HandlerExecution를 초기화한다
+
+## 3단계 - @Configuration 구현하기
+- ConfigurationBeanScanner
+  - Scan할 Configuration을 세팅한다
+  - Configuration에 있는 ComponentScan value를 통해 패키지를 읽어 빈들을 스캔한다
+- BeanFactory
+  - Configuration도 빈등록을 진행한다
+  - 빈 생성 시 Configuration인 클래스라면 하위 메소드의 `@Bean`이 달린 빈들도 함께 초기화한다
