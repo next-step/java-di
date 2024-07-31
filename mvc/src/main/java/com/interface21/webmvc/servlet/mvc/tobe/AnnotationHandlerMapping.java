@@ -9,8 +9,6 @@ import jakarta.servlet.http.HttpServletRequest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.HashMap;
-import java.util.Map;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -19,45 +17,30 @@ public class AnnotationHandlerMapping implements HandlerMapping {
     private static final Logger log = LoggerFactory.getLogger(AnnotationHandlerMapping.class);
 
     private final Object[] basePackage;
-    private final Map<HandlerKey, HandlerExecution> handlerExecutions;
+    private final HandlerExecutions handlerExecutions;
 
     public AnnotationHandlerMapping(final Object... basePackage) {
         this.basePackage = basePackage;
-        this.handlerExecutions = new HashMap<>();
+        this.handlerExecutions = new HandlerExecutions();
     }
 
     public void initialize() {
         final ApplicationContext applicationContext = new AnnotationConfigWebApplicationContext(basePackage);
-        handlerExecutions.putAll(initHandlerExecutions(applicationContext));
-        log.info("Initialized AnnotationHandlerMapping!");
-    }
-
-    private Map<HandlerKey, HandlerExecution> initHandlerExecutions(final ApplicationContext applicationContext) {
-        final Map<Class<?>, Object> controllers = applicationContext.getBeanClasses()
+        applicationContext.getBeanClasses()
                 .stream()
                 .filter(beanClass -> beanClass.isAnnotationPresent(Controller.class))
                 .map(applicationContext::getBean)
                 .collect(Collectors.toMap(
                         Object::getClass,
-                        Function.identity()
-                ));
-        final ControllerScanner controllerScanner = new ControllerScanner();
-        return controllerScanner.init(controllers);
+                        Function.identity()))
+                .forEach((clazz, bean) -> handlerExecutions.addHandlerExecution(bean, clazz.getMethods()));
+        log.info("Initialized AnnotationHandlerMapping!");
     }
 
     public Object getHandler(final HttpServletRequest request) {
         final var requestUri = request.getRequestURI();
         final var requestMethod = RequestMethod.valueOf(request.getMethod().toUpperCase());
         log.debug("requestUri : {}, requestMethod : {}", requestUri, requestMethod);
-        return getHandlerInternal(new HandlerKey(requestUri, requestMethod));
-    }
-
-    private HandlerExecution getHandlerInternal(final HandlerKey requestHandlerKey) {
-        for (HandlerKey handlerKey : handlerExecutions.keySet()) {
-            if (handlerKey.isMatch(requestHandlerKey)) {
-                return handlerExecutions.get(handlerKey);
-            }
-        }
-        return null;
+        return handlerExecutions.getHandler(new HandlerKey(requestUri, requestMethod));
     }
 }
