@@ -1,14 +1,14 @@
 package com.interface21.beans.factory.support;
 
+import com.interface21.beans.BeanUtils;
 import com.interface21.beans.factory.BeanFactory;
 import com.interface21.beans.factory.config.BeanDefinition;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Constructor;
-import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Parameter;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.Set;
 import java.util.stream.Collectors;
 import org.slf4j.Logger;
@@ -26,6 +26,13 @@ public class DefaultListableBeanFactory implements BeanFactory {
         this.basePackages = basePackages;
     }
 
+    public void initialize() {
+        log.info("Start DefaultListableBeanFactory");
+        BeanScanner beanScanner = new BeanScanner(basePackages);
+        Set<Class<?>> beanClasses = beanScanner.scan();
+        registerBeanDefinitions(beanClasses);
+    }
+
     @Override
     public Set<Class<?>> getBeanClasses() {
         return singletonObjects.keySet();
@@ -34,33 +41,31 @@ public class DefaultListableBeanFactory implements BeanFactory {
     @SuppressWarnings("unchecked")
     @Override
     public <T> T getBean(final Class<T> clazz) {
-        return (T) singletonObjects.get(clazz);
+        if (singletonObjects.containsKey(clazz)) {
+            return (T) singletonObjects.get(clazz);
+        }
+
+        Set<Class<?>> beanClasses = beanDefinitionMap.values()
+                .stream()
+                .map(BeanDefinition::getType)
+                .collect(Collectors.toSet());
+
+        return (T) registerSingletonObject(clazz, beanClasses);
     }
 
-    public void initialize() {
-        log.info("Start DefaultListableBeanFactory");
-        BeanScanner beanScanner = new BeanScanner(basePackages);
-        Set<Class<?>> beanClasses = beanScanner.scan();
-        registerBeans(beanClasses);
-    }
-
-    private void registerBeans(Set<Class<?>> beanClasses) {
+    private void registerBeanDefinitions(Set<Class<?>> beanClasses) {
         for (Class<?> beanClass : beanClasses) {
-            registerSingletonObject(beanClass, beanClasses);
+            DefaultBeanDefinition beanDefinition = new DefaultBeanDefinition(beanClass);
+            beanDefinitionMap.put(beanDefinition.getBeanClassName(), beanDefinition);
         }
     }
 
     private Object registerSingletonObject(Class<?> beanClass, Set<Class<?>> beanClasses) {
         Constructor<?> constructor = findAutoWiredConstructor(beanClass, beanClasses);
-        Object[] constructorArgs = getConstructorArgs(beanClasses, constructor);
-
-        try {
-            Object newInstance = createNewInstance(constructor, constructorArgs);
-            singletonObjects.put(newInstance.getClass(), newInstance);
-            return newInstance;
-        } catch (InstantiationException | IllegalAccessException | InvocationTargetException e) {
-            throw new RuntimeException(e);
-        }
+        Object[] constructorArgs = getConstructorArgs(constructor);
+        Object newInstance = BeanUtils.instantiateClass(constructor, constructorArgs);
+        singletonObjects.put(newInstance.getClass(), newInstance);
+        return newInstance;
     }
 
     private Constructor<?> findAutoWiredConstructor(Class<?> clazz, Set<Class<?>> beanClasses) {
@@ -74,21 +79,11 @@ public class DefaultListableBeanFactory implements BeanFactory {
         return autowiredConstructor;
     }
 
-    private Object[] getConstructorArgs(Set<Class<?>> beanClasses, Constructor<?> constructor) {
+    private Object[] getConstructorArgs(Constructor<?> constructor) {
         return Arrays.stream(constructor.getParameters())
-                .map(parameter -> {
-                    Class<?> parameterType = parameter.getType();
-                    if (singletonObjects.containsKey(parameterType)) {
-                        return singletonObjects.get(parameterType);
-                    }
-                    return registerSingletonObject(parameterType, beanClasses);
-                })
+                .map(Parameter::getType)
+                .map(this::getBean)
                 .toArray();
-    }
-
-    private Object createNewInstance(Constructor<?> constructor, Object[] constructorArgs) throws InstantiationException, IllegalAccessException, InvocationTargetException {
-        constructor.setAccessible(true);
-        return constructor.newInstance(constructorArgs);
     }
 
     @Override
@@ -98,9 +93,10 @@ public class DefaultListableBeanFactory implements BeanFactory {
 
     @Override
     public Map<Class<?>, Object> getBeansAnnotatedWith(Class<? extends Annotation> annotationType) {
-        return singletonObjects.entrySet()
+        return beanDefinitionMap.values()
                 .stream()
-                .filter(entry -> entry.getKey().isAnnotationPresent(annotationType))
-                .collect(Collectors.toUnmodifiableMap(Entry::getKey, Entry::getValue));
+                .map(BeanDefinition::getType)
+                .filter(type -> type.isAnnotationPresent(annotationType))
+                .collect(Collectors.toUnmodifiableMap(type -> type, this::getBean));
     }
 }
