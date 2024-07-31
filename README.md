@@ -73,5 +73,6 @@
 ## 2단계 - DI 컨테이너 구현하기(힌트)
 - BeanFactory
   - getController를 통해 `@Controller`로 설정된 빈목록을 반환한다
+  - 빈 생성 중 순환참조가 발생하면 예외가 발생한다.
 - BeanScanner
   - BeanFactory에서 받은 Controller로 HandlerExecution를 초기화한다

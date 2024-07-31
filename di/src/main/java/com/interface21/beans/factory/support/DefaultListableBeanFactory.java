@@ -8,6 +8,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
@@ -56,15 +57,23 @@ public class DefaultListableBeanFactory implements BeanFactory {
     @Override
     public void initialize() {
         for (BeanDefinition beanDefinition : beanDefinitionRegistry.getBeanDefinitions()) {
-            createBean(beanDefinition);
+            createBean(beanDefinition, new HashSet<>());
         }
     }
 
-    private Object createBean(BeanDefinition beanDefinition) {
+    private Object createBean(BeanDefinition beanDefinition, Set<BeanDefinition> preBeanDefinitions) {
+        validateAndSetPreBeanDefinitions(beanDefinition, preBeanDefinitions);
         if (isContainBean(beanDefinition.getType())) {
             return getBean(beanDefinition.getType());
         }
-        return createNewBean(beanDefinition);
+        return createNewBean(beanDefinition, preBeanDefinitions);
+    }
+
+    private static void validateAndSetPreBeanDefinitions(BeanDefinition beanDefinition, Set<BeanDefinition> preBeanDefinitions) {
+        if (preBeanDefinitions.contains(beanDefinition)) {
+            throw new IllegalStateException("순환참조인 빈이 있어 초기화할 수 없습니다.");
+        }
+        preBeanDefinitions.add(beanDefinition);
     }
 
     private boolean isContainBean(Class<?> clazz) {
@@ -73,12 +82,12 @@ public class DefaultListableBeanFactory implements BeanFactory {
                 .anyMatch(clazz::isAssignableFrom);
     }
 
-    private Object createNewBean(BeanDefinition beanDefinition) {
+    private Object createNewBean(BeanDefinition beanDefinition, Set<BeanDefinition> preBeanDefinition) {
         BeanConstructor targetConstructor = createTargetConstructor(beanDefinition.getType());
         if (targetConstructor.isNoArgument()) {
             return createNoArgConstructorBean(beanDefinition);
         }
-        return createArgConstructorBean(beanDefinition, targetConstructor);
+        return createArgConstructorBean(beanDefinition, targetConstructor, preBeanDefinition);
     }
 
     private Object createNoArgConstructorBean(BeanDefinition beanDefinition) {
@@ -87,11 +96,15 @@ public class DefaultListableBeanFactory implements BeanFactory {
         return bean;
     }
 
-    private Object createArgConstructorBean(BeanDefinition beanDefinition, BeanConstructor beanConstructor) {
+    private Object createArgConstructorBean(
+            BeanDefinition beanDefinition,
+            BeanConstructor beanConstructor,
+            Set<BeanDefinition> preBeanDefinition
+    ) {
         Object[] constructorParameters = beanConstructor.getParameterTypes()
                 .stream()
                 .map(beanDefinitionRegistry::getBeanDefinition)
-                .map(this::createBean)
+                .map(subBeanDefinition -> createBean(subBeanDefinition, preBeanDefinition))
                 .toArray();
         Object bean = BeanUtils.instantiateClass(beanConstructor.getConstructor(), constructorParameters);
         return singletonObjects.put(beanDefinition.getType(), bean);

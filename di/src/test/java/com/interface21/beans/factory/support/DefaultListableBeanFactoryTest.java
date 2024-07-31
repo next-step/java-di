@@ -1,6 +1,8 @@
 package com.interface21.beans.factory.support;
 
+import com.interface21.beans.factory.annotation.Autowired;
 import com.interface21.beans.factory.config.SingletonBeanDefinition;
+import com.interface21.context.stereotype.Component;
 import com.interface21.context.stereotype.Controller;
 import com.interface21.context.stereotype.Repository;
 import com.interface21.context.stereotype.Service;
@@ -115,6 +117,18 @@ class DefaultListableBeanFactoryTest {
     }
 
     @Test
+    void 순환참조인_빈을_초기화하려하면_예외가_발생한다() {
+        DefaultBeanDefinitionRegistry registry = new DefaultBeanDefinitionRegistry(Map.of(
+                "aClass", new SingletonBeanDefinition(A.class),
+                "bClass", new SingletonBeanDefinition(B.class),
+                "cClass", new SingletonBeanDefinition(C.class)
+        ));
+        DefaultListableBeanFactory beanFactory = new DefaultListableBeanFactory(registry);
+        assertThatThrownBy(beanFactory::initialize)
+                .isInstanceOf(IllegalStateException.class);
+    }
+
+    @Test
     public void di() {
         Set<Class<?>> givenClasses = getTypesAnnotatedWith(Controller.class, Service.class, Repository.class);
         BeanDefinitionRegistry registry = new DefaultBeanDefinitionRegistry();
@@ -141,5 +155,34 @@ class DefaultListableBeanFactoryTest {
             beans.addAll(reflections.getTypesAnnotatedWith(annotation));
         }
         return beans;
+    }
+
+    @Component
+    public static class A {
+        private final B b;
+
+        @Autowired
+        public A(final B b) {
+            this.b = b;
+        }
+    }
+
+    @Component
+    public static class B {
+        private final C c;
+
+        @Autowired
+        public B(C c) {
+            this.c = c;
+        }
+    }
+
+    @Component
+    public static class C {
+        private final A a;
+
+        public C(A a) {
+            this.a = a;
+        }
     }
 }
