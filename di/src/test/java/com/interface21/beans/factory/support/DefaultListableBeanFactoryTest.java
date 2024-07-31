@@ -1,6 +1,7 @@
 package com.interface21.beans.factory.support;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 import com.interface21.context.stereotype.Controller;
@@ -43,6 +44,13 @@ class DefaultListableBeanFactoryTest {
     void getBeansAnnotatedWith() {
         Map<Class<?>, Object> controllerBeans = beanFactory.getBeansAnnotatedWith(Controller.class);
         assertThat(controllerBeans).containsOnlyKeys(SampleController.class);
+    }
+
+    @DisplayName("Bean으로 등록되지 않은 클래스는 getBean을 호출하면 예외를 발생시킨다")
+    @Test
+    void getBeanException() {
+        assertThatThrownBy(() -> beanFactory.getBean(Object.class))
+                .isInstanceOf(IllegalArgumentException.class);
     }
 
     @SuppressWarnings("unchecked")

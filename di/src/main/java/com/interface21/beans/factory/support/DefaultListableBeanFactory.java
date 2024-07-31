@@ -63,7 +63,7 @@ public class DefaultListableBeanFactory implements BeanFactory {
     private Constructor<?> findAutoWiredConstructor(Class<?> clazz) {
         Set<Class<?>> beanTypes = beanDefinitions.extractTypes();
         Class<?> concreteClass = BeanFactoryUtils.findConcreteClass(clazz, beanTypes)
-                .orElseThrow(() -> new IllegalArgumentException("clazz는 beanClasses 내에 포함된 값이어야 합니다. clazz=%s, beanTypes=%s".formatted(clazz, beanTypes)));
+                .orElseThrow(() -> new IllegalArgumentException("인터페이스를 구현하는 구체 클래스가 없습니다. interface=%s, beanTypes=%s".formatted(clazz, beanTypes)));
 
         Constructor<?> autowiredConstructor = BeanFactoryUtils.getAutowiredConstructor(concreteClass);
         if (autowiredConstructor == null) {
