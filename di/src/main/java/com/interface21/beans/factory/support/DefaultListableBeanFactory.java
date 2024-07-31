@@ -41,6 +41,9 @@ public class DefaultListableBeanFactory implements BeanFactory {
     @SuppressWarnings("unchecked")
     @Override
     public <T> T getBean(final Class<T> clazz) {
+        if (clazz == null || beanDefinitions.isNotRegistered(clazz)) {
+            throw new IllegalArgumentException("빈으로 등록되지 않은 Class이거나 null입니다.");
+        }
         if (beans.hasBean(clazz)) {
             return beans.getBean(clazz);
         }
@@ -48,8 +51,8 @@ public class DefaultListableBeanFactory implements BeanFactory {
         return (T) registerBean(clazz);
     }
 
-    private Object registerBean(Class<?> beanClass) {
-        Constructor<?> constructor = findAutoWiredConstructor(beanClass);
+    private Object registerBean(Class<?> clazz) {
+        Constructor<?> constructor = findAutoWiredConstructor(clazz);
         Object[] constructorArgs = getConstructorArgs(constructor);
         Object newBean = BeanUtils.instantiateClass(constructor, constructorArgs);
         beans.register(newBean);

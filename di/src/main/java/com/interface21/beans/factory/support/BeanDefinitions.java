@@ -22,4 +22,18 @@ public class BeanDefinitions {
                 .map(BeanDefinition::getType)
                 .collect(Collectors.toSet());
     }
+
+    public <T> boolean isNotRegistered(Class<T> clazz) {
+        return !isRegistered(clazz);
+    }
+
+    public <T> boolean isRegistered(Class<T> clazz) {
+        return extractTypes()
+                .stream()
+                .anyMatch(type -> {
+                    Set<Class<?>> interfaces = Set.of(type.getInterfaces());
+                    return type == clazz || interfaces.contains(clazz);
+                });
+
+    }
 }
