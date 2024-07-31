@@ -1,6 +1,7 @@
 package com.interface21.beans.factory.support;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import com.interface21.beans.factory.annotation.Autowired;
 import java.lang.reflect.Constructor;
@@ -53,11 +54,20 @@ class BeanFactoryUtilsTest {
         assertThat(concreteClass.get()).isEqualTo(TestClass.class);
     }
 
-    @DisplayName("clazz가 Null이면 빈 Optional 반환")
+    @DisplayName("clazz가 Null이면 예외 발생")
     @Test
     void findConcreteClassNull() {
-        Optional<Class<?>> concreteClass = BeanFactoryUtils.findConcreteClass(null, Set.of());
+        assertThatThrownBy(() -> BeanFactoryUtils.findConcreteClass(null, Set.of()))
+                .isInstanceOf(IllegalArgumentException.class);
+    }
 
-        assertThat(concreteClass).isEmpty();
+    private static class TestImplA implements TestInterface {}
+    private static class TestImplB implements TestInterface {}
+
+    @DisplayName("인터페이스를 구현한 클래스가 2개 이상인 경우 예외 발생")
+    @Test
+    void findConcreteClassException() {
+        assertThatThrownBy(() -> BeanFactoryUtils.findConcreteClass(TestInterface.class, Set.of(TestImplA.class, TestImplB.class)))
+                .isInstanceOf(IllegalArgumentException.class);
     }
 }
