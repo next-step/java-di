@@ -4,6 +4,7 @@ import com.interface21.context.annotation.Bean;
 import com.interface21.context.annotation.Configuration;
 
 import java.lang.reflect.Method;
+import java.util.Arrays;
 import java.util.List;
 
 public class ConfigurationBeanDefinition implements BeanDefinition {
@@ -34,6 +35,13 @@ public class ConfigurationBeanDefinition implements BeanDefinition {
         }
     }
 
+    public static ConfigurationBeanDefinition from(Class<?> type) {
+        List<Method> methods = Arrays.stream(type.getMethods())
+                .filter(method -> method.isAnnotationPresent(Bean.class))
+                .toList();
+        return new ConfigurationBeanDefinition(type, methods);
+    }
+
     @Override
     public Class<?> getType() {
         return type;
@@ -52,5 +60,9 @@ public class ConfigurationBeanDefinition implements BeanDefinition {
     @Override
     public boolean isAssignableTo(Class<?> clazz) {
         return clazz.isAssignableFrom(type);
+    }
+
+    public List<Method> getBeanCreateMethods() {
+        return beanCreateMethods;
     }
 }

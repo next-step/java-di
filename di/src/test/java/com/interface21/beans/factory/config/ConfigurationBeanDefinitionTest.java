@@ -8,7 +8,9 @@ import java.lang.reflect.Method;
 import java.util.Arrays;
 import java.util.List;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.junit.jupiter.api.Assertions.assertAll;
 
 class ConfigurationBeanDefinitionTest {
 
@@ -28,6 +30,16 @@ class ConfigurationBeanDefinitionTest {
                 .hasMessage("Bean 어노테이션이 없는 메소드로 생성될 수 없습니다.");
     }
 
+    @Test
+    void class만_받아_빈을_생성한다() throws NoSuchMethodException {
+        Method expectedMethod = SuccessConfiguration.class.getMethod("test");
+        ConfigurationBeanDefinition actual = ConfigurationBeanDefinition.from(SuccessConfiguration.class);
+        assertAll(
+                () -> assertThat(actual.getType()).isEqualTo(SuccessConfiguration.class),
+                () -> assertThat(actual.getBeanCreateMethods()).containsExactly(expectedMethod)
+        );
+    }
+
     public static class NoConfiguration {
         @Bean
         public String test() {
@@ -39,6 +51,14 @@ class ConfigurationBeanDefinitionTest {
     public static class NoBeanConfiguration {
         public String noBean() {
             return "";
+        }
+    }
+
+    @Configuration
+    public static class SuccessConfiguration {
+        @Bean
+        public String test() {
+            return "test";
         }
     }
 }
