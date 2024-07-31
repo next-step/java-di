@@ -1,5 +1,6 @@
 package com.interface21.beans.factory.config;
 
+import com.interface21.context.annotation.Bean;
 import com.interface21.context.annotation.Configuration;
 
 import java.lang.reflect.Method;
@@ -14,6 +15,7 @@ public class ConfigurationBeanDefinition implements BeanDefinition {
 
     public ConfigurationBeanDefinition(Class<?> type, List<Method> beanCreateMethods) {
         validateConfigurationAnnotated(type);
+        validateBeanMethod(beanCreateMethods);
         this.type = type;
         this.beanCreateMethods = beanCreateMethods;
     }
@@ -21,6 +23,14 @@ public class ConfigurationBeanDefinition implements BeanDefinition {
     private void validateConfigurationAnnotated(Class<?> type) {
         if (!type.isAnnotationPresent(Configuration.class)) {
             throw new IllegalArgumentException("Configuration 어노테이션이 달리지 않은 bean으로 생성될 수 없습니다.");
+        }
+    }
+
+    private void validateBeanMethod(List<Method> beanCreateMethods) {
+        boolean isBeanMethods = beanCreateMethods.stream()
+                .allMatch(method -> method.isAnnotationPresent(Bean.class));
+        if (!isBeanMethods) {
+            throw new IllegalArgumentException("Bean 어노테이션이 없는 메소드로 생성될 수 없습니다.");
         }
     }
 
