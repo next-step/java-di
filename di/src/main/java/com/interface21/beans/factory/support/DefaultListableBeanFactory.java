@@ -2,12 +2,10 @@ package com.interface21.beans.factory.support;
 
 import com.interface21.beans.BeanUtils;
 import com.interface21.beans.factory.BeanFactory;
-import com.interface21.beans.factory.config.BeanDefinition;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Parameter;
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -18,11 +16,13 @@ public class DefaultListableBeanFactory implements BeanFactory {
 
     private static final Logger log = LoggerFactory.getLogger(DefaultListableBeanFactory.class);
 
-    private final Map<String, BeanDefinition> beanDefinitionMap = new HashMap<>();
-    private final Map<Class<?>, Object> singletonObjects = new HashMap<>();
+    private final BeanDefinitions beanDefinitions;
+    private final Beans beans;
     private final String[] basePackages;
 
     public DefaultListableBeanFactory(String... basePackages) {
+        this.beanDefinitions = new BeanDefinitions();
+        this.beans = new Beans();
         this.basePackages = basePackages;
     }
 
@@ -30,47 +30,36 @@ public class DefaultListableBeanFactory implements BeanFactory {
         log.info("Start DefaultListableBeanFactory");
         BeanScanner beanScanner = new BeanScanner(basePackages);
         Set<Class<?>> beanClasses = beanScanner.scan();
-        registerBeanDefinitions(beanClasses);
+        beanDefinitions.registerBeanDefinitions(beanClasses);
     }
 
     @Override
     public Set<Class<?>> getBeanClasses() {
-        return singletonObjects.keySet();
+        return beans.getBeanClasses();
     }
 
     @SuppressWarnings("unchecked")
     @Override
     public <T> T getBean(final Class<T> clazz) {
-        if (singletonObjects.containsKey(clazz)) {
-            return (T) singletonObjects.get(clazz);
+        if (beans.hasBean(clazz)) {
+            return beans.getBean(clazz);
         }
 
-        Set<Class<?>> beanClasses = beanDefinitionMap.values()
-                .stream()
-                .map(BeanDefinition::getType)
-                .collect(Collectors.toSet());
-
-        return (T) registerSingletonObject(clazz, beanClasses);
+        return (T) registerBean(clazz);
     }
 
-    private void registerBeanDefinitions(Set<Class<?>> beanClasses) {
-        for (Class<?> beanClass : beanClasses) {
-            DefaultBeanDefinition beanDefinition = new DefaultBeanDefinition(beanClass);
-            beanDefinitionMap.put(beanDefinition.getBeanClassName(), beanDefinition);
-        }
-    }
-
-    private Object registerSingletonObject(Class<?> beanClass, Set<Class<?>> beanClasses) {
-        Constructor<?> constructor = findAutoWiredConstructor(beanClass, beanClasses);
+    private Object registerBean(Class<?> beanClass) {
+        Constructor<?> constructor = findAutoWiredConstructor(beanClass);
         Object[] constructorArgs = getConstructorArgs(constructor);
-        Object newInstance = BeanUtils.instantiateClass(constructor, constructorArgs);
-        singletonObjects.put(newInstance.getClass(), newInstance);
-        return newInstance;
+        Object newBean = BeanUtils.instantiateClass(constructor, constructorArgs);
+        beans.register(newBean);
+        return newBean;
     }
 
-    private Constructor<?> findAutoWiredConstructor(Class<?> clazz, Set<Class<?>> beanClasses) {
-        Class<?> concreteClass = BeanFactoryUtils.findConcreteClass(clazz, beanClasses)
-                .orElseThrow(() -> new IllegalArgumentException("clazz는 beanClasses 내에 포함된 값이어야 합니다. clazz=%s, beanClasses=%s".formatted(clazz, beanClasses)));
+    private Constructor<?> findAutoWiredConstructor(Class<?> clazz) {
+        Set<Class<?>> beanTypes = beanDefinitions.extractTypes();
+        Class<?> concreteClass = BeanFactoryUtils.findConcreteClass(clazz, beanTypes)
+                .orElseThrow(() -> new IllegalArgumentException("clazz는 beanClasses 내에 포함된 값이어야 합니다. clazz=%s, beanTypes=%s".formatted(clazz, beanTypes)));
 
         Constructor<?> autowiredConstructor = BeanFactoryUtils.getAutowiredConstructor(concreteClass);
         if (autowiredConstructor == null) {
@@ -88,14 +77,13 @@ public class DefaultListableBeanFactory implements BeanFactory {
 
     @Override
     public void clear() {
-        singletonObjects.clear();
+        beans.clear();
     }
 
     @Override
     public Map<Class<?>, Object> getBeansAnnotatedWith(Class<? extends Annotation> annotationType) {
-        return beanDefinitionMap.values()
+        return beanDefinitions.extractTypes()
                 .stream()
-                .map(BeanDefinition::getType)
                 .filter(type -> type.isAnnotationPresent(annotationType))
                 .collect(Collectors.toUnmodifiableMap(type -> type, this::getBean));
     }
