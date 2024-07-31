@@ -1,5 +1,6 @@
 package com.interface21.beans.factory.support;
 
+import com.interface21.beans.BeanCurrentlyInCreationException;
 import com.interface21.beans.BeanInstantiationException;
 import com.interface21.beans.factory.BeanFactory;
 import org.slf4j.Logger;
@@ -7,6 +8,7 @@ import org.slf4j.LoggerFactory;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
+import java.util.HashSet;
 import java.util.Set;
 import java.util.stream.Stream;
 
@@ -16,10 +18,12 @@ public class DefaultListableBeanFactory implements BeanFactory {
 
     private final BeanDefinitionRegistry beanDefinitionRegistry;
     private final SimpleBeanFactory beanFactory;
+    private final Set<Class<?>> tempBeansInCreation;
 
     public DefaultListableBeanFactory(final BeanDefinitionRegistry beanDefinitionRegistry) {
         this.beanDefinitionRegistry = beanDefinitionRegistry;
         beanFactory = new SimpleBeanFactory();
+        tempBeansInCreation = new HashSet<>();
     }
 
     @Override
@@ -37,10 +41,16 @@ public class DefaultListableBeanFactory implements BeanFactory {
     }
 
     private Object initBean(final Class<?> beanClass) {
+        if (!tempBeansInCreation.add(beanClass)) {
+            throw new BeanCurrentlyInCreationException(tempBeansInCreation);
+        }
+
         final Class<?> concreteClass = BeanFactoryUtils.findConcreteClass(beanClass, getBeanClasses())
                 .orElseThrow(() -> new BeanInstantiationException(beanClass, "Could not autowire. No concrete class found for %s.".formatted(beanClass.getName())));
         final Object createdBean = createBean(beanDefinitionRegistry.getBeanConstructor(concreteClass));
         beanFactory.addBean(beanClass, createdBean);
+
+        tempBeansInCreation.remove(beanClass);
         return createdBean;
     }
 
@@ -69,6 +79,7 @@ public class DefaultListableBeanFactory implements BeanFactory {
     public void clear() {
         beanDefinitionRegistry.clear();
         beanFactory.clear();
+        tempBeansInCreation.clear();
     }
 
 }

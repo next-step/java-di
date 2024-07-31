@@ -1,5 +1,6 @@
 package com.interface21.beans.factory.support;
 
+import com.interface21.beans.BeanCurrentlyInCreationException;
 import com.interface21.beans.BeanInstantiationException;
 import com.interface21.beans.NoSuchBeanDefinitionException;
 import com.interface21.beans.factory.annotation.Autowired;
@@ -132,5 +133,15 @@ class DefaultListableBeanFactoryTest {
         @Autowired
         private PrivateConstructorClass() {
         }
+    }
+
+    @Test
+    void name() {
+        final BeanScanner circularBeanScanner = new BeanScanner("circular.samples");
+        final DefaultListableBeanFactory circularBeanFactory = new DefaultListableBeanFactory(circularBeanScanner.scan());
+
+        assertThatThrownBy(circularBeanFactory::initialize)
+                .isInstanceOf(BeanCurrentlyInCreationException.class)
+                .hasMessageContaining("Circular dependency detected");
     }
 }
