@@ -24,7 +24,6 @@ class DefaultListableBeanFactoryTest {
     private DefaultListableBeanFactory beanFactory;
 
     @BeforeEach
-    @SuppressWarnings("unchecked")
     void setUp() {
         final BeanScanner beanScanner = new BeanScanner("samples");
         this.beanFactory = new DefaultListableBeanFactory(beanScanner.scan());
