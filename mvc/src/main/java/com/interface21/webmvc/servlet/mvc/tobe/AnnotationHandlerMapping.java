@@ -1,8 +1,8 @@
 package com.interface21.webmvc.servlet.mvc.tobe;
 
-import com.interface21.beans.factory.support.BeanScanner;
-import com.interface21.beans.factory.support.DefaultListableBeanFactory;
+import com.interface21.context.ApplicationContext;
 import com.interface21.context.stereotype.Controller;
+import com.interface21.context.support.AnnotationConfigWebApplicationContext;
 import com.interface21.web.bind.annotation.RequestMethod;
 import com.interface21.webmvc.servlet.mvc.HandlerMapping;
 import jakarta.servlet.http.HttpServletRequest;
@@ -27,18 +27,16 @@ public class AnnotationHandlerMapping implements HandlerMapping {
     }
 
     public void initialize() {
-        final BeanScanner beanScanner = new BeanScanner(basePackage);
-        final DefaultListableBeanFactory beanFactory = new DefaultListableBeanFactory(beanScanner.scan());
-        beanFactory.initialize();
-        handlerExecutions.putAll(initHandlerExecutions(beanFactory));
+        final ApplicationContext applicationContext = new AnnotationConfigWebApplicationContext(basePackage);
+        handlerExecutions.putAll(initHandlerExecutions(applicationContext));
         log.info("Initialized AnnotationHandlerMapping!");
     }
 
-    private Map<HandlerKey, HandlerExecution> initHandlerExecutions(final DefaultListableBeanFactory beanFactory) {
-        final Map<Class<?>, Object> controllers = beanFactory.getBeanClasses()
+    private Map<HandlerKey, HandlerExecution> initHandlerExecutions(final ApplicationContext applicationContext) {
+        final Map<Class<?>, Object> controllers = applicationContext.getBeanClasses()
                 .stream()
                 .filter(beanClass -> beanClass.isAnnotationPresent(Controller.class))
-                .map(beanFactory::getBean)
+                .map(applicationContext::getBean)
                 .collect(Collectors.toMap(
                         Object::getClass,
                         Function.identity()
