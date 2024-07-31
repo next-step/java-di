@@ -135,7 +135,8 @@ class DefaultListableBeanFactoryTest {
     }
 
     @Test
-    void name() {
+    @DisplayName("Bean 생성 시 순환참조가 감지되면 예외가 던져진다.")
+    void circularBeanDetectTest() {
         final BeanScanner circularBeanScanner = new BeanScanner("circular.samples");
         final DefaultListableBeanFactory circularBeanFactory = new DefaultListableBeanFactory(circularBeanScanner.scan());
 
