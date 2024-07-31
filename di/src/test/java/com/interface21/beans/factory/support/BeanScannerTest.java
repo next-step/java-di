@@ -2,7 +2,7 @@ package com.interface21.beans.factory.support;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import java.util.List;
+import java.util.Set;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import samples.JdbcSampleDataSource;
@@ -17,7 +17,7 @@ class BeanScannerTest {
     void scan() {
         BeanScanner beanScanner = new BeanScanner("samples");
 
-        List<Class<?>> beanClasses = beanScanner.scan();
+        Set<Class<?>> beanClasses = beanScanner.scan();
 
         assertThat(beanClasses).containsExactlyInAnyOrder(JdbcSampleDataSource.class, JdbcSampleRepository.class, SampleComponent.class, SampleController.class, SampleService.class);
     }

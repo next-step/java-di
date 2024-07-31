@@ -7,7 +7,6 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.util.Arrays;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
@@ -41,14 +40,17 @@ public class DefaultListableBeanFactory implements BeanFactory {
     public void initialize() {
         log.info("Start DefaultListableBeanFactory");
         BeanScanner beanScanner = new BeanScanner(basePackages);
-        List<Class<?>> beanClasses = beanScanner.scan();
+        Set<Class<?>> beanClasses = beanScanner.scan();
+        registerBeans(beanClasses);
+    }
 
+    private void registerBeans(Set<Class<?>> beanClasses) {
         for (Class<?> beanClass : beanClasses) {
             registerSingletonObject(beanClass, beanClasses);
         }
     }
 
-    private Object registerSingletonObject(Class<?> beanClass, List<Class<?>> beanClasses) {
+    private Object registerSingletonObject(Class<?> beanClass, Set<Class<?>> beanClasses) {
         Constructor<?> constructor = findAutoWiredConstructor(beanClass, beanClasses);
         Object[] constructorArgs = getConstructorArgs(beanClasses, constructor);
 
@@ -61,7 +63,7 @@ public class DefaultListableBeanFactory implements BeanFactory {
         }
     }
 
-    private Constructor<?> findAutoWiredConstructor(Class<?> clazz, List<Class<?>> beanClasses) {
+    private Constructor<?> findAutoWiredConstructor(Class<?> clazz, Set<Class<?>> beanClasses) {
         Class<?> concreteClass = BeanFactoryUtils.findConcreteClass(clazz, beanClasses)
                 .orElseThrow(() -> new IllegalArgumentException("clazz는 beanClasses 내에 포함된 값이어야 합니다. clazz=%s, beanClasses=%s".formatted(clazz, beanClasses)));
 
@@ -72,7 +74,7 @@ public class DefaultListableBeanFactory implements BeanFactory {
         return autowiredConstructor;
     }
 
-    private Object[] getConstructorArgs(List<Class<?>> beanClasses, Constructor<?> constructor) {
+    private Object[] getConstructorArgs(Set<Class<?>> beanClasses, Constructor<?> constructor) {
         return Arrays.stream(constructor.getParameters())
                 .map(parameter -> {
                     Class<?> parameterType = parameter.getType();
