@@ -39,7 +39,7 @@ public class AnnotationHandlerMapping implements HandlerMapping {
         }
         beanFactory.initialize();
 
-        handlerExecutions.putAll(beanScanner.scan(beanFactory, basePackage));
+        handlerExecutions.putAll(beanScanner.scan(beanFactory));
         log.info("Initialized AnnotationHandlerMapping!");
     }
 
