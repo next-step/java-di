@@ -10,18 +10,19 @@ public class AnnotationConfigWebApplicationContext implements ApplicationContext
 
     private final DefaultListableBeanFactory beanFactory;
 
-    public AnnotationConfigWebApplicationContext(final String... basePackages) {
+    public AnnotationConfigWebApplicationContext(final Object... basePackages) {
         final BeanScanner beanScanner = new BeanScanner(basePackages);
         this.beanFactory = new DefaultListableBeanFactory(beanScanner.scan());
+        beanFactory.initialize();
     }
 
     @Override
     public <T> T getBean(final Class<T> clazz) {
-        return null;
+        return beanFactory.getBean(clazz);
     }
 
     @Override
     public Set<Class<?>> getBeanClasses() {
-        return Set.of();
+        return beanFactory.getBeanClasses();
     }
 }
