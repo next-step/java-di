@@ -2,12 +2,6 @@ package com.interface21.webmvc.servlet.mvc.tobe;
 
 import com.interface21.web.bind.annotation.RequestMapping;
 import com.interface21.web.bind.annotation.RequestMethod;
-import com.interface21.web.method.support.HandlerMethodArgumentResolver;
-import com.interface21.webmvc.servlet.mvc.tobe.support.HttpRequestArgumentResolver;
-import com.interface21.webmvc.servlet.mvc.tobe.support.HttpResponseArgumentResolver;
-import com.interface21.webmvc.servlet.mvc.tobe.support.ModelArgumentResolver;
-import com.interface21.webmvc.servlet.mvc.tobe.support.PathVariableArgumentResolver;
-import com.interface21.webmvc.servlet.mvc.tobe.support.RequestParamArgumentResolver;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -22,17 +16,11 @@ public class HandlerExecutions {
 
     private static final Logger log = LoggerFactory.getLogger(HandlerExecutions.class);
 
-    private static final List<HandlerMethodArgumentResolver> argumentResolvers = List.of(
-            new HttpRequestArgumentResolver(),
-            new HttpResponseArgumentResolver(),
-            new RequestParamArgumentResolver(),
-            new PathVariableArgumentResolver(),
-            new ModelArgumentResolver()
-    );
-
+    private final ArgumentResolvers argumentResolvers;
     private final Map<HandlerKey, HandlerExecution> handlerExecutions;
 
     public HandlerExecutions() {
+        this.argumentResolvers = new ArgumentResolvers();
         this.handlerExecutions = new HashMap<>();
     }
 
