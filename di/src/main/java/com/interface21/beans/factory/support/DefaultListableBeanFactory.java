@@ -44,7 +44,8 @@ public class DefaultListableBeanFactory implements BeanFactory {
         if (clazz == null || beanDefinitions.isNotRegistered(clazz)) {
             throw new IllegalArgumentException("빈으로 등록되지 않은 Class이거나 null입니다.");
         }
-        if (beans.hasBean(clazz)) {
+
+        if (beans.isRegistered(clazz)) {
             return beans.getBean(clazz);
         }
 

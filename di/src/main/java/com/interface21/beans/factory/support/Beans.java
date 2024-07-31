@@ -11,7 +11,7 @@ public class Beans {
         return beans.keySet();
     }
 
-    public boolean hasBean(Class<?> clazz) {
+    public boolean isRegistered(Class<?> clazz) {
         return beans.containsKey(clazz);
     }
 

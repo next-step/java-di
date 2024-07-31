@@ -8,6 +8,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Collectors;
 import org.reflections.ReflectionUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -75,14 +76,22 @@ public class BeanFactoryUtils {
         }
 
         if (clazz.isInterface()) {
-            return beanClasses.stream()
-                    .filter(beanClass -> {
-                        Set<Class<?>> interfaces = Set.of(beanClass.getInterfaces());
-                        return interfaces.contains(clazz);
-                    })
-                    .findAny();
+            Set<Class<?>> concreteClass = findAllConcreteClasses(clazz, beanClasses);
+            if (concreteClass.size() > 1) {
+                throw new IllegalArgumentException("해당 Interface를 구현한 클래스가 2개 이상입니다.");
+            }
+            return concreteClass.stream().findAny();
         }
 
         return Optional.of(clazz);
+    }
+
+    private static Set<Class<?>> findAllConcreteClasses(Class<?> clazz, Set<Class<?>> beanClasses) {
+        return beanClasses.stream()
+                .filter(beanClass -> {
+                    Set<Class<?>> interfaces = Set.of(beanClass.getInterfaces());
+                    return interfaces.contains(clazz);
+                })
+                .collect(Collectors.toSet());
     }
 }
