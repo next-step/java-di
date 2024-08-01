@@ -6,6 +6,8 @@ import java.lang.annotation.Annotation;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Parameter;
 import java.util.Arrays;
+import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -18,6 +20,7 @@ public class DefaultListableBeanFactory implements BeanFactory {
 
     private final BeanDefinitions beanDefinitions;
     private final Beans beans;
+    private final Set<Class<?>> beanBeingCreated = new HashSet<>();
     private final String[] basePackages;
 
     public DefaultListableBeanFactory(String... basePackages) {
@@ -49,10 +52,13 @@ public class DefaultListableBeanFactory implements BeanFactory {
             return beans.getBean(clazz);
         }
 
-        return (T) registerBean(clazz);
+        T bean = (T) registerBean(clazz);
+        beanBeingCreated.clear();
+        return bean;
     }
 
     private Object registerBean(Class<?> clazz) {
+        beanBeingCreated.add(clazz);
         Constructor<?> constructor = findAutoWiredConstructor(clazz);
         Object[] constructorArgs = getConstructorArgs(constructor);
         Object newBean = BeanUtils.instantiateClass(constructor, constructorArgs);
@@ -73,8 +79,26 @@ public class DefaultListableBeanFactory implements BeanFactory {
     }
 
     private Object[] getConstructorArgs(Constructor<?> constructor) {
-        return Arrays.stream(constructor.getParameters())
+        List<? extends Class<?>> types = Arrays.stream(constructor.getParameters())
                 .map(Parameter::getType)
+                .toList();
+
+        types.forEach(type -> {
+            if (beanBeingCreated.contains(type)) {
+                throw new CircularReferenceException();
+            }
+
+            if (type.isInterface()) {
+                Set<Class<?>> beanTypes = beanDefinitions.extractTypes();
+                Class<?> concreteClass = BeanFactoryUtils.findConcreteClass(type, beanTypes)
+                        .orElseThrow(() -> new IllegalArgumentException("인터페이스를 구현하는 구체 클래스가 없습니다. interface=%s, beanTypes=%s".formatted(type, beanTypes)));
+                if (beanBeingCreated.contains(concreteClass)) {
+                    throw new CircularReferenceException();
+                }
+            }
+        });
+
+        return types.stream()
                 .map(this::getBean)
                 .toArray();
     }

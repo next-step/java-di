@@ -2,6 +2,7 @@ package com.interface21.beans.factory.support;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 import com.interface21.context.stereotype.Controller;
@@ -13,6 +14,13 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.reflections.Reflections;
+import samples.CircularA;
+import samples.CircularB;
+import samples.CircularC;
+import samples.CrossReferenceA;
+import samples.CrossReferenceB;
+import samples.InterfaceAImpl;
+import samples.InterfaceBImpl;
 import samples.SampleController;
 
 class DefaultListableBeanFactoryTest {
@@ -51,6 +59,34 @@ class DefaultListableBeanFactoryTest {
     void getBeanException() {
         assertThatThrownBy(() -> beanFactory.getBean(Object.class))
                 .isInstanceOf(IllegalArgumentException.class);
+    }
+
+    @DisplayName("순환 참조가 발생한 경우 예외를 발생시킨다. [case: A <-> B 상호 참조]")
+    @Test
+    void circularReferenceTest1() {
+        assertAll(
+                () -> assertThatThrownBy(() -> beanFactory.getBean(CrossReferenceA.class)).isInstanceOf(CircularReferenceException.class),
+                () -> assertThatThrownBy(() -> beanFactory.getBean(CrossReferenceB.class)).isInstanceOf(CircularReferenceException.class)
+        );
+    }
+
+    @DisplayName("순환 참조가 발생한 경우 예외를 발생시킨다. [case: A -> B -> C -> A 참조]")
+    @Test
+    void circularReferenceTest2() {
+        assertAll(
+                () -> assertThatThrownBy(() -> beanFactory.getBean(CircularA.class)).isInstanceOf(CircularReferenceException.class),
+                () -> assertThatThrownBy(() -> beanFactory.getBean(CircularB.class)).isInstanceOf(CircularReferenceException.class),
+                () -> assertThatThrownBy(() -> beanFactory.getBean(CircularC.class)).isInstanceOf(CircularReferenceException.class)
+        );
+    }
+
+    @DisplayName("인터페이스에 대해서도 순환 참조를 감지할 수 있다. [case: A <-> B 참조, 파라미터 인터페이스]")
+    @Test
+    void circularReferenceTest3() {
+        assertAll(
+                () -> assertThatThrownBy(() -> beanFactory.getBean(InterfaceAImpl.class)).isInstanceOf(CircularReferenceException.class),
+                () -> assertThatThrownBy(() -> beanFactory.getBean(InterfaceBImpl.class)).isInstanceOf(CircularReferenceException.class)
+        );
     }
 
     @SuppressWarnings("unchecked")
