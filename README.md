@@ -84,6 +84,8 @@
 - BeanFactory
   - Configuration도 빈등록을 진행한다
   - 빈 생성 시 Configuration인 클래스라면 하위 메소드의 `@Bean`이 달린 빈들도 함께 초기화한다
+- DefaultBeanDefinitionRegistry
+  - Configuration을 저장하는 경우 하위에 있는 Bean 어노테이션을 통한 메소드 빈도 함께 저장한다
 - BeanDefinition
   - Configuration Bean Definition인지 확인할 수 있다
   - Configuration Bean이 아닌데 BeanCreate Method를 반환하려하면 예외가 발생한다
@@ -91,9 +93,6 @@
     - 상위 BeanDefinition이 없으면 false이다
   - 상위 BeanDefinition을 반환한다
     - 상위 BeanDefinition이 없으면 예외를 발생한다
-- SingletonBeanDefinition
-  - method를 받아 BeanDefinition을 생성할 수 있다
-  - Scope가 Singleton이 아닌 method로 생성하는 경우 예외가 발생한다
 - ConfigurationBeanDefinition
   - Configuration 어노테이션이 달리지 않은 클래스로 생성하려하면 예외가 발생한다
   - Bean 어노테이션이 달리지 않은 메소드 리스트로 생성하려하면 예외가 발생한다

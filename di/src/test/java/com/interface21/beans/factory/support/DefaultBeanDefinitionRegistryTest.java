@@ -2,7 +2,10 @@ package com.interface21.beans.factory.support;
 
 import com.interface21.beans.BeanInstantiationException;
 import com.interface21.beans.factory.config.BeanDefinition;
+import com.interface21.beans.factory.config.ConfigurationBeanDefinition;
 import com.interface21.beans.factory.config.SingletonBeanDefinition;
+import com.interface21.context.annotation.Bean;
+import com.interface21.context.annotation.Configuration;
 import com.interface21.context.annotation.Scope;
 import com.interface21.context.stereotype.Controller;
 import org.junit.jupiter.api.Test;
@@ -20,6 +23,13 @@ class DefaultBeanDefinitionRegistryTest {
         DefaultBeanDefinitionRegistry beanDefinitionRegistry = new DefaultBeanDefinitionRegistry();
         beanDefinitionRegistry.registerBeanDefinition(TestController.class, new SingletonBeanDefinition(TestController.class));
         assertThat(beanDefinitionRegistry.getBeanDefinitionMap()).containsKey("TestController");
+    }
+
+    @Test
+    void Configuration을_저장하는_경우_하위_메소드빈도_함께_저장한다() {
+        DefaultBeanDefinitionRegistry beanDefinitionRegistry = new DefaultBeanDefinitionRegistry();
+        beanDefinitionRegistry.registerBeanDefinition(TestConfiguration.class, ConfigurationBeanDefinition.from(TestConfiguration.class));
+        assertThat(beanDefinitionRegistry.getBeanDefinitionMap()).containsOnlyKeys("TestConfiguration", "java.lang.String");
     }
 
     @Test
@@ -61,5 +71,13 @@ class DefaultBeanDefinitionRegistryTest {
 
     @Scope
     public class NoComponentController {
+    }
+
+    @Configuration
+    public class TestConfiguration {
+        @Bean
+        public String testBean() {
+            return "testBean";
+        }
     }
 }
