@@ -7,10 +7,8 @@ import com.interface21.context.stereotype.Controller;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
+import java.lang.reflect.Method;
+import java.util.*;
 
 import static com.interface21.beans.factory.support.BeanConstructor.createTargetConstructor;
 import static java.util.stream.Collectors.toMap;
@@ -66,10 +64,22 @@ public class DefaultListableBeanFactory implements BeanFactory {
         if (isContainBean(beanDefinition.getType())) {
             return getBean(beanDefinition.getType());
         }
-        return createNewBean(beanDefinition, preBeanDefinitions);
+        Object bean = createNewBean(beanDefinition, preBeanDefinitions);
+        if (beanDefinition.isConfiguration()) {
+            List<Method> beanCreateMethods = beanDefinition.getBeanCreateMethods();
+            for (Method beanCreateMethod : beanCreateMethods) {
+                Object[] parameters = Arrays.stream(beanCreateMethod.getParameterTypes())
+                        .map(this::getBean)
+                        .toArray();
+                Object bean1 = BeanFactoryUtils.invokeMethod(beanCreateMethod, bean, parameters)
+                        .orElseThrow(() -> new IllegalStateException("빈 생성 시 예외가 발생했습니다."));
+                singletonObjects.put(beanCreateMethod.getReturnType(), bean1);
+            }
+        }
+        return bean;
     }
 
-    private static void validateAndSetPreBeanDefinitions(BeanDefinition beanDefinition, Set<BeanDefinition> preBeanDefinitions) {
+    private void validateAndSetPreBeanDefinitions(BeanDefinition beanDefinition, Set<BeanDefinition> preBeanDefinitions) {
         if (preBeanDefinitions.contains(beanDefinition)) {
             throw new IllegalStateException("순환참조인 빈이 있어 초기화할 수 없습니다.");
         }

@@ -1,18 +1,18 @@
 package com.interface21.beans.factory.support;
 
 import com.interface21.beans.factory.annotation.Autowired;
+import com.interface21.beans.factory.config.ConfigurationBeanDefinition;
 import com.interface21.beans.factory.config.SingletonBeanDefinition;
 import com.interface21.context.stereotype.Component;
 import com.interface21.context.stereotype.Controller;
 import com.interface21.context.stereotype.Repository;
 import com.interface21.context.stereotype.Service;
+import org.h2.jdbcx.JdbcDataSource;
 import org.junit.jupiter.api.Test;
 import org.reflections.Reflections;
-import samples.JdbcSampleRepository;
-import samples.SampleController;
-import samples.SampleRepository;
-import samples.SampleService;
+import samples.*;
 
+import javax.sql.DataSource;
 import java.lang.annotation.Annotation;
 import java.util.HashSet;
 import java.util.Map;
@@ -60,6 +60,18 @@ class DefaultListableBeanFactoryTest {
 
         SampleService actual = (SampleService) beanFactory.getSingletonObjects().get(SampleService.class);
         assertThat(actual.getSampleRepository()).isEqualTo(beanFactory.getSingletonObjects().get(JdbcSampleRepository.class));
+    }
+
+    @Test
+    void configuration의_경우_하위_bean메소드도_빈으로_생성한다() {
+        DefaultBeanDefinitionRegistry registry = new DefaultBeanDefinitionRegistry(Map.of(
+                "exampleConfig", ConfigurationBeanDefinition.from(ExampleConfig.class)
+        ));
+        DefaultListableBeanFactory beanFactory = new DefaultListableBeanFactory(registry);
+        beanFactory.initialize();
+
+        DataSource actual = (DataSource) beanFactory.getSingletonObjects().get(DataSource.class);
+        assertThat(actual).isInstanceOf(JdbcDataSource.class);
     }
 
     @Test
