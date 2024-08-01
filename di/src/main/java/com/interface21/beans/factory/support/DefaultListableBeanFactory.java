@@ -6,7 +6,6 @@ import java.lang.annotation.Annotation;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Parameter;
 import java.util.Arrays;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -20,12 +19,13 @@ public class DefaultListableBeanFactory implements BeanFactory {
 
     private final BeanDefinitions beanDefinitions;
     private final Beans beans;
-    private final Set<Class<?>> beanBeingCreated = new HashSet<>();
+    private final CircularReferenceSensor circularReferenceSensor;
     private final String[] basePackages;
 
     public DefaultListableBeanFactory(String... basePackages) {
         this.beanDefinitions = new BeanDefinitions();
         this.beans = new Beans();
+        this.circularReferenceSensor = new CircularReferenceSensor();
         this.basePackages = basePackages;
     }
 
@@ -52,13 +52,14 @@ public class DefaultListableBeanFactory implements BeanFactory {
             return beans.getBean(clazz);
         }
 
-        T bean = (T) registerBean(clazz);
-        beanBeingCreated.clear();
+        T bean = (T) createBean(clazz);
+        circularReferenceSensor.removeAllTargets();
         return bean;
     }
 
-    private Object registerBean(Class<?> clazz) {
-        beanBeingCreated.add(clazz);
+    private Object createBean(Class<?> clazz) {
+        circularReferenceSensor.addTarget(clazz);
+
         Constructor<?> constructor = findAutoWiredConstructor(clazz);
         Object[] constructorArgs = getConstructorArgs(constructor);
         Object newBean = BeanUtils.instantiateClass(constructor, constructorArgs);
@@ -68,8 +69,7 @@ public class DefaultListableBeanFactory implements BeanFactory {
 
     private Constructor<?> findAutoWiredConstructor(Class<?> clazz) {
         Set<Class<?>> beanTypes = beanDefinitions.extractTypes();
-        Class<?> concreteClass = BeanFactoryUtils.findConcreteClass(clazz, beanTypes)
-                .orElseThrow(() -> new IllegalArgumentException("인터페이스를 구현하는 구체 클래스가 없습니다. interface=%s, beanTypes=%s".formatted(clazz, beanTypes)));
+        Class<?> concreteClass = getConcreteClass(clazz, beanTypes);
 
         Constructor<?> autowiredConstructor = BeanFactoryUtils.getAutowiredConstructor(concreteClass);
         if (autowiredConstructor == null) {
@@ -79,28 +79,30 @@ public class DefaultListableBeanFactory implements BeanFactory {
     }
 
     private Object[] getConstructorArgs(Constructor<?> constructor) {
-        List<? extends Class<?>> types = Arrays.stream(constructor.getParameters())
-                .map(Parameter::getType)
-                .toList();
-
-        types.forEach(type -> {
-            if (beanBeingCreated.contains(type)) {
-                throw new CircularReferenceException();
-            }
-
-            if (type.isInterface()) {
-                Set<Class<?>> beanTypes = beanDefinitions.extractTypes();
-                Class<?> concreteClass = BeanFactoryUtils.findConcreteClass(type, beanTypes)
-                        .orElseThrow(() -> new IllegalArgumentException("인터페이스를 구현하는 구체 클래스가 없습니다. interface=%s, beanTypes=%s".formatted(type, beanTypes)));
-                if (beanBeingCreated.contains(concreteClass)) {
-                    throw new CircularReferenceException();
-                }
-            }
-        });
-
+        List<? extends Class<?>> types = extractParameterTypes(constructor);
+        detectCirculation(types);
         return types.stream()
                 .map(this::getBean)
                 .toArray();
+    }
+
+    private List<? extends Class<?>> extractParameterTypes(Constructor<?> constructor) {
+        return Arrays.stream(constructor.getParameters())
+                .map(Parameter::getType)
+                .toList();
+    }
+
+    private void detectCirculation(List<? extends Class<?>> types) {
+        types.forEach(type -> {
+            Set<Class<?>> beanTypes = beanDefinitions.extractTypes();
+            Class<?> concreteClass = getConcreteClass(type, beanTypes);
+            circularReferenceSensor.detect(concreteClass);
+        });
+    }
+
+    private Class<?> getConcreteClass(Class<?> clazz, Set<Class<?>> beanTypes) {
+        return BeanFactoryUtils.findConcreteClass(clazz, beanTypes)
+                .orElseThrow(() -> new IllegalArgumentException("인터페이스를 구현하는 구체 클래스가 없습니다. interface=%s, beanTypes=%s".formatted(clazz, beanTypes)));
     }
 
     @Override
