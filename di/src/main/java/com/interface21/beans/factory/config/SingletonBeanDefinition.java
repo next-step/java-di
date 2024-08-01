@@ -25,6 +25,21 @@ public class SingletonBeanDefinition implements BeanDefinition {
         }
     }
 
+    public static SingletonBeanDefinition from(Method method) {
+        validateScope(method);
+        return new SingletonBeanDefinition(method.getReturnType());
+    }
+
+    private static void validateScope(Method method) {
+        if (!method.isAnnotationPresent(Scope.class)) {
+            return;
+        }
+        Scope scope = method.getAnnotation(Scope.class);
+        if (scope.value() != BEAN_SCOPE) {
+            throw new IllegalStateException("싱글톤이 아닌 빈으로 생성할 수 없습니다.");
+        }
+    }
+
     @Override
     public Class<?> getType() {
         return type;

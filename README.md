@@ -87,6 +87,9 @@
 - BeanDefinition
   - Configuration Bean Definition인지 확인할 수 있다
   - Configuration Bean이 아닌데 BeanCreate Method를 반환하려하면 예외가 발생한다
+- SingletonBeanDefinition
+  - method를 받아 BeanDefinition을 생성할 수 있다
+  - Scope가 Singleton이 아닌 method로 생성하는 경우 예외가 발생한다
 - ConfigurationBeanDefinition
   - Configuration 어노테이션이 달리지 않은 클래스로 생성하려하면 예외가 발생한다
   - Bean 어노테이션이 달리지 않은 메소드 리스트로 생성하려하면 예외가 발생한다

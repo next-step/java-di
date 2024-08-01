@@ -1,5 +1,6 @@
 package com.interface21.beans.factory.config;
 
+import com.interface21.context.annotation.Bean;
 import com.interface21.context.annotation.Scope;
 import com.interface21.context.stereotype.Component;
 import org.junit.jupiter.api.Test;
@@ -24,6 +25,23 @@ class SingletonBeanDefinitionTest {
     @Test
     void Prototype을_SingletonBeanDefinition으로_생성하려하면_예외가_발생한다() {
         assertThatThrownBy(() -> new SingletonBeanDefinition(PrototypeComponent.class))
+                .isInstanceOf(IllegalStateException.class)
+                .hasMessage("싱글톤이 아닌 빈으로 생성할 수 없습니다.");
+    }
+
+    @Test
+    void method로_SingletonBeanDefinition을_생성한다() throws NoSuchMethodException {
+        SingletonBeanDefinition actual = SingletonBeanDefinition.from(TestConfig.class.getMethod("bean"));
+        assertAll(
+                () -> assertThat(actual.getType()).isEqualTo(String.class),
+                () -> assertThat(actual.getBeanClassName()).isEqualTo("java.lang.String"),
+                () -> assertThat(actual.getScope()).isEqualTo(BeanScope.SINGLETON)
+        );
+    }
+
+    @Test
+    void 싱글톤이_아닌_빈을_생성하려하면_예외가_발생한다() {
+        assertThatThrownBy(() -> SingletonBeanDefinition.from(TestConfig.class.getMethod("protoBean")))
                 .isInstanceOf(IllegalStateException.class)
                 .hasMessage("싱글톤이 아닌 빈으로 생성할 수 없습니다.");
     }
@@ -68,5 +86,18 @@ class SingletonBeanDefinitionTest {
     @Component
     @Scope(BeanScope.PROTOTYPE)
     public class PrototypeComponent {
+    }
+
+    public class TestConfig {
+        @Bean
+        public String bean() {
+            return "bean";
+        }
+
+        @Bean
+        @Scope(value = BeanScope.PROTOTYPE)
+        public String protoBean() {
+            return "proto";
+        }
     }
 }
