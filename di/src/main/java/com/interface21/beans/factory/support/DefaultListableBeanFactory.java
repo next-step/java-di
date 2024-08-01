@@ -45,7 +45,7 @@ public class DefaultListableBeanFactory implements BeanFactory {
     @Override
     public <T> T getBean(final Class<T> clazz) {
         if (clazz == null || beanDefinitions.isNotRegistered(clazz)) {
-            throw new IllegalArgumentException("빈으로 등록되지 않은 Class이거나 null입니다.");
+            throw new IllegalArgumentException("빈으로 등록할 수 없는 Class이거나 Null입니다.");
         }
 
         if (beans.isRegistered(clazz)) {
