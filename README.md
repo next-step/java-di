@@ -73,3 +73,25 @@
     - `ControllerScanner` 를 DI 컨테이너가 있는 패키지로 이동
     - `BeanSacnner` 로 이름을 변경
     - `AnnotationHandlerMapping`이 `BeanFactory`와 `BeanScanner`를 활용해 동작하도록 리팩터링
+
+## 3단계 - @Configuration 구현하기
+
+### 요구사항
+
+- 추후에 데이터베이스에 연결할 수 있도록 `javax.sql.DataSource`로 데이터베이스 설정 정보를 관리
+- `@Configuration` 기능을 추가하여 빈 인스턴스로 관리할 수 있도록 한다.
+    - 각 메소드에서 생성하는 인스턴스가 `BeanFactory`에 빈으로 등록하라는 설정은 `@Bean`으로 한다.
+    - `BeanScanner`에서 사용할 기본 패키지에 대한 설정을 하드코딩했는데 `@ComponentScan`으로 패키지 경로를 설정할 수 있도록 지원한다
+    - `@Configuration` 설정 파일을 통해 등록한 빈과 `BeanScanner`를 통해 등록한 빈 간에도 DI가 가능해야 한다.
+
+### 요구사항 정리
+
+- `@Configuration`을 가진 클래스들을 모은다.
+- 하나씩 순회한다.
+    - `@ComponentScan` 의 `basePackages` 정보를 `BeanScanner` 에게 전달한다.
+    - `@Bean`이 설정되어 있는 메서드를 찾는다
+        - 메서드의 반환 타입을 이용해 `BeanDefinition` 으로 만들어 `BeanDefinitionRegistry` 에 등록한다.
+        - 메서드를 실행시켜 반환 된 값을 `BeanFactory` 에 등록한다.
+            - 메서드의 인자에 다른 Bean 클래스 정보가 있다면 해당 클래스를 먼저 생성한다.
+                - 재귀적으로 탐색해서 먼저 생성할 수 있는 Bean 을 생성한다.
+                - 파라미터 타입의 클래스 정보가 Scan 된 클래스 정보에 없다면 예외를 던진다.
