@@ -87,6 +87,10 @@
 - BeanDefinition
   - Configuration Bean Definition인지 확인할 수 있다
   - Configuration Bean이 아닌데 BeanCreate Method를 반환하려하면 예외가 발생한다
+  - subBeanDefinition인지 확인한다
+    - 상위 BeanDefinition이 없으면 false이다
+  - 상위 BeanDefinition을 반환한다
+    - 상위 BeanDefinition이 없으면 예외를 발생한다
 - SingletonBeanDefinition
   - method를 받아 BeanDefinition을 생성할 수 있다
   - Scope가 Singleton이 아닌 method로 생성하는 경우 예외가 발생한다
@@ -96,3 +100,5 @@
   - Class를 받아 BeanDefinition을 생성한다
   - 기본적인 메소드 구성은 일반 BeanDefinition과 동일하다
   - beancreate method를 반환할 수 있다
+- SubBeanDefinition
+  - 상위 BeanDefinition(ex configuration)에 의해 생성되는 Bean 정의값
