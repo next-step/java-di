@@ -3,7 +3,6 @@ package com.interface21.beans.factory.support;
 import com.interface21.beans.BeanUtils;
 import com.interface21.beans.factory.BeanFactory;
 import com.interface21.beans.factory.config.BeanDefinition;
-import com.interface21.beans.factory.config.SingletonBeanDefinition;
 import com.interface21.context.stereotype.Controller;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -61,10 +60,13 @@ public class DefaultListableBeanFactory implements BeanFactory {
     }
 
     private Object createBean(BeanDefinition beanDefinition, Set<BeanDefinition> preBeanDefinitions) {
-        validateAndSetPreBeanDefinitions(beanDefinition, preBeanDefinitions);
         if (isContainBean(beanDefinition.getType())) {
             return getBean(beanDefinition.getType());
         }
+        if (beanDefinition.isSubBeanDefinition()) {
+            return createBean(beanDefinition.getSuperBeanDefinition(), preBeanDefinitions);
+        }
+        validateAndSetPreBeanDefinitions(beanDefinition, preBeanDefinitions);
         if (beanDefinition.isConfiguration()) {
             return createConfigurationBean(beanDefinition, preBeanDefinitions);
         }
@@ -94,7 +96,7 @@ public class DefaultListableBeanFactory implements BeanFactory {
     }
 
     private void createMethodBean(Set<BeanDefinition> preBeanDefinitions, Method beanCreateMethod, Object configuration) {
-        BeanDefinition beanDefinition = SingletonBeanDefinition.from(beanCreateMethod);
+        BeanDefinition beanDefinition = beanDefinitionRegistry.getBeanDefinition(beanCreateMethod.getReturnType());
         validateAndSetPreBeanDefinitions(beanDefinition, preBeanDefinitions);
         Object bean = BeanFactoryUtils.invokeMethod(beanCreateMethod, configuration, parseParameters(beanCreateMethod))
                 .orElseThrow(() -> new IllegalStateException("빈 생성 시 예외가 발생했습니다."));
