@@ -41,9 +41,10 @@ public class DefaultListableBeanFactory implements BeanFactory {
     }
 
     private Object initBean(final Class<?> beanClass) {
-        if (!tempBeansInCreation.add(beanClass)) {
+        if (tempBeansInCreation.contains(beanClass)) {
             throw new BeanCurrentlyInCreationException(tempBeansInCreation);
         }
+        tempBeansInCreation.add(beanClass);
 
         final Class<?> concreteClass = BeanFactoryUtils.findConcreteClass(beanClass, getBeanClasses())
                 .orElseThrow(() -> new BeanInstantiationException(beanClass, "Could not autowire. No concrete class found for %s.".formatted(beanClass.getName())));
