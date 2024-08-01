@@ -34,3 +34,13 @@
 
 ### 프로토타입 스코프
 <img src="docs/images/prototype.png" alt="prototype">
+
+
+### Mission 1
+
+- [ ] DI 컨테이너 구현한다.
+  - [ ] 생성자를 활용하는 DI 컨테이너를 구현한다.
+  - [ ] DefaultListableBeanFactoryTest의 di() 테스트가 성공하도록 구현한다.
+- [ ] ControllerScanner를 BeanScanner로 변경한다.
+  - [ ] @Controller, @Service, @Repository에 대한 지원이 가능하도록 개선한다.
+  - [ ] AnnotationHandlerMapping이 BeanFactory와 BeanScanner를 활용해 동작하도록 리팩터링한다.
