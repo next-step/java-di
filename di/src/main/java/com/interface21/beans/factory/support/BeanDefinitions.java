@@ -31,8 +31,12 @@ public class BeanDefinitions {
         return extractTypes()
                 .stream()
                 .anyMatch(type -> {
-                    Set<Class<?>> interfaces = Set.of(type.getInterfaces());
-                    return type == clazz || interfaces.contains(clazz);
+                    if (clazz.isInterface()) {
+                        Set<Class<?>> interfaces = Set.of(type.getInterfaces());
+                        return interfaces.contains(clazz);
+                    }
+
+                    return type == clazz;
                 });
 
     }
