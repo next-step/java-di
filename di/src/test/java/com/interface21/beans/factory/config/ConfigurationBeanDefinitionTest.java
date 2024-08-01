@@ -47,6 +47,20 @@ class ConfigurationBeanDefinitionTest {
         assertThat(actual).isTrue();
     }
 
+    @Test
+    void SubBeanDefinition이_아님을_확인한다() {
+        boolean actual = ConfigurationBeanDefinition.from(SuccessConfiguration.class).isSubBeanDefinition();
+        assertThat(actual).isFalse();
+    }
+
+    @Test
+    void SuperBeanDefinition를_반환하려하면_예외가_발생한다() {
+        ConfigurationBeanDefinition beanDefinition = ConfigurationBeanDefinition.from(SuccessConfiguration.class);
+        assertThatThrownBy(beanDefinition::getSuperBeanDefinition)
+                .isInstanceOf(IllegalStateException.class)
+                .hasMessage("SuperBeanDefinition이 없어 반환할 수 없습니다.");
+    }
+
     public static class NoConfiguration {
         @Bean
         public String test() {

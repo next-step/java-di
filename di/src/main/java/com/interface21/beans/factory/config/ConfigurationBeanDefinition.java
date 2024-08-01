@@ -71,4 +71,14 @@ public class ConfigurationBeanDefinition implements BeanDefinition {
     public List<Method> getBeanCreateMethods() {
         return beanCreateMethods;
     }
+
+    @Override
+    public boolean isSubBeanDefinition() {
+        return false;
+    }
+
+    @Override
+    public BeanDefinition getSuperBeanDefinition() {
+        throw new IllegalStateException("SuperBeanDefinition이 없어 반환할 수 없습니다.");
+    }
 }

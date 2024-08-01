@@ -5,24 +5,32 @@ import com.interface21.context.annotation.Scope;
 import java.lang.reflect.Method;
 import java.util.List;
 
-public class SingletonBeanDefinition implements BeanDefinition {
+public class MethodBeanDefinition implements BeanDefinition {
 
-    private static final BeanScope BEAN_SCOPE = BeanScope.SINGLETON;
     private final Class<?> type;
+    private final BeanScope beanScope;
+    private final BeanDefinition superBeanDefinition;
 
-    public SingletonBeanDefinition(Class<?> type) {
-        validateScope(type);
+    public MethodBeanDefinition(Class<?> type, BeanScope beanScope, BeanDefinition superBeanDefinition) {
         this.type = type;
+        this.beanScope = beanScope;
+        this.superBeanDefinition = superBeanDefinition;
     }
 
-    private void validateScope(Class<?> type) {
-        if (!type.isAnnotationPresent(Scope.class)) {
-            return;
+    public static MethodBeanDefinition from(BeanDefinition beanDefinition, Method method) {
+        return new MethodBeanDefinition(
+                method.getReturnType(),
+                parseBeanScope(method),
+                beanDefinition
+        );
+    }
+
+    private static BeanScope parseBeanScope(Method method) {
+        if (!method.isAnnotationPresent(Scope.class)) {
+            return BeanScope.SINGLETON;
         }
-        Scope scope = type.getAnnotation(Scope.class);
-        if (scope.value() != BEAN_SCOPE) {
-            throw new IllegalStateException("싱글톤이 아닌 빈으로 생성할 수 없습니다.");
-        }
+        return method.getAnnotation(Scope.class)
+                .value();
     }
 
     @Override
@@ -37,7 +45,7 @@ public class SingletonBeanDefinition implements BeanDefinition {
 
     @Override
     public BeanScope getScope() {
-        return BEAN_SCOPE;
+        return beanScope;
     }
 
     @Override
@@ -57,11 +65,11 @@ public class SingletonBeanDefinition implements BeanDefinition {
 
     @Override
     public boolean isSubBeanDefinition() {
-        return false;
+        return true;
     }
 
     @Override
     public BeanDefinition getSuperBeanDefinition() {
-        throw new IllegalStateException("SuperBeanDefinition이 없어 반환할 수 없습니다.");
+        return superBeanDefinition;
     }
 }

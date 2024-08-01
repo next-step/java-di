@@ -16,4 +16,8 @@ public interface BeanDefinition {
     boolean isConfiguration();
 
     List<Method> getBeanCreateMethods();
+
+    boolean isSubBeanDefinition();
+
+    BeanDefinition getSuperBeanDefinition();
 }

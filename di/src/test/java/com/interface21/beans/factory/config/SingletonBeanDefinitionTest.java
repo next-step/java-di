@@ -30,23 +30,6 @@ class SingletonBeanDefinitionTest {
     }
 
     @Test
-    void method로_SingletonBeanDefinition을_생성한다() throws NoSuchMethodException {
-        SingletonBeanDefinition actual = SingletonBeanDefinition.from(TestConfig.class.getMethod("bean"));
-        assertAll(
-                () -> assertThat(actual.getType()).isEqualTo(String.class),
-                () -> assertThat(actual.getBeanClassName()).isEqualTo("java.lang.String"),
-                () -> assertThat(actual.getScope()).isEqualTo(BeanScope.SINGLETON)
-        );
-    }
-
-    @Test
-    void 싱글톤이_아닌_빈을_생성하려하면_예외가_발생한다() {
-        assertThatThrownBy(() -> SingletonBeanDefinition.from(TestConfig.class.getMethod("protoBean")))
-                .isInstanceOf(IllegalStateException.class)
-                .hasMessage("싱글톤이 아닌 빈으로 생성할 수 없습니다.");
-    }
-
-    @Test
     void 전달된_클래스가_상위타입인지_확인한다() {
         boolean actual = new SingletonBeanDefinition(SingletonComponent.class).isAssignableTo(ComponentInterface.class);
         assertThat(actual).isTrue();
@@ -70,6 +53,20 @@ class SingletonBeanDefinitionTest {
         assertThatThrownBy(beanDefinition::getBeanCreateMethods)
                 .isInstanceOf(IllegalStateException.class)
                 .hasMessage("Bean 생성 메소드를 가지지 않습니다.");
+    }
+
+    @Test
+    void SubBeanDefinition이_아님을_확인한다() {
+        boolean actual = new SingletonBeanDefinition(SingletonComponent.class).isSubBeanDefinition();
+        assertThat(actual).isFalse();
+    }
+
+    @Test
+    void SuperBeanDefinition를_반환하려하면_예외가_발생한다() {
+        SingletonBeanDefinition beanDefinition = new SingletonBeanDefinition(SingletonComponent.class);
+        assertThatThrownBy(beanDefinition::getSuperBeanDefinition)
+                .isInstanceOf(IllegalStateException.class)
+                .hasMessage("SuperBeanDefinition이 없어 반환할 수 없습니다.");
     }
 
     public interface ComponentInterface {
