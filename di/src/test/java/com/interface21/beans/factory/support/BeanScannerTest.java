@@ -20,9 +20,9 @@ public class BeanScannerTest {
     void getTypesAnnotatedWithTest() {
         final BeanScanner beanScanner = new BeanScanner("samples");
 
-        final Set<Class<?>> annotatedClasses = beanScanner.scan();
+        final BeanDefinitionRegistry beanDefinitionRegistry = beanScanner.scan();
 
-        assertThat(annotatedClasses).containsExactlyInAnyOrder(SampleController.class, SampleService.class, JdbcSampleRepository.class);
+        assertThat(beanDefinitionRegistry.getBeanClasses()).containsExactlyInAnyOrder(SampleController.class, SampleService.class, JdbcSampleRepository.class);
     }
 
     @Test

@@ -1,6 +1,7 @@
 package com.interface21.beans.factory.support;
 
 import com.interface21.beans.BeanScanFailureException;
+import com.interface21.beans.factory.config.SimpleBeanDefinition;
 import com.interface21.context.stereotype.Controller;
 import com.interface21.context.stereotype.Repository;
 import com.interface21.context.stereotype.Service;
@@ -9,7 +10,6 @@ import org.reflections.Reflections;
 import java.lang.annotation.Annotation;
 import java.util.List;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 public class BeanScanner {
     private final List<Class<? extends Annotation>> beanAnnotations;
@@ -23,10 +23,12 @@ public class BeanScanner {
         reflections = new Reflections(basePackage);
     }
 
-    public Set<Class<?>> scan() {
-        return beanAnnotations.stream()
+    public BeanDefinitionRegistry scan() {
+        final BeanDefinitionRegistry beanDefinitionRegistry = new SimpleBeanDefinitionRegistry();
+        beanAnnotations.stream()
                 .map(reflections::getTypesAnnotatedWith)
                 .flatMap(Set::stream)
-                .collect(Collectors.toSet());
+                .forEach(beanClass -> beanDefinitionRegistry.registerBeanDefinition(beanClass, SimpleBeanDefinition.from(beanClass)));
+        return beanDefinitionRegistry;
     }
 }
