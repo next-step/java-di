@@ -62,6 +62,12 @@ public class ConfigurationBeanDefinition implements BeanDefinition {
         return clazz.isAssignableFrom(type);
     }
 
+    @Override
+    public boolean isConfiguration() {
+        return true;
+    }
+
+    @Override
     public List<Method> getBeanCreateMethods() {
         return beanCreateMethods;
     }

@@ -40,6 +40,20 @@ class SingletonBeanDefinitionTest {
         assertThat(actual).isFalse();
     }
 
+    @Test
+    void configuration빈이_아님을_반환한다() {
+        boolean actual = new SingletonBeanDefinition(SingletonComponent.class).isConfiguration();
+        assertThat(actual).isFalse();
+    }
+
+    @Test
+    void beanCreateMethods를_반환하려하면_예외가_발생한다() {
+        SingletonBeanDefinition beanDefinition = new SingletonBeanDefinition(SingletonComponent.class);
+        assertThatThrownBy(beanDefinition::getBeanCreateMethods)
+                .isInstanceOf(IllegalStateException.class)
+                .hasMessage("Bean 생성 메소드를 가지지 않습니다.");
+    }
+
     public interface ComponentInterface {
     }
 

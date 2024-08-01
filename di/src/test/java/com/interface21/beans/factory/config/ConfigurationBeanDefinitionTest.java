@@ -40,6 +40,13 @@ class ConfigurationBeanDefinitionTest {
         );
     }
 
+    @Test
+    void configuration인지_확인한다() {
+        ConfigurationBeanDefinition beanDefinition = ConfigurationBeanDefinition.from(SuccessConfiguration.class);
+        boolean actual = beanDefinition.isConfiguration();
+        assertThat(actual).isTrue();
+    }
+
     public static class NoConfiguration {
         @Bean
         public String test() {

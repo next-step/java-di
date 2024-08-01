@@ -2,6 +2,9 @@ package com.interface21.beans.factory.config;
 
 import com.interface21.context.annotation.Scope;
 
+import java.lang.reflect.Method;
+import java.util.List;
+
 public class SingletonBeanDefinition implements BeanDefinition {
 
     private static final BeanScope BEAN_SCOPE = BeanScope.SINGLETON;
@@ -40,5 +43,15 @@ public class SingletonBeanDefinition implements BeanDefinition {
     @Override
     public boolean isAssignableTo(Class<?> clazz) {
         return clazz.isAssignableFrom(type);
+    }
+
+    @Override
+    public boolean isConfiguration() {
+        return false;
+    }
+
+    @Override
+    public List<Method> getBeanCreateMethods() {
+        throw new IllegalStateException("Bean 생성 메소드를 가지지 않습니다.");
     }
 }
