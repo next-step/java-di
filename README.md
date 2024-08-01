@@ -84,8 +84,12 @@
 - BeanFactory
   - Configuration도 빈등록을 진행한다
   - 빈 생성 시 Configuration인 클래스라면 하위 메소드의 `@Bean`이 달린 빈들도 함께 초기화한다
+- BeanDefinition
+  - Configuration Bean Definition인지 확인할 수 있다
+  - Configuration Bean이 아닌데 BeanCreate Method를 반환하려하면 예외가 발생한다
 - ConfigurationBeanDefinition
   - Configuration 어노테이션이 달리지 않은 클래스로 생성하려하면 예외가 발생한다
   - Bean 어노테이션이 달리지 않은 메소드 리스트로 생성하려하면 예외가 발생한다
   - Class를 받아 BeanDefinition을 생성한다
   - 기본적인 메소드 구성은 일반 BeanDefinition과 동일하다
+  - beancreate method를 반환할 수 있다
