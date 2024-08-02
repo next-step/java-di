@@ -2,12 +2,13 @@ package com.interface21.webmvc.servlet.mvc.tobe;
 
 import com.interface21.beans.factory.BeanFactory;
 import com.interface21.beans.factory.config.BeanDefinition;
+import com.interface21.beans.factory.config.ConfigurationBeanDefinition;
 import com.interface21.beans.factory.config.SingletonBeanDefinition;
+import com.interface21.context.annotation.Configuration;
 import com.interface21.context.stereotype.Component;
 import com.interface21.context.stereotype.Controller;
 import com.interface21.context.stereotype.Repository;
 import com.interface21.context.stereotype.Service;
-import com.interface21.core.util.ReflectionUtils;
 import com.interface21.web.bind.annotation.RequestMapping;
 import com.interface21.web.bind.annotation.RequestMethod;
 import com.interface21.web.method.support.HandlerMethodArgumentResolver;
@@ -38,10 +39,23 @@ public class BeanScanner {
 
     public Map<Class<?>, BeanDefinition> scanBean(Object... basePackage) {
         Reflections reflections = new Reflections(basePackage, Scanners.TypesAnnotated, Scanners.SubTypes);
+        return Stream.concat(
+                parseSingletonBeans(reflections).entrySet().stream(),
+                parseConfigurationBeans(reflections).entrySet().stream()
+        ).collect(toMap(Map.Entry::getKey, Map.Entry::getValue));
+    }
+
+    private Map<Class<?>, BeanDefinition> parseSingletonBeans(Reflections reflections) {
         return Stream.of(Component.class, Controller.class, Service.class, Repository.class)
                 .map(reflections::getTypesAnnotatedWith)
                 .flatMap(Collection::stream)
                 .collect(toMap(clazz -> clazz, SingletonBeanDefinition::new));
+    }
+
+    private Map<Class<?>, BeanDefinition> parseConfigurationBeans(Reflections reflections) {
+        return reflections.getTypesAnnotatedWith(Configuration.class)
+                .stream()
+                .collect(toMap(clazz -> clazz, ConfigurationBeanDefinition::from));
     }
 
     public Map<HandlerKey, HandlerExecution> scan(BeanFactory beanFactory) {
