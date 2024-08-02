@@ -1,5 +1,6 @@
 package com.interface21.beans.factory.support;
 
+import com.interface21.beans.BeanFactoryException;
 import com.interface21.beans.BeanInstantiationException;
 import com.interface21.beans.BeanScanner;
 import com.interface21.beans.factory.BeanFactory;
@@ -26,7 +27,7 @@ public class DefaultListableBeanFactory implements BeanFactory {
     private final Map<Class<?>, Set<Class<?>>> allBeanTypesBySuperType = new LinkedHashMap<>();
 
     public DefaultListableBeanFactory(final String... basePackages) {
-        this.scanner = new BeanScanner(basePackages[0], "com.interface21");
+        this.scanner = new BeanScanner(basePackages[0]);
     }
 
     @Override
@@ -39,9 +40,9 @@ public class DefaultListableBeanFactory implements BeanFactory {
         final Set<Class<?>> beanTypes = this.allBeanTypesBySuperType.get(clazz);
 
         if (beanTypes == null) {
-            throw new RuntimeException("Bean not found '" + clazz + "'");
+            throw new BeanFactoryException("Bean not found '" + clazz + "'");
         } else if (beanTypes.size() != 1) {
-            throw new RuntimeException("No qualifying bean of type '" + clazz
+            throw new BeanFactoryException("No qualifying bean of type '" + clazz
                     + "' available: expected single matching bean but found " + beanTypes.size() + ": " + beanTypes);
         }
 
@@ -96,7 +97,7 @@ public class DefaultListableBeanFactory implements BeanFactory {
 
     private void validateBeanType(final Class<?> clazz) {
         if (isNotBeanType(clazz)) {
-            throw new RuntimeException("Class not BeanType: " + clazz);
+            throw new BeanInstantiationException(clazz, "Class not BeanType");
         }
     }
 

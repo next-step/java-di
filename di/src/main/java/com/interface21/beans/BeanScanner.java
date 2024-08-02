@@ -1,6 +1,5 @@
 package com.interface21.beans;
 
-import com.interface21.context.stereotype.Component;
 import org.reflections.Reflections;
 
 import java.lang.annotation.Annotation;
@@ -12,10 +11,7 @@ public class BeanScanner {
     private final Reflections reflections;
 
     public BeanScanner(final Object... basePackages) {
-        if (basePackages.length == 0) {
-            throw new BeanScannerException("basePackages cannot be empty");
-        }
-        reflections = new Reflections(basePackages);
+        reflections = new Reflections(basePackages, "com.interface21");
     }
 
     public Set<Class<?>> scanClassesTypeAnnotatedWith(Class<? extends Annotation> annotation) {
