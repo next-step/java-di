@@ -8,6 +8,7 @@ import com.interface21.beans.factory.support.DefaultBeanDefinitionRegistry;
 import com.interface21.beans.factory.support.DefaultListableBeanFactory;
 import com.interface21.web.bind.annotation.RequestMethod;
 import org.junit.jupiter.api.Test;
+import samples.TestConfiguration;
 import samples.TestController;
 
 import java.util.Map;
@@ -19,7 +20,7 @@ class BeanScannerTest {
     @Test
     void Component연관_어노테이션을_스캔한다() {
         Map<Class<?>, BeanDefinition> actual = new BeanScanner().scanBean("samples");
-        assertThat(actual).containsOnlyKeys(TestController.class);
+        assertThat(actual).containsOnlyKeys(TestController.class, TestConfiguration.class);
     }
 
     @Test
