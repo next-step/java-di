@@ -1,8 +1,9 @@
 package com.interface21.beans.factory.support;
 
 import com.interface21.context.stereotype.Component;
-import java.util.List;
+import java.util.Set;
 import java.util.function.Predicate;
+import java.util.stream.Collectors;
 import org.reflections.Reflections;
 
 public class BeanScanner {
@@ -14,11 +15,11 @@ public class BeanScanner {
         this.basePackages = basePackages;
     }
 
-    public List<Class<?>> scan() {
+    public Set<Class<?>> scan() {
         Reflections reflections = new Reflections(STEREOTYPE_PACKAGE, basePackages);
         return reflections.getTypesAnnotatedWith(Component.class)
                 .stream()
                 .filter(Predicate.not(Class::isAnnotation))
-                .toList();
+                .collect(Collectors.toSet());
     }
 }

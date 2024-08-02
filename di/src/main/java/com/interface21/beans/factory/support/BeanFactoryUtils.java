@@ -1,11 +1,6 @@
 package com.interface21.beans.factory.support;
 
 import com.interface21.beans.factory.annotation.Autowired;
-import java.util.List;
-import org.reflections.ReflectionUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
@@ -13,6 +8,10 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Collectors;
+import org.reflections.ReflectionUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class BeanFactoryUtils {
 
@@ -71,20 +70,28 @@ public class BeanFactoryUtils {
      * @param beanClasses 구현 클래스가 들어있는 List
      * @return clazz가 구현 클래스인 경우 그대로 반환, 인터페이스인 경우 구현 클래스를 찾아서 반환
      */
-    public static Optional<Class<?>> findConcreteClass(Class<?> clazz, List<Class<?>> beanClasses) {
+    public static Optional<Class<?>> findConcreteClass(Class<?> clazz, Set<Class<?>> beanClasses) {
         if (clazz == null) {
-            return Optional.empty();
+            throw new IllegalArgumentException("class가 null일 수 없습니다.");
         }
 
         if (clazz.isInterface()) {
-            return beanClasses.stream()
-                    .filter(beanClass -> {
-                        Set<Class<?>> interfaces = Set.of(beanClass.getInterfaces());
-                        return interfaces.contains(clazz);
-                    })
-                    .findAny();
+            Set<Class<?>> concreteClass = findAllConcreteClasses(clazz, beanClasses);
+            if (concreteClass.size() > 1) {
+                throw new IllegalArgumentException("해당 Interface를 구현한 클래스가 2개 이상입니다.");
+            }
+            return concreteClass.stream().findAny();
         }
 
         return Optional.of(clazz);
+    }
+
+    private static Set<Class<?>> findAllConcreteClasses(Class<?> clazz, Set<Class<?>> beanClasses) {
+        return beanClasses.stream()
+                .filter(beanClass -> {
+                    Set<Class<?>> interfaces = Set.of(beanClass.getInterfaces());
+                    return interfaces.contains(clazz);
+                })
+                .collect(Collectors.toSet());
     }
 }

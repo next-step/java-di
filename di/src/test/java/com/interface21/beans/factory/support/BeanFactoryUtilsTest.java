@@ -1,10 +1,11 @@
 package com.interface21.beans.factory.support;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import com.interface21.beans.factory.annotation.Autowired;
 import java.lang.reflect.Constructor;
-import java.util.List;
+import java.util.Set;
 import java.util.Optional;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -34,7 +35,7 @@ class BeanFactoryUtilsTest {
     @Test
     void findConcreteClassInterface() {
         Class<TestInterface> testInterface = TestInterface.class;
-        List<Class<?>> classes = List.of(TestImpl.class, TestNotImpl.class);
+        Set<Class<?>> classes = Set.of(TestImpl.class, TestNotImpl.class);
 
         Optional<Class<?>> concreteClass = BeanFactoryUtils.findConcreteClass(testInterface, classes);
 
@@ -46,18 +47,27 @@ class BeanFactoryUtilsTest {
     @Test
     void findConcreteClassNotInterface() {
         Class<TestClass> testClass = TestClass.class;
-        List<Class<?>> classes = List.of(TestImpl.class, TestNotImpl.class);
+        Set<Class<?>> classes = Set.of(TestImpl.class, TestNotImpl.class);
 
         Optional<Class<?>> concreteClass = BeanFactoryUtils.findConcreteClass(testClass, classes);
 
         assertThat(concreteClass.get()).isEqualTo(TestClass.class);
     }
 
-    @DisplayName("clazz가 Null이면 빈 Optional 반환")
+    @DisplayName("clazz가 Null이면 예외 발생")
     @Test
     void findConcreteClassNull() {
-        Optional<Class<?>> concreteClass = BeanFactoryUtils.findConcreteClass(null, List.of());
+        assertThatThrownBy(() -> BeanFactoryUtils.findConcreteClass(null, Set.of()))
+                .isInstanceOf(IllegalArgumentException.class);
+    }
 
-        assertThat(concreteClass).isEmpty();
+    private static class TestImplA implements TestInterface {}
+    private static class TestImplB implements TestInterface {}
+
+    @DisplayName("인터페이스를 구현한 클래스가 2개 이상인 경우 예외 발생")
+    @Test
+    void findConcreteClassException() {
+        assertThatThrownBy(() -> BeanFactoryUtils.findConcreteClass(TestInterface.class, Set.of(TestImplA.class, TestImplB.class)))
+                .isInstanceOf(IllegalArgumentException.class);
     }
 }
