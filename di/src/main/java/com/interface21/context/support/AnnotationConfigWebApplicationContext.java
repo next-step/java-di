@@ -10,7 +10,7 @@ public class AnnotationConfigWebApplicationContext implements ApplicationContext
     private final DefaultListableBeanFactory beanFactory;
 
     public AnnotationConfigWebApplicationContext(final String... basePackages) {
-        this.beanFactory = new DefaultListableBeanFactory();
+        this.beanFactory = new DefaultListableBeanFactory(basePackages);
     }
 
     @Override
