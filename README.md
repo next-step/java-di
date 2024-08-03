@@ -79,9 +79,9 @@
 - [x] 순환 참조는 어떻게 처리할 수 있을까?
 
 ### 🚀 3단계 - @Configuration 구현하기
-- [] 빈을 등록할 패키지 패스를 하드코딩 하지 않고 `@ComponentScan`을 통해 동적으로 스캔할 수 있어야 한다
-- [] `@Configuration` + `@Bean` 조합으로 빈을 등록할 수 있어야 한다
-- [] `@Configuration`을 통해 등록한 빈 또한 `@Component`로 등록한 빈을 DI 할 수 있어야 한다
+- [x] 빈을 등록할 패키지 패스를 하드코딩 하지 않고 `@ComponentScan`을 통해 동적으로 스캔할 수 있어야 한다
+- [x] `@Configuration` + `@Bean` 조합으로 빈을 등록할 수 있어야 한다
+- [x] `@Configuration`을 통해 등록한 빈 또한 `@Component`로 등록한 빈을 DI 할 수 있어야 한다
 #### `@Configuration`예제
 ```java
 import org.h2.jdbcx.JdbcDataSource;
