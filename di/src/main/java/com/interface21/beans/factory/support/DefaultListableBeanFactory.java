@@ -68,14 +68,18 @@ public class DefaultListableBeanFactory implements BeanFactory {
         circularReferenceSensor.addTarget(clazz);
 
         BeanDefinition beanDefinition = beanDefinitions.getByType(clazz);
+        Object newBean = createBean(beanDefinition);
+        beans.register(newBean);
+
+        return newBean;
+    }
+
+    public Object createBean(BeanDefinition beanDefinition) {
         if (beanDefinition instanceof ComponentBeanDefinition componentBeanDefinition) {
             Constructor<?> constructor = findAutoWiredConstructor(componentBeanDefinition.getType());
             List<? extends Class<?>> parameterTypes = extractParameterTypes(constructor);
             Object[] constructorArgs = instantiateAll(parameterTypes);
-            Object newBean = BeanUtils.instantiateClass(constructor, constructorArgs);
-
-            beans.register(newBean);
-            return newBean;
+            return BeanUtils.instantiateClass(constructor, constructorArgs);
         }
 
         if (beanDefinition instanceof ConfigurationBeanDefinition configurationBeanDefinition) {
@@ -89,7 +93,7 @@ public class DefaultListableBeanFactory implements BeanFactory {
             }
         }
 
-        throw new IllegalArgumentException("빈으로 등록할 수 없는 타입");
+        throw new IllegalArgumentException("빈으로 생성할 수 없는 타입입니다. type=%s".formatted(beanDefinition.getType()));
     }
 
     private List<? extends Class<?>> extractParameterTypes(Method creationMethod) {
