@@ -10,7 +10,7 @@ import java.net.http.HttpResponse;
 import static org.assertj.core.api.Assertions.assertThat;
 
 @TomcatServerTest
-class AnnotationForwardControllerTest {
+class ForwardControllerTest {
 
   @DisplayName("루트 경로로 요청을 하면 index.jsp 를 반환 한다")
   @Test

@@ -1,8 +1,11 @@
 package camp.nextstep.support;
 
+import camp.nextstep.BeanFactoryServletContainerInitializer;
 import camp.nextstep.UncheckedServletException;
+import com.interface21.webmvc.servlet.mvc.tobe.DispatcherServlet;
 import org.apache.catalina.Context;
 import org.apache.catalina.LifecycleException;
+import org.apache.catalina.Wrapper;
 import org.apache.catalina.connector.Connector;
 import org.apache.catalina.core.StandardContext;
 import org.apache.catalina.startup.Tomcat;
@@ -28,6 +31,12 @@ public class TestTomcat {
 
             final var docBase = new File(WEBAPP_DIR_LOCATION).getAbsolutePath();
             final var context = (StandardContext) tomcat.addWebapp("", docBase);
+
+            context.addServletContainerInitializer(new BeanFactoryServletContainerInitializer(), null);
+
+            final Wrapper sw = tomcat.addServlet(context.getPath(), "dispatcherServlet", new DispatcherServlet());
+            sw.addMapping("/");
+
             skipTldScan(context);
             skipClearReferences(context);
         }

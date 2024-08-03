@@ -25,6 +25,7 @@ public class DefaultListableBeanFactory implements BeanFactory {
 
     public DefaultListableBeanFactory(final String... basePackages) {
         this.beanDefinitionMap = new BeanDefinitionMapping(basePackages);
+        initialize();
     }
 
     @Override

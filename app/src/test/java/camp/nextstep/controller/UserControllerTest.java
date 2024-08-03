@@ -23,14 +23,14 @@ class UserControllerTest {
         assertThat(response.body()).contains("account", "gugu");
     }
 
-    @DisplayName("파라미터로 받은 account 로 user 를 조회할 수 없으면 에러 메시지를 반환 한다")
+    @DisplayName("파라미터로 받은 account 로 user 를 조회할 수 없으면 null 을 반환 한다")
     @Test
     public void userApiNotFound() throws Exception {
         final Map<String, Object> params = Map.of("account", "gugu123");
 
         final HttpResponse<String> response = HttpUtils.get("/api/user", params);
 
-        assertThat(response.body()).contains("message", "user not found");
+        assertThat(response.body()).contains("user", "null");
     }
 
 }

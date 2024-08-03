@@ -36,6 +36,8 @@ public class TomcatStarter {
         final var docBase = new File(webappDirLocation).getAbsolutePath();
         final var context = (StandardContext) tomcat.addWebapp("", docBase);
 
+        context.addServletContainerInitializer(new BeanFactoryServletContainerInitializer(), null);
+
         final Wrapper sw = this.tomcat.addServlet(context.getPath(), "dispatcherServlet", dispatcherServlet);
         sw.addMapping("/");
 

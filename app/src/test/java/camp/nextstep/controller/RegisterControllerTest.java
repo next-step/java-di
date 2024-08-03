@@ -12,7 +12,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertAll;
 
 @TomcatServerTest
-class AnnotationRegisterControllerTest {
+class RegisterControllerTest {
 
     @DisplayName("post 메서드로 /register 요청을 하면 회원가입 후 index.jsp 로 리다이렉트 한다")
     @Test
@@ -29,7 +29,7 @@ class AnnotationRegisterControllerTest {
     @DisplayName("register 뷰 요청을 하면 register.jsp 로 리다이렉트 한다")
     @Test
     public void registerView() throws Exception {
-        final String path = "/register/view";
+        final String path = "/register";
         final HttpResponse<String> response = HttpUtils.get(path);
 
         assertAll(
