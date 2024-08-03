@@ -19,13 +19,6 @@ public class BeanDefinitions {
         }
     }
 
-    public Set<Class<?>> extractTypes() {
-        return nameToBeanDefinitionMap.values()
-                .stream()
-                .map(BeanDefinition::getType)
-                .collect(Collectors.toSet());
-    }
-
     public void registerConfigurationBeanDefinitions(Set<Class<?>> configurationClasses) {
         configurationClasses.forEach(configurationClass -> {
             Object configurationObject = BeanUtils.instantiate(configurationClass);
@@ -36,6 +29,13 @@ public class BeanDefinitions {
                         nameToBeanDefinitionMap.put(beanDefinition.getName(), beanDefinition);
                     });
         });
+    }
+
+    public Set<Class<?>> extractTypes() {
+        return nameToBeanDefinitionMap.values()
+                .stream()
+                .map(BeanDefinition::getType)
+                .collect(Collectors.toSet());
     }
 
     public BeanDefinition getByType(Class<?> clazz) {
@@ -62,7 +62,7 @@ public class BeanDefinitions {
                 .count();
 
         if (count > 1) {
-            throw new IllegalArgumentException("해당 인터페이스를 지원하는 구체 클래스가 여러개 입니다. (interface=%s)".formatted(clazz.getSimpleName()));
+            throw new IllegalArgumentException("해당 인터페이스를 지원하는 구체 클래스가 여러개입니다. (interface=%s)".formatted(clazz.getSimpleName()));
         }
     }
 }
