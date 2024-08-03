@@ -76,16 +76,14 @@ public class DefaultListableBeanFactory implements BeanFactory {
 
     public Object createBean(BeanDefinition beanDefinition) {
         if (beanDefinition instanceof ComponentBeanDefinition componentBeanDefinition) {
-            Constructor<?> constructor = findAutoWiredConstructor(componentBeanDefinition.getType());
-            List<? extends Class<?>> parameterTypes = extractParameterTypes(constructor);
-            Object[] constructorArgs = instantiateAll(parameterTypes);
+            Constructor<?> constructor = componentBeanDefinition.getAutoWiredConstructor();
+            Object[] constructorArgs = instantiateAllParameters(constructor.getParameters());
             return BeanUtils.instantiateClass(constructor, constructorArgs);
         }
 
         if (beanDefinition instanceof ConfigurationBeanDefinition configurationBeanDefinition) {
             Method creationMethod = configurationBeanDefinition.getCreationMethod();
-            List<? extends Class<?>> parameterTypes = extractParameterTypes(creationMethod);
-            Object[] methodParameters = instantiateAll(parameterTypes);
+            Object[] methodParameters = instantiateAllParameters(creationMethod.getParameters());
             try {
                 return creationMethod.invoke(configurationBeanDefinition.getConfigurationObject(), methodParameters);
             } catch (IllegalAccessException | InvocationTargetException e) {
@@ -96,31 +94,19 @@ public class DefaultListableBeanFactory implements BeanFactory {
         throw new IllegalArgumentException("빈으로 생성할 수 없는 타입입니다. type=%s".formatted(beanDefinition.getType()));
     }
 
-    private List<? extends Class<?>> extractParameterTypes(Method creationMethod) {
-        return Arrays.stream(creationMethod.getParameters())
+    private List<? extends Class<?>> extractParameterTypes(Parameter[] parameters) {
+        return Arrays.stream(parameters)
                 .map(Parameter::getType)
                 .toList();
     }
 
-    private Constructor<?> findAutoWiredConstructor(Class<?> clazz) {
-        Constructor<?> autowiredConstructor = BeanFactoryUtils.getAutowiredConstructor(clazz);
-        if (autowiredConstructor == null) {
-            return clazz.getDeclaredConstructors()[0];
-        }
-        return autowiredConstructor;
-    }
-
-    private Object[] instantiateAll(List<? extends Class<?>> types) {
+    private Object[] instantiateAllParameters(Parameter[] parameters) {
+        List<? extends Class<?>> types = extractParameterTypes(parameters);
         detectCirculation(types);
+
         return types.stream()
                 .map(this::getBean)
                 .toArray();
-    }
-
-    private List<? extends Class<?>> extractParameterTypes(Constructor<?> constructor) {
-        return Arrays.stream(constructor.getParameters())
-                .map(Parameter::getType)
-                .toList();
     }
 
     private void detectCirculation(List<? extends Class<?>> types) {
