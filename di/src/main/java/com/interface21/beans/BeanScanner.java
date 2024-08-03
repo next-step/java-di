@@ -1,5 +1,6 @@
 package com.interface21.beans;
 
+import com.interface21.context.stereotype.Component;
 import org.reflections.Reflections;
 
 import java.lang.annotation.Annotation;
@@ -14,8 +15,8 @@ public class BeanScanner {
         reflections = new Reflections(basePackages, "com.interface21");
     }
 
-    public Set<Class<?>> scanClassesTypeAnnotatedWith(Class<? extends Annotation> annotation) {
-        return reflections.getTypesAnnotatedWith(annotation)
+    public Set<Class<?>> scanClassesTypeAnnotatedWith() {
+        return reflections.getTypesAnnotatedWith(Component.class)
                 .stream()
                 .filter(this::isClass)
                 .collect(Collectors.toSet());

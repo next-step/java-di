@@ -52,7 +52,7 @@ public class DefaultListableBeanFactory implements BeanFactory {
     }
 
     public void initialize() {
-        final Set<Class<?>> beanClasses = scanner.scanClassesTypeAnnotatedWith(Component.class);
+        final Set<Class<?>> beanClasses = scanner.scanClassesTypeAnnotatedWith();
         beanDefinitionMap.toBeanDefinitionMap(beanClasses);
 
         createBeansByClass(beanDefinitionMap.getBeanClasses());
