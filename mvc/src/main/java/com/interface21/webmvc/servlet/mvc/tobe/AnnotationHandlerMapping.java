@@ -1,5 +1,8 @@
 package com.interface21.webmvc.servlet.mvc.tobe;
 
+import com.interface21.context.ApplicationContext;
+import com.interface21.context.support.tobe.BeanScanner;
+import com.interface21.context.support.tobe.HandlerMappingFactory;
 import com.interface21.web.bind.annotation.RequestMethod;
 import com.interface21.webmvc.servlet.mvc.HandlerMapping;
 import jakarta.servlet.http.HttpServletRequest;
@@ -13,18 +16,26 @@ public class AnnotationHandlerMapping implements HandlerMapping {
 
     private static final Logger log = LoggerFactory.getLogger(AnnotationHandlerMapping.class);
 
-    private final Object[] basePackage;
+    private final ApplicationContext applicationContext;
     private final Map<HandlerKey, HandlerExecution> handlerExecutions;
 
-    public AnnotationHandlerMapping(final Object... basePackage) {
-        this.basePackage = basePackage;
+    public AnnotationHandlerMapping(ApplicationContext applicationContext) {
+        this.applicationContext = applicationContext;
         this.handlerExecutions = new HashMap<>();
     }
 
     public void initialize() {
-        final var controllerScanner = new ControllerScanner();
-        handlerExecutions.putAll(controllerScanner.scan(basePackage));
+        final var beanScanner = new BeanScanner(applicationContext);
+        final var handlerMappingBuilder = new HandlerMappingFactory(applicationContext);
+
+        registerAllHandlerMappings(beanScanner, handlerMappingBuilder);
         log.info("Initialized AnnotationHandlerMapping!");
+    }
+
+    private void registerAllHandlerMappings(BeanScanner beanScanner, HandlerMappingFactory handlerMappingFactory) {
+        final var beanClasses = beanScanner.scan();
+        final var handlerMappings = handlerMappingFactory.getHandlerMappings(beanClasses);
+        handlerExecutions.putAll(handlerMappings);
     }
 
     public Object getHandler(final HttpServletRequest request) {

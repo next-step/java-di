@@ -1,7 +1,8 @@
 package camp.nextstep.controller;
 
+import camp.nextstep.dao.UserDao;
 import camp.nextstep.domain.User;
-import camp.nextstep.dao.InMemoryUserDao;
+import com.interface21.beans.factory.annotation.Autowired;
 import com.interface21.context.stereotype.Controller;
 import com.interface21.web.bind.annotation.RequestMapping;
 import com.interface21.web.bind.annotation.RequestMethod;
@@ -17,10 +18,11 @@ public class LoginController {
 
     private static final Logger log = LoggerFactory.getLogger(LoginController.class);
 
-    private final InMemoryUserDao userDao;
+    private final UserDao userDao;
 
-    public LoginController() {
-        this.userDao = new InMemoryUserDao();
+    @Autowired
+    public LoginController(UserDao userDao) {
+        this.userDao = userDao;
     }
 
     @RequestMapping(value = "/login", method = RequestMethod.GET)

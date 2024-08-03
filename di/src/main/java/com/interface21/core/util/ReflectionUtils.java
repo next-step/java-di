@@ -1,12 +1,17 @@
 package com.interface21.core.util;
 
+import org.reflections.Reflections;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.lang.annotation.Annotation;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
+import java.util.Arrays;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 public abstract class ReflectionUtils {
 
@@ -39,7 +44,7 @@ public abstract class ReflectionUtils {
             return clazz.cast(constructor.newInstance(args));
         } catch (IllegalAccessException e) {
             log.warn("{} constructor access failed", constructor.getName());
-        } catch(InvocationTargetException e) {
+        } catch (InvocationTargetException e) {
             log.warn("{} target invalid", clazz.getSimpleName());
         } catch (InstantiationException e) {
             log.warn("{} instantiation failed", clazz.getSimpleName());
@@ -94,5 +99,15 @@ public abstract class ReflectionUtils {
             }
         }
         return false;
+    }
+
+    @SafeVarargs
+    public static Set<Class<?>> getTypesAnnotatedWith(String[] basePackages,
+                                                      Class<? extends Annotation>... annotations) {
+        Reflections reflections = new Reflections((Object[]) basePackages);
+
+        return Arrays.stream(annotations)
+                     .flatMap(annotation -> reflections.getTypesAnnotatedWith(annotation).stream())
+                     .collect(Collectors.toSet());
     }
 }
