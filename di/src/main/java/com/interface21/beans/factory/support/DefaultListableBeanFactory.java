@@ -7,10 +7,8 @@ import com.interface21.context.stereotype.Controller;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
+import java.lang.reflect.Method;
+import java.util.*;
 
 import static com.interface21.beans.factory.support.BeanConstructor.createTargetConstructor;
 import static java.util.stream.Collectors.toMap;
@@ -62,14 +60,20 @@ public class DefaultListableBeanFactory implements BeanFactory {
     }
 
     private Object createBean(BeanDefinition beanDefinition, Set<BeanDefinition> preBeanDefinitions) {
-        validateAndSetPreBeanDefinitions(beanDefinition, preBeanDefinitions);
         if (isContainBean(beanDefinition.getType())) {
             return getBean(beanDefinition.getType());
+        }
+        if (beanDefinition.isSubBeanDefinition()) {
+            return createBean(beanDefinition.getSuperBeanDefinition(), preBeanDefinitions);
+        }
+        validateAndSetPreBeanDefinitions(beanDefinition, preBeanDefinitions);
+        if (beanDefinition.isConfiguration()) {
+            return createConfigurationBean(beanDefinition, preBeanDefinitions);
         }
         return createNewBean(beanDefinition, preBeanDefinitions);
     }
 
-    private static void validateAndSetPreBeanDefinitions(BeanDefinition beanDefinition, Set<BeanDefinition> preBeanDefinitions) {
+    private void validateAndSetPreBeanDefinitions(BeanDefinition beanDefinition, Set<BeanDefinition> preBeanDefinitions) {
         if (preBeanDefinitions.contains(beanDefinition)) {
             throw new IllegalStateException("순환참조인 빈이 있어 초기화할 수 없습니다.");
         }
@@ -82,12 +86,35 @@ public class DefaultListableBeanFactory implements BeanFactory {
                 .anyMatch(clazz::isAssignableFrom);
     }
 
-    private Object createNewBean(BeanDefinition beanDefinition, Set<BeanDefinition> preBeanDefinition) {
+    private Object createConfigurationBean(BeanDefinition beanDefinition, Set<BeanDefinition> preBeanDefinitions) {
+        Object configuration = createNewBean(beanDefinition, preBeanDefinitions);
+        List<Method> beanCreateMethods = beanDefinition.getBeanCreateMethods();
+        for (Method beanCreateMethod : beanCreateMethods) {
+            createMethodBean(preBeanDefinitions, beanCreateMethod, configuration);
+        }
+        return configuration;
+    }
+
+    private void createMethodBean(Set<BeanDefinition> preBeanDefinitions, Method beanCreateMethod, Object configuration) {
+        BeanDefinition beanDefinition = beanDefinitionRegistry.getBeanDefinition(beanCreateMethod.getReturnType());
+        validateAndSetPreBeanDefinitions(beanDefinition, preBeanDefinitions);
+        Object bean = BeanFactoryUtils.invokeMethod(beanCreateMethod, configuration, parseParameters(beanCreateMethod))
+                .orElseThrow(() -> new IllegalStateException("빈 생성 시 예외가 발생했습니다."));
+        singletonObjects.put(beanDefinition.getType(), bean);
+    }
+
+    private Object[] parseParameters(Method beanCreateMethod) {
+        return Arrays.stream(beanCreateMethod.getParameterTypes())
+                .map(this::getBean)
+                .toArray();
+    }
+
+    private Object createNewBean(BeanDefinition beanDefinition, Set<BeanDefinition> preBeanDefinitions) {
         BeanConstructor targetConstructor = createTargetConstructor(beanDefinition.getType());
         if (targetConstructor.isNoArgument()) {
             return createNoArgConstructorBean(beanDefinition);
         }
-        return createArgConstructorBean(beanDefinition, targetConstructor, preBeanDefinition);
+        return createArgConstructorBean(beanDefinition, targetConstructor, preBeanDefinitions);
     }
 
     private Object createNoArgConstructorBean(BeanDefinition beanDefinition) {
@@ -99,12 +126,12 @@ public class DefaultListableBeanFactory implements BeanFactory {
     private Object createArgConstructorBean(
             BeanDefinition beanDefinition,
             BeanConstructor beanConstructor,
-            Set<BeanDefinition> preBeanDefinition
+            Set<BeanDefinition> preBeanDefinitions
     ) {
         Object[] constructorParameters = beanConstructor.getParameterTypes()
                 .stream()
                 .map(beanDefinitionRegistry::getBeanDefinition)
-                .map(subBeanDefinition -> createBean(subBeanDefinition, preBeanDefinition))
+                .map(subBeanDefinition -> createBean(subBeanDefinition, preBeanDefinitions))
                 .toArray();
         Object bean = BeanUtils.instantiateClass(beanConstructor.getConstructor(), constructorParameters);
         return singletonObjects.put(beanDefinition.getType(), bean);

@@ -1,5 +1,6 @@
 package com.interface21.beans.factory.config;
 
+import com.interface21.context.annotation.Bean;
 import com.interface21.context.annotation.Scope;
 import com.interface21.context.stereotype.Component;
 import org.junit.jupiter.api.Test;
@@ -40,6 +41,34 @@ class SingletonBeanDefinitionTest {
         assertThat(actual).isFalse();
     }
 
+    @Test
+    void configuration빈이_아님을_반환한다() {
+        boolean actual = new SingletonBeanDefinition(SingletonComponent.class).isConfiguration();
+        assertThat(actual).isFalse();
+    }
+
+    @Test
+    void beanCreateMethods를_반환하려하면_예외가_발생한다() {
+        SingletonBeanDefinition beanDefinition = new SingletonBeanDefinition(SingletonComponent.class);
+        assertThatThrownBy(beanDefinition::getBeanCreateMethods)
+                .isInstanceOf(IllegalStateException.class)
+                .hasMessage("Bean 생성 메소드를 가지지 않습니다.");
+    }
+
+    @Test
+    void SubBeanDefinition이_아님을_확인한다() {
+        boolean actual = new SingletonBeanDefinition(SingletonComponent.class).isSubBeanDefinition();
+        assertThat(actual).isFalse();
+    }
+
+    @Test
+    void SuperBeanDefinition를_반환하려하면_예외가_발생한다() {
+        SingletonBeanDefinition beanDefinition = new SingletonBeanDefinition(SingletonComponent.class);
+        assertThatThrownBy(beanDefinition::getSuperBeanDefinition)
+                .isInstanceOf(IllegalStateException.class)
+                .hasMessage("SuperBeanDefinition이 없어 반환할 수 없습니다.");
+    }
+
     public interface ComponentInterface {
     }
 
@@ -54,5 +83,18 @@ class SingletonBeanDefinitionTest {
     @Component
     @Scope(BeanScope.PROTOTYPE)
     public class PrototypeComponent {
+    }
+
+    public class TestConfig {
+        @Bean
+        public String bean() {
+            return "bean";
+        }
+
+        @Bean
+        @Scope(value = BeanScope.PROTOTYPE)
+        public String protoBean() {
+            return "proto";
+        }
     }
 }

@@ -10,6 +10,8 @@ import jakarta.servlet.ServletContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.List;
+
 public class MyWebApplicationInitializer implements WebApplicationInitializer {
 
     private static final Logger log = LoggerFactory.getLogger(MyWebApplicationInitializer.class);
@@ -20,7 +22,7 @@ public class MyWebApplicationInitializer implements WebApplicationInitializer {
 
         final var dispatcherServlet = new DispatcherServlet();
         dispatcherServlet.addHandlerMapping(new ManualHandlerMapping());
-        dispatcherServlet.addHandlerMapping(new AnnotationHandlerMapping("camp.nextstep.controller"));
+        dispatcherServlet.addHandlerMapping(new AnnotationHandlerMapping(List.of(), "camp.nextstep.controller"));
 
         dispatcherServlet.addHandlerAdapter(new ControllerHandlerAdapter());
         dispatcherServlet.addHandlerAdapter(new HandlerExecutionHandlerAdapter());

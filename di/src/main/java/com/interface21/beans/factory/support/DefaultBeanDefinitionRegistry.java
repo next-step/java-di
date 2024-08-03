@@ -2,9 +2,12 @@ package com.interface21.beans.factory.support;
 
 import com.interface21.beans.BeanInstantiationException;
 import com.interface21.beans.factory.config.BeanDefinition;
+import com.interface21.beans.factory.config.MethodBeanDefinition;
+import com.interface21.context.annotation.Configuration;
 import com.interface21.context.stereotype.Component;
 
 import java.lang.annotation.Annotation;
+import java.lang.reflect.Method;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
@@ -24,10 +27,27 @@ public class DefaultBeanDefinitionRegistry implements BeanDefinitionRegistry {
 
     @Override
     public void registerBeanDefinition(Class<?> clazz, BeanDefinition beanDefinition) {
-        if (!isComponentPresent(clazz)) {
-            throw new IllegalArgumentException("Component가 있는 클래스만 저장할 수 있습니다.");
+        if (isConfiguration(clazz)) {
+            beanDefinitionMap.put(clazz.getSimpleName(), beanDefinition);
+            registerMethodBeanDefinition(beanDefinition);
+            return;
         }
-        beanDefinitionMap.put(clazz.getSimpleName(), beanDefinition);
+        if (isComponentPresent(clazz)) {
+            beanDefinitionMap.put(clazz.getSimpleName(), beanDefinition);
+            return;
+        }
+        throw new IllegalArgumentException("Component가 있는 클래스만 저장할 수 있습니다.");
+    }
+
+    private void registerMethodBeanDefinition(BeanDefinition beanDefinition) {
+        for (Method beanCreateMethod : beanDefinition.getBeanCreateMethods()) {
+            MethodBeanDefinition methodBeanDefinition = MethodBeanDefinition.from(beanDefinition, beanCreateMethod);
+            beanDefinitionMap.put(methodBeanDefinition.getBeanClassName(), methodBeanDefinition);
+        }
+    }
+
+    private boolean isConfiguration(Class<?> clazz) {
+        return clazz.isAnnotationPresent(Configuration.class);
     }
 
     private boolean isComponentPresent(Class<?> clazz) {
