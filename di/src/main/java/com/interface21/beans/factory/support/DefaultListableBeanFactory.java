@@ -18,16 +18,14 @@ public class DefaultListableBeanFactory implements BeanFactory {
 
     private static final Logger log = LoggerFactory.getLogger(DefaultListableBeanFactory.class);
 
-    private final BeanScanner scanner;
-
-    private final BeanDefinitionMapping beanDefinitionMap = new BeanDefinitionMapping();
+    private final BeanDefinitionMapping beanDefinitionMap;
 
     private final Map<Class<?>, Object> singletonObjects = new HashMap<>();
 
     private final Map<Class<?>, Set<Class<?>>> allBeanTypesBySuperType = new LinkedHashMap<>();
 
     public DefaultListableBeanFactory(final String... basePackages) {
-        this.scanner = new BeanScanner(basePackages[0]);
+        this.beanDefinitionMap = new BeanDefinitionMapping(basePackages);
     }
 
     @Override
@@ -52,8 +50,7 @@ public class DefaultListableBeanFactory implements BeanFactory {
     }
 
     public void initialize() {
-        final Set<Class<?>> beanClasses = scanner.scanClassesTypeAnnotatedWith();
-        beanDefinitionMap.toBeanDefinitionMap(beanClasses);
+        beanDefinitionMap.scanBeanDefinitions();
 
         createBeansByClass(beanDefinitionMap.getBeanClasses());
     }
