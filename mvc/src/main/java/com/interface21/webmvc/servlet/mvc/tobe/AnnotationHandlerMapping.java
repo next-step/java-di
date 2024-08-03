@@ -1,31 +1,29 @@
 package com.interface21.webmvc.servlet.mvc.tobe;
 
+import com.interface21.beans.factory.BeanFactory;
+import com.interface21.beans.factory.support.BeanFactoryUtils;
+import com.interface21.context.stereotype.Controller;
 import com.interface21.web.bind.annotation.RequestMethod;
-import com.interface21.webmvc.servlet.mvc.tobe.support.PathPatternUtil;
 import jakarta.servlet.http.HttpServletRequest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.lang.reflect.Method;
 import java.util.List;
 
 public class AnnotationHandlerMapping implements HandlerMapping {
 
     private static final Logger log = LoggerFactory.getLogger(AnnotationHandlerMapping.class);
 
-    private final Object[] basePackage;
     private final MappingRegistry mappingRegistry = new MappingRegistry();
 
-    public AnnotationHandlerMapping(final Object... basePackage) {
-        this.basePackage = basePackage;
-    }
-
     @Override
-    public void initialize() {
+    public void initialize(final BeanFactory beanFactory) {
         log.info("Initialized AnnotationHandlerMapping!");
-        final ControllerScanner controllerScanner = new ControllerScanner(basePackage);
 
-        mappingRegistry.registerControllers(controllerScanner.getControllerBeans());
+        final List<Object> matchingBeans = BeanFactoryUtils.beansOfAnnotated(beanFactory, Controller.class);
+
+        matchingBeans.forEach(handler -> mappingRegistry.registerControllers(matchingBeans));
+
         mappingRegistry.addArgumentResolver(new ServletHandlerMethodArgumentResolver());
         mappingRegistry.addArgumentResolver(new RequestParamMethodArgumentResolver(false));
         mappingRegistry.addArgumentResolver(new PathVariableMethodArgumentResolver());

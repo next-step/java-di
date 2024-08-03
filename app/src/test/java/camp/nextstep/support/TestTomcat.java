@@ -1,10 +1,8 @@
-package camp.nextstep;
+package camp.nextstep.support;
 
-import com.interface21.webmvc.servlet.mvc.tobe.DispatcherServlet;
-import jakarta.servlet.Servlet;
+import camp.nextstep.UncheckedServletException;
 import org.apache.catalina.Context;
 import org.apache.catalina.LifecycleException;
-import org.apache.catalina.Wrapper;
 import org.apache.catalina.connector.Connector;
 import org.apache.catalina.core.StandardContext;
 import org.apache.catalina.startup.Tomcat;
@@ -15,32 +13,26 @@ import org.slf4j.LoggerFactory;
 
 import java.io.File;
 
-public class TomcatStarter {
+public class TestTomcat {
 
-    private static final Logger log = LoggerFactory.getLogger(TomcatStarter.class);
+    private static final Logger log = LoggerFactory.getLogger(TestTomcat.class);
 
-    private static final String WEBAPP_DIR_LOCATION = "app/src/main/webapp/";
+    private static final String WEBAPP_DIR_LOCATION = "src/main/webapp/";
 
-    private final Servlet dispatcherServlet = new DispatcherServlet();
+    private static Tomcat tomcat;
 
-    private final Tomcat tomcat;
+    public static synchronized Tomcat getInstance() {
+        if (tomcat == null) {
+            tomcat = new Tomcat();
+            tomcat.setConnector(createConnector(8080));
 
-    public TomcatStarter(final int port) {
-        this(WEBAPP_DIR_LOCATION, port);
-    }
+            final var docBase = new File(WEBAPP_DIR_LOCATION).getAbsolutePath();
+            final var context = (StandardContext) tomcat.addWebapp("", docBase);
+            skipTldScan(context);
+            skipClearReferences(context);
+        }
 
-    public TomcatStarter(final String webappDirLocation, final int port) {
-        this.tomcat = new Tomcat();
-        tomcat.setConnector(createConnector(port));
-
-        final var docBase = new File(webappDirLocation).getAbsolutePath();
-        final var context = (StandardContext) tomcat.addWebapp("", docBase);
-
-        final Wrapper sw = this.tomcat.addServlet(context.getPath(), "dispatcherServlet", dispatcherServlet);
-        sw.addMapping("/");
-
-        skipTldScan(context);
-        skipClearReferences(context);
+        return tomcat;
     }
 
     public void start() {
@@ -63,20 +55,20 @@ public class TomcatStarter {
         }
     }
 
-    private Connector createConnector(final int port) {
+    private static Connector createConnector(final int port) {
         final var connector = new Connector();
         connector.setPort(port);
         return connector;
     }
 
-    private void skipTldScan(final Context context) {
+    private static void skipTldScan(final Context context) {
         final var jarScanner = (StandardJarScanner) context.getJarScanner();
         final var jarScanFilter = new StandardJarScanFilter();
         jarScanFilter.setDefaultTldScan(false);
         jarScanner.setJarScanFilter(jarScanFilter);
     }
 
-    private void skipClearReferences(final StandardContext context) {
+    private static void skipClearReferences(final StandardContext context) {
         /**
          * https://tomcat.apache.org/tomcat-10.1-doc/config/context.html
          *

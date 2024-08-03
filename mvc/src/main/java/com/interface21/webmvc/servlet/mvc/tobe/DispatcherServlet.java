@@ -1,5 +1,7 @@
 package com.interface21.webmvc.servlet.mvc.tobe;
 
+import com.interface21.beans.factory.BeanFactory;
+import com.interface21.web.context.support.BeanFactoryUtils;
 import com.interface21.webmvc.servlet.ModelAndView;
 import com.interface21.webmvc.servlet.View;
 import com.interface21.webmvc.servlet.mvc.HandlerAdapter;
@@ -23,12 +25,20 @@ public class DispatcherServlet extends HttpServlet {
 
     @Override
     public void init() {
-        initHandlerMappings();
+        initStrategies(initBeanFactory());
+    }
+
+    private BeanFactory initBeanFactory() {
+        return BeanFactoryUtils.getBeanFactory(getServletContext(), BeanFactory.BEAN_FACTORY_CONTEXT_ATTRIBUTE);
+    }
+
+    private void initStrategies(final BeanFactory beanFactory) {
+        initHandlerMappings(beanFactory);
         initHandlerAdapters();
     }
 
-    private void initHandlerMappings() {
-        handlerMappings.initialize();
+    private void initHandlerMappings(final BeanFactory beanFactory) {
+        handlerMappings.initialize(beanFactory);
     }
 
     private void initHandlerAdapters() {

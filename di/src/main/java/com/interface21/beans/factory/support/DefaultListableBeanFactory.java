@@ -2,14 +2,13 @@ package com.interface21.beans.factory.support;
 
 import com.interface21.beans.BeanFactoryException;
 import com.interface21.beans.BeanInstantiationException;
-import com.interface21.beans.BeanScanner;
 import com.interface21.beans.factory.BeanFactory;
 import com.interface21.beans.factory.annotation.Autowired;
 import com.interface21.beans.factory.config.BeanDefinitionMapping;
-import com.interface21.context.stereotype.Component;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.lang.annotation.Annotation;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.util.*;
@@ -47,6 +46,18 @@ public class DefaultListableBeanFactory implements BeanFactory {
         final Class<?> beanType = beanTypes.stream().findFirst().get();
 
         return (T) this.singletonObjects.get(beanType);
+    }
+
+    @Override
+    public List<Object> getBeansForAnnotation(final Class<? extends Annotation> annotationType) {
+        return singletonObjects.values().stream()
+                .filter(bean -> isAnnotationOnBean(bean, annotationType))
+                .toList();
+    }
+
+    public boolean isAnnotationOnBean(final Object bean, final Class<? extends Annotation> annotationType) {
+        return mapToSuperTypes(bean.getClass()).stream()
+                .anyMatch(clazz -> clazz.isAnnotationPresent(annotationType));
     }
 
     public void initialize() {

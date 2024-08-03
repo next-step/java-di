@@ -1,5 +1,6 @@
 package com.interface21.webmvc.servlet.mvc.tobe;
 
+import com.interface21.beans.factory.BeanFactory;
 import jakarta.servlet.http.HttpServletRequest;
 
 import java.util.ArrayList;
@@ -9,9 +10,9 @@ import java.util.Objects;
 public class HandlerMappings {
     final List<HandlerMapping> handlerMappings = new ArrayList<>();
 
-    public void initialize() {
+    public void initialize(final BeanFactory beanFactory) {
         handlerMappings.add(new AnnotationHandlerMapping());
-        handlerMappings.forEach(HandlerMapping::initialize);
+        handlerMappings.forEach(handlerMapping -> handlerMapping.initialize(beanFactory));
     }
 
     public void addHandlerMapping(final HandlerMapping handlerMapping) {
