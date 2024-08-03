@@ -58,7 +58,7 @@ public class BeanDefinitions {
     private void checkMultipleConcreteClasses(Class<?> clazz) {
         long count = nameToBeanDefinitionMap.values()
                 .stream()
-                .filter(beanDefinition -> beanDefinition.equalsType(clazz))
+                .filter(beanDefinition -> beanDefinition.isImplement(clazz))
                 .count();
 
         if (count > 1) {
