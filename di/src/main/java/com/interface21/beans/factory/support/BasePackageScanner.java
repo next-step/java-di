@@ -19,7 +19,7 @@ public class BasePackageScanner {
                 .filter(Predicate.not(Class::isAnnotation))
                 .filter(clazz -> {
                     ComponentScan componentScan = clazz.getAnnotation(ComponentScan.class);
-                    return componentScan.basePackages().length == 0;
+                    return componentScan.value().length == 0 && componentScan.basePackages().length == 0;
                 })
                 .map(Class::getPackageName)
                 .toList();
@@ -29,8 +29,14 @@ public class BasePackageScanner {
                 .stream()
                 .filter(Predicate.not(Class::isAnnotation))
                 .map(clazz -> clazz.getAnnotation(ComponentScan.class))
-                .filter(componentScan -> componentScan.basePackages().length != 0)
-                .flatMap(componentScan -> Arrays.stream(componentScan.basePackages()))
+                .filter(componentScan -> componentScan.value().length != 0 || componentScan.basePackages().length != 0)
+                .flatMap(componentScan -> {
+                    if (componentScan.value().length == 0) {
+                        return Arrays.stream(componentScan.basePackages());
+                    }
+
+                    return Arrays.stream(componentScan.value());
+                })
                 .toList();
 
         return Stream.concat(basePackages1.stream(), basePackages2.stream())

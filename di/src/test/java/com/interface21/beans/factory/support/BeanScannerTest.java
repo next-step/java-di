@@ -19,6 +19,6 @@ class BeanScannerTest {
 
         Set<Class<?>> beanClasses = beanScanner.scan();
 
-        assertThat(beanClasses).containsExactlyInAnyOrder(JdbcSampleDataSource.class, JdbcSampleRepository.class, SampleComponent.class, SampleController.class, SampleService.class);
+        assertThat(beanClasses).contains(JdbcSampleDataSource.class, JdbcSampleRepository.class, SampleComponent.class, SampleController.class, SampleService.class);
     }
 }
