@@ -4,5 +4,9 @@ public interface BeanDefinition {
 
     Class<?> getType();
 
-    String getBeanClassName();
+    String getName();
+
+    boolean equalsType(Class<?> clazz);
+
+    boolean isImplement(Class<?> clazz);
 }

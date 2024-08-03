@@ -2,8 +2,11 @@ package com.interface21.beans.factory.support;
 
 import com.interface21.beans.BeanUtils;
 import com.interface21.beans.factory.BeanFactory;
+import com.interface21.beans.factory.config.BeanDefinition;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Constructor;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
 import java.util.Arrays;
 import java.util.List;
@@ -29,10 +32,15 @@ public class DefaultListableBeanFactory implements BeanFactory {
 
     public void initialize() {
         log.info("Start DefaultListableBeanFactory");
+
         BasePackageScanner basePackageScanner = new BasePackageScanner();
         BeanScanner beanScanner = new BeanScanner(basePackageScanner.scan());
-        Set<Class<?>> beanClasses = beanScanner.scan();
-        beanDefinitions.registerBeanDefinitions(beanClasses);
+
+        Set<Class<?>> componentBeanClasses = beanScanner.scanComponent();
+        beanDefinitions.registerComponentBeanDefinitions(componentBeanClasses);
+
+        Set<Class<?>> configurationClasses = beanScanner.scanConfiguration();
+        beanDefinitions.registerConfigurationBeanDefinitions(configurationClasses);
     }
 
     @Override
@@ -43,8 +51,8 @@ public class DefaultListableBeanFactory implements BeanFactory {
     @SuppressWarnings("unchecked")
     @Override
     public <T> T getBean(final Class<T> clazz) {
-        if (clazz == null || beanDefinitions.isNotRegistered(clazz)) {
-            throw new IllegalArgumentException("빈으로 등록할 수 없는 Class이거나 Null입니다.");
+        if (clazz == null) {
+            throw new IllegalArgumentException("Null이 들어올 수 없습니다.");
         }
 
         if (beans.isRegistered(clazz)) {
@@ -59,26 +67,46 @@ public class DefaultListableBeanFactory implements BeanFactory {
     private Object createBean(Class<?> clazz) {
         circularReferenceSensor.addTarget(clazz);
 
-        Constructor<?> constructor = findAutoWiredConstructor(clazz);
-        Object[] constructorArgs = getConstructorArgs(constructor);
-        Object newBean = BeanUtils.instantiateClass(constructor, constructorArgs);
-        beans.register(newBean);
-        return newBean;
+        BeanDefinition beanDefinition = beanDefinitions.getByType(clazz);
+        if (beanDefinition instanceof ComponentBeanDefinition componentBeanDefinition) {
+            Constructor<?> constructor = findAutoWiredConstructor(componentBeanDefinition.getType());
+            List<? extends Class<?>> parameterTypes = extractParameterTypes(constructor);
+            Object[] constructorArgs = instantiateAll(parameterTypes);
+            Object newBean = BeanUtils.instantiateClass(constructor, constructorArgs);
+
+            beans.register(newBean);
+            return newBean;
+        }
+
+        if (beanDefinition instanceof ConfigurationBeanDefinition configurationBeanDefinition) {
+            Method creationMethod = configurationBeanDefinition.getCreationMethod();
+            List<? extends Class<?>> parameterTypes = extractParameterTypes(creationMethod);
+            Object[] methodParameters = instantiateAll(parameterTypes);
+            try {
+                return creationMethod.invoke(configurationBeanDefinition.getConfigurationObject(), methodParameters);
+            } catch (IllegalAccessException | InvocationTargetException e) {
+                throw new RuntimeException(e);
+            }
+        }
+
+        throw new IllegalArgumentException("빈으로 등록할 수 없는 타입");
+    }
+
+    private List<? extends Class<?>> extractParameterTypes(Method creationMethod) {
+        return Arrays.stream(creationMethod.getParameters())
+                .map(Parameter::getType)
+                .toList();
     }
 
     private Constructor<?> findAutoWiredConstructor(Class<?> clazz) {
-        Set<Class<?>> beanTypes = beanDefinitions.extractTypes();
-        Class<?> concreteClass = getConcreteClass(clazz, beanTypes);
-
-        Constructor<?> autowiredConstructor = BeanFactoryUtils.getAutowiredConstructor(concreteClass);
+        Constructor<?> autowiredConstructor = BeanFactoryUtils.getAutowiredConstructor(clazz);
         if (autowiredConstructor == null) {
-            return concreteClass.getDeclaredConstructors()[0];
+            return clazz.getDeclaredConstructors()[0];
         }
         return autowiredConstructor;
     }
 
-    private Object[] getConstructorArgs(Constructor<?> constructor) {
-        List<? extends Class<?>> types = extractParameterTypes(constructor);
+    private Object[] instantiateAll(List<? extends Class<?>> types) {
         detectCirculation(types);
         return types.stream()
                 .map(this::getBean)
@@ -92,16 +120,7 @@ public class DefaultListableBeanFactory implements BeanFactory {
     }
 
     private void detectCirculation(List<? extends Class<?>> types) {
-        types.forEach(type -> {
-            Set<Class<?>> beanTypes = beanDefinitions.extractTypes();
-            Class<?> concreteClass = getConcreteClass(type, beanTypes);
-            circularReferenceSensor.detect(concreteClass);
-        });
-    }
-
-    private Class<?> getConcreteClass(Class<?> clazz, Set<Class<?>> beanTypes) {
-        return BeanFactoryUtils.findConcreteClass(clazz, beanTypes)
-                .orElseThrow(() -> new IllegalArgumentException("인터페이스를 구현하는 구체 클래스가 없습니다. interface=%s, beanTypes=%s".formatted(clazz, beanTypes)));
+        types.forEach(circularReferenceSensor::detect);
     }
 
     @Override
