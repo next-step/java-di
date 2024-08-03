@@ -26,24 +26,6 @@ public class BeanDefinitions {
                 .collect(Collectors.toSet());
     }
 
-    public <T> boolean isNotRegistered(Class<T> clazz) {
-        return !isRegistered(clazz);
-    }
-
-    public <T> boolean isRegistered(Class<T> clazz) {
-        return extractTypes()
-                .stream()
-                .anyMatch(type -> {
-                    if (clazz.isInterface()) {
-                        Set<Class<?>> interfaces = Set.of(type.getInterfaces());
-                        return interfaces.contains(clazz);
-                    }
-
-                    return type == clazz;
-                });
-
-    }
-
     public void registerConfigurationBeanDefinitions(Set<Class<?>> configurationClasses) {
         configurationClasses.forEach(configurationClass -> {
             Object configurationObject = BeanUtils.instantiate(configurationClass);
