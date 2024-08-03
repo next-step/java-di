@@ -32,7 +32,7 @@ class DefaultListableBeanFactoryTest {
     @SuppressWarnings("unchecked")
     void setUp() {
         reflections = new Reflections("samples");
-        beanFactory = new DefaultListableBeanFactory("samples");
+        beanFactory = new DefaultListableBeanFactory();
         beanFactory.initialize();
     }
 

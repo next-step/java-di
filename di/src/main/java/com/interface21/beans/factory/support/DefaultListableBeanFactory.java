@@ -20,18 +20,17 @@ public class DefaultListableBeanFactory implements BeanFactory {
     private final BeanDefinitions beanDefinitions;
     private final Beans beans;
     private final CircularReferenceSensor circularReferenceSensor;
-    private final String[] basePackages;
 
-    public DefaultListableBeanFactory(String... basePackages) {
+    public DefaultListableBeanFactory() {
         this.beanDefinitions = new BeanDefinitions();
         this.beans = new Beans();
         this.circularReferenceSensor = new CircularReferenceSensor();
-        this.basePackages = basePackages;
     }
 
     public void initialize() {
         log.info("Start DefaultListableBeanFactory");
-        BeanScanner beanScanner = new BeanScanner(basePackages);
+        BasePackageScanner basePackageScanner = new BasePackageScanner();
+        BeanScanner beanScanner = new BeanScanner(basePackageScanner.scan());
         Set<Class<?>> beanClasses = beanScanner.scan();
         beanDefinitions.registerBeanDefinitions(beanClasses);
     }
