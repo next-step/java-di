@@ -1,6 +1,5 @@
 package samples;
 
-import com.interface21.context.stereotype.Component;
 import java.io.PrintWriter;
 import java.sql.Connection;
 import java.sql.SQLException;
@@ -8,7 +7,6 @@ import java.sql.SQLFeatureNotSupportedException;
 import java.util.logging.Logger;
 import javax.sql.DataSource;
 
-@Component
 public class JdbcSampleDataSource implements DataSource {
     @Override
     public Connection getConnection() throws SQLException {
