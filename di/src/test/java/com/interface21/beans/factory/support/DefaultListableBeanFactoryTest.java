@@ -6,17 +6,11 @@ import com.interface21.beans.factory.config.SingletonBeanDefinition;
 import com.interface21.context.annotation.Bean;
 import com.interface21.context.annotation.Configuration;
 import com.interface21.context.stereotype.Component;
-import com.interface21.context.stereotype.Controller;
-import com.interface21.context.stereotype.Repository;
-import com.interface21.context.stereotype.Service;
 import org.h2.jdbcx.JdbcDataSource;
 import org.junit.jupiter.api.Test;
-import org.reflections.Reflections;
 import samples.*;
 
 import javax.sql.DataSource;
-import java.lang.annotation.Annotation;
-import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
@@ -29,24 +23,24 @@ class DefaultListableBeanFactoryTest {
 
     @Test
     void 기본생성자만_있는_클래스의_빈을_생성한다() {
-        DefaultBeanDefinitionRegistry registry = new DefaultBeanDefinitionRegistry(Map.of("JdbcSampleRepository", new SingletonBeanDefinition(JdbcSampleRepository.class)));
+        DefaultBeanDefinitionRegistry registry = new DefaultBeanDefinitionRegistry(Map.of("SimpleMemoryRepository", new SingletonBeanDefinition(SimpleMemoryRepository.class)));
         DefaultListableBeanFactory beanFactory = new DefaultListableBeanFactory(registry);
         beanFactory.initialize();
 
         assertAll(
-                () -> assertThat(beanFactory.getSingletonObjects()).containsKey(JdbcSampleRepository.class),
-                () -> assertThat(beanFactory.getSingletonObjects().get(JdbcSampleRepository.class)).isInstanceOf(JdbcSampleRepository.class)
+                () -> assertThat(beanFactory.getSingletonObjects()).containsKey(SimpleMemoryRepository.class),
+                () -> assertThat(beanFactory.getSingletonObjects().get(SimpleMemoryRepository.class)).isInstanceOf(SimpleMemoryRepository.class)
         );
     }
 
     @Test
     void 이미_빈으로_생성된_경우_재생성하지_않는다() {
-        DefaultBeanDefinitionRegistry registry = new DefaultBeanDefinitionRegistry(Map.of("JdbcSampleRepository", new SingletonBeanDefinition(JdbcSampleRepository.class)));
+        DefaultBeanDefinitionRegistry registry = new DefaultBeanDefinitionRegistry(Map.of("SimpleMemoryRepository", new SingletonBeanDefinition(SimpleMemoryRepository.class)));
         DefaultListableBeanFactory beanFactory = new DefaultListableBeanFactory(registry);
         beanFactory.initialize();
-        Object expected = beanFactory.getSingletonObjects().get(JdbcSampleRepository.class);
+        Object expected = beanFactory.getSingletonObjects().get(SimpleMemoryRepository.class);
         beanFactory.initialize();
-        Object actual = beanFactory.getSingletonObjects().get(JdbcSampleRepository.class);
+        Object actual = beanFactory.getSingletonObjects().get(SimpleMemoryRepository.class);
 
         assertThat(actual).isEqualTo(expected);
     }
@@ -54,14 +48,14 @@ class DefaultListableBeanFactoryTest {
     @Test
     void 생성자에_파라미터가_빈이_아닌_경우_빈이_생성된_후_다시_생성한다() {
         DefaultBeanDefinitionRegistry registry = new DefaultBeanDefinitionRegistry(Map.of(
-                "JdbcSampleRepository", new SingletonBeanDefinition(JdbcSampleRepository.class),
+                "SimpleMemoryRepository", new SingletonBeanDefinition(SimpleMemoryRepository.class),
                 "SampleService", new SingletonBeanDefinition(SampleService.class)
         ));
         DefaultListableBeanFactory beanFactory = new DefaultListableBeanFactory(registry);
         beanFactory.initialize();
 
         SampleService actual = (SampleService) beanFactory.getSingletonObjects().get(SampleService.class);
-        assertThat(actual.getSampleRepository()).isEqualTo(beanFactory.getSingletonObjects().get(JdbcSampleRepository.class));
+        assertThat(actual.getSampleRepository()).isEqualTo(beanFactory.getSingletonObjects().get(SimpleMemoryRepository.class));
     }
 
     @Test
@@ -78,14 +72,14 @@ class DefaultListableBeanFactoryTest {
     @Test
     void beanClass들을_반환한다() {
         DefaultBeanDefinitionRegistry registry = new DefaultBeanDefinitionRegistry(Map.of(
-                "JdbcSampleRepository", new SingletonBeanDefinition(JdbcSampleRepository.class),
+                "SimpleMemoryRepository", new SingletonBeanDefinition(SimpleMemoryRepository.class),
                 "SampleService", new SingletonBeanDefinition(SampleService.class)
         ));
         DefaultListableBeanFactory beanFactory = new DefaultListableBeanFactory(registry);
         beanFactory.initialize();
 
         Set<Class<?>> actual = beanFactory.getBeanClasses();
-        assertThat(actual).contains(JdbcSampleRepository.class, SampleService.class);
+        assertThat(actual).contains(SimpleMemoryRepository.class, SampleService.class);
     }
 
     @Test
@@ -97,17 +91,17 @@ class DefaultListableBeanFactoryTest {
 
     @Test
     void 생성된_빈을_반환한다() {
-        DefaultBeanDefinitionRegistry registry = new DefaultBeanDefinitionRegistry(Map.of("JdbcSampleRepository", new SingletonBeanDefinition(JdbcSampleRepository.class)));
+        DefaultBeanDefinitionRegistry registry = new DefaultBeanDefinitionRegistry(Map.of("SimpleMemoryRepository", new SingletonBeanDefinition(SimpleMemoryRepository.class)));
         DefaultListableBeanFactory beanFactory = new DefaultListableBeanFactory(registry);
         beanFactory.initialize();
 
-        JdbcSampleRepository actual = beanFactory.getBean(JdbcSampleRepository.class);
+        SimpleMemoryRepository actual = beanFactory.getBean(SimpleMemoryRepository.class);
         assertThat(beanFactory.getSingletonObjects()).containsValue(actual);
     }
 
     @Test
     void 인터페이스로_빈을_반환한다() {
-        DefaultBeanDefinitionRegistry registry = new DefaultBeanDefinitionRegistry(Map.of("JdbcSampleRepository", new SingletonBeanDefinition(JdbcSampleRepository.class)));
+        DefaultBeanDefinitionRegistry registry = new DefaultBeanDefinitionRegistry(Map.of("SimpleMemoryRepository", new SingletonBeanDefinition(SimpleMemoryRepository.class)));
         DefaultListableBeanFactory beanFactory = new DefaultListableBeanFactory(registry);
         beanFactory.initialize();
 
@@ -118,7 +112,7 @@ class DefaultListableBeanFactoryTest {
     @Test
     void 컨트롤러_어노테이션이_있는_빈만_반환한다() {
         DefaultBeanDefinitionRegistry registry = new DefaultBeanDefinitionRegistry(Map.of(
-                "JdbcSampleRepository", new SingletonBeanDefinition(JdbcSampleRepository.class),
+                "SimpleMemoryRepository", new SingletonBeanDefinition(SimpleMemoryRepository.class),
                 "SampleService", new SingletonBeanDefinition(SampleService.class),
                 "SampleController", new SingletonBeanDefinition(SampleController.class)
         ));
@@ -165,11 +159,11 @@ class DefaultListableBeanFactoryTest {
 
     @Test
     public void di() {
-        Set<Class<?>> givenClasses = getTypesAnnotatedWith(Controller.class, Service.class, Repository.class);
         BeanDefinitionRegistry registry = new DefaultBeanDefinitionRegistry();
-        for (Class<?> givenClass : givenClasses) {
-            registry.registerBeanDefinition(givenClass, new SingletonBeanDefinition(givenClass));
-        }
+        registry.registerBeanDefinition(SampleController.class, new SingletonBeanDefinition(SampleController.class));
+        registry.registerBeanDefinition(SampleService.class, new SingletonBeanDefinition(SampleService.class));
+        registry.registerBeanDefinition(JdbcSampleRepository.class, new SingletonBeanDefinition(JdbcSampleRepository.class));
+        registry.registerBeanDefinition(IntegrationConfig.class, ConfigurationBeanDefinition.from(IntegrationConfig.class));
 
         DefaultListableBeanFactory beanFactory = new DefaultListableBeanFactory(registry);
         beanFactory.initialize();
@@ -180,16 +174,6 @@ class DefaultListableBeanFactoryTest {
 
         final var sampleService = sampleController.getSampleService();
         assertNotNull(sampleService.getSampleRepository());
-    }
-
-    @SuppressWarnings("unchecked")
-    private Set<Class<?>> getTypesAnnotatedWith(Class<? extends Annotation>... annotations) {
-        Reflections reflections = new Reflections("samples");
-        Set<Class<?>> beans = new HashSet<>();
-        for (Class<? extends Annotation> annotation : annotations) {
-            beans.addAll(reflections.getTypesAnnotatedWith(annotation));
-        }
-        return beans;
     }
 
     @Component

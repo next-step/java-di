@@ -64,13 +64,30 @@ public class DefaultListableBeanFactory implements BeanFactory {
             return getBean(beanDefinition.getType());
         }
         if (beanDefinition.isSubBeanDefinition()) {
-            return createBean(beanDefinition.getSuperBeanDefinition(), preBeanDefinitions);
+            return createSubBean(beanDefinition, preBeanDefinitions);
         }
         validateAndSetPreBeanDefinitions(beanDefinition, preBeanDefinitions);
         if (beanDefinition.isConfiguration()) {
             return createConfigurationBean(beanDefinition, preBeanDefinitions);
         }
         return createNewBean(beanDefinition, preBeanDefinitions);
+    }
+
+    private Object createSubBean(BeanDefinition beanDefinition, Set<BeanDefinition> preBeanDefinitions) {
+        BeanDefinition configurationDefinition = beanDefinition.getSuperBeanDefinition();
+        if (isContainBean(configurationDefinition.getType())) {
+            Object configuration = getBean(configurationDefinition.getType());
+            return createSubBean(preBeanDefinitions, parseMethod(beanDefinition, configurationDefinition), configuration);
+        }
+        return createBean(beanDefinition.getSuperBeanDefinition(), preBeanDefinitions);
+    }
+
+    private Method parseMethod(BeanDefinition beanDefinition, BeanDefinition configurationDefinition) {
+        return configurationDefinition.getBeanCreateMethods()
+                .stream()
+                .filter(method -> method.getName().equals(beanDefinition.getBeanClassName()))
+                .findAny()
+                .orElseThrow(() -> new IllegalStateException("빈 생성 메소드를 찾지 못했습니다."));
     }
 
     private void validateAndSetPreBeanDefinitions(BeanDefinition beanDefinition, Set<BeanDefinition> preBeanDefinitions) {
@@ -95,17 +112,19 @@ public class DefaultListableBeanFactory implements BeanFactory {
         return configuration;
     }
 
-    private void createSubBean(Set<BeanDefinition> preBeanDefinitions, Method beanCreateMethod, Object configuration) {
+    private Object createSubBean(Set<BeanDefinition> preBeanDefinitions, Method beanCreateMethod, Object configuration) {
         BeanDefinition beanDefinition = beanDefinitionRegistry.getBeanDefinition(beanCreateMethod.getName());
-        validateAndSetPreBeanDefinitions(beanDefinition, preBeanDefinitions);
-        Object bean = BeanFactoryUtils.invokeMethod(beanCreateMethod, configuration, parseParameters(beanCreateMethod))
+        preBeanDefinitions.add(beanDefinition);
+        Object bean = BeanFactoryUtils.invokeMethod(beanCreateMethod, configuration, parseParameters(preBeanDefinitions, beanCreateMethod))
                 .orElseThrow(() -> new IllegalStateException("빈 생성 시 예외가 발생했습니다."));
         singletonObjects.put(beanDefinition.getType(), bean);
+        return bean;
     }
 
-    private Object[] parseParameters(Method beanCreateMethod) {
+    private Object[] parseParameters(Set<BeanDefinition> preBeanDefinitions, Method beanCreateMethod) {
         return Arrays.stream(beanCreateMethod.getParameterTypes())
-                .map(this::getBean)
+                .map(beanDefinitionRegistry::getBeanDefinition)
+                .map(beanDefinition -> createBean(beanDefinition, preBeanDefinitions))
                 .toArray();
     }
 
@@ -134,7 +153,8 @@ public class DefaultListableBeanFactory implements BeanFactory {
                 .map(subBeanDefinition -> createBean(subBeanDefinition, preBeanDefinitions))
                 .toArray();
         Object bean = BeanUtils.instantiateClass(beanConstructor.getConstructor(), constructorParameters);
-        return singletonObjects.put(beanDefinition.getType(), bean);
+        singletonObjects.put(beanDefinition.getType(), bean);
+        return bean;
     }
 
     @Override
