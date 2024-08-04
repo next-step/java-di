@@ -10,7 +10,7 @@ import org.springframework.context.annotation.AnnotationConfigApplicationContext
  * Bean definition에서 생성되는 객체는 스코프(scope)도 제어할 수 있습니다.
  * 스코프는 애플리케이션이 실행되는 동안 스프링 컨테이너에 의해 Bean이 생성되고, 존재하고, 소멸되는 범위를 의미합니다.
  * 스프링 프레임워크는 6개의 스코프를 지원하며, 이 중 4개의 스코프는 웹용 ApplicationContext를 사용하는 경우에만 사용할 수 있습니다.
- * 가장 많아 알려진 싱글톤과 프로토타입 스코프에 대해 알아보겠습니다.
+ * 가장 많이 알려진 싱글톤과 프로토타입 스코프에 대해 알아보겠습니다.
  * 스프링 프레임워크는 스레드 스코프(Thread scope)와 사용자 지정 스코프(Custom Scope)도 지원하지만, 여기서는 다루지 않겠습니다.
  *
  * Bean Scope
@@ -22,6 +22,9 @@ import org.springframework.context.annotation.AnnotationConfigApplicationContext
  * | Session     | HTTP 세션마다 하나의 Bean 인스턴스를 생성합니다. 웹용 ApplicationContext의 컨텍스트에서만 유효합니다.       |
  * | Application | ServletContext마다 하나의 Bean 인스턴스를 생성합니다. 웹용 ApplicationContext의 컨텍스트에서만 유효합니다. |
  * | WebSocket   | Web Socket마다 하나의 Bean 인스턴스를 생성합니다. 웹용 ApplicationContext의 컨텍스트에서만 유효합니다.     |
+ *
+ *
+ * - 각 스코프의 유스케이스가 궁금하다 나중에 정리해보자
  */
 class BeanScopes : FreeSpec({
 
@@ -41,12 +44,13 @@ class BeanScopes : FreeSpec({
     ❗스프링의 싱글톤 Bean 개념은 GoF(Gang of Four) 패턴 책에 정의된 싱글톤 패턴과 다릅니다.
     GoF 싱글톤은 특정 클래스의 인스턴스가 클래스 로더(Class Loader)당 하나만 생성되도록 객체의 스코프를 하드코딩합니다.
     스프링은 컨테이너에서 특정 클래스에 대해 하나의 Bean을 정의하면 컨테이너는 해당 빈 정의에 의해 정의된 클래스의 인스턴스를 하나만 생성합니다.
+    - JVM 수준과 애플리케이션 수준은 다르다 
     """ {
         val firstSingletonObject = applicationContext.getBean("singletonBean", SampleObject::class.java)
         val secondSingletonObject = applicationContext.getBean("singletonBean", SampleObject::class.java)
 
         // 싱글톤 스코프로 정의된 Bean은 여러 번 요청해도 동일한 인스턴스를 반환합니다.
-        firstSingletonObject shouldBe null // secondSingletonObject
+        firstSingletonObject shouldBe secondSingletonObject // secondSingletonObject
     }
 
     """
@@ -66,7 +70,7 @@ class BeanScopes : FreeSpec({
         val secondPrototypeObject = applicationContext.getBean("prototypeBean", SampleObject::class.java)
 
         // 프로토타입 스코프로 정의된 Bean은 요청할 때마다 새로운 인스턴스를 생성합니다.
-        firstPrototypeObject shouldBe null // secondPrototypeObject
+        firstPrototypeObject shouldNotBe secondPrototypeObject // secondPrototypeObject
     }
 
     """
@@ -92,7 +96,7 @@ class BeanScopes : FreeSpec({
             firstPrototypeIntoSingleton shouldBe secondPrototypeIntoSingleton
 
             // ❓프로토타입 Bean인데 왜 같은 인스턴스를 반환할까요?
-            firstPrototypeIntoSingleton.prototypeBean shouldBe null // secondPrototypeIntoSingleton.prototypeBean
+            firstPrototypeIntoSingleton.prototypeBean shouldBe secondPrototypeIntoSingleton.prototypeBean
         }
 
         """
@@ -109,7 +113,7 @@ class BeanScopes : FreeSpec({
             firstSingletonIntoPrototype shouldNotBe secondSingletonIntoPrototype
 
             // 프로토타입 Bean이 의존하는 싱글톤 Bean은 동일한 인스턴스를 사용합니다.
-            firstSingletonIntoPrototype.singletonBean shouldBe null // secondSingletonIntoPrototype.singletonBean
+            firstSingletonIntoPrototype.singletonBean shouldBe secondSingletonIntoPrototype.singletonBean
         }
     }
 })
