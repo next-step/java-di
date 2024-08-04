@@ -69,6 +69,14 @@ public class DefaultBeanDefinitionRegistry implements BeanDefinitionRegistry {
     }
 
     @Override
+    public BeanDefinition getBeanDefinition(String beanName) {
+        if (beanDefinitionMap.containsKey(beanName)) {
+            return beanDefinitionMap.get(beanName);
+        }
+        throw new IllegalArgumentException("빈 이름에 해당하는 BeanDefinition이 없습니다.");
+    }
+
+    @Override
     public List<BeanDefinition> getBeanDefinitions() {
         return beanDefinitionMap.values()
                 .stream()

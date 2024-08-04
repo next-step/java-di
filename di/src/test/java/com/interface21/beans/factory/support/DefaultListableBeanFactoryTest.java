@@ -155,6 +155,15 @@ class DefaultListableBeanFactoryTest {
     }
 
     @Test
+    void configuration을_통해_빈을_초기화한다() {
+        DefaultBeanDefinitionRegistry registry = new DefaultBeanDefinitionRegistry();
+        registry.registerBeanDefinition(TestImplementConfiguration.class, ConfigurationBeanDefinition.from(TestImplementConfiguration.class));
+
+        DefaultListableBeanFactory beanFactory = new DefaultListableBeanFactory(registry);
+        beanFactory.initialize();
+    }
+
+    @Test
     public void di() {
         Set<Class<?>> givenClasses = getTypesAnnotatedWith(Controller.class, Service.class, Repository.class);
         BeanDefinitionRegistry registry = new DefaultBeanDefinitionRegistry();
@@ -239,4 +248,29 @@ class DefaultListableBeanFactoryTest {
     public static class NormalComponent{
 
     }
+
+    @Configuration
+    public static class TestImplementConfiguration {
+
+        public TestImplementConfiguration() {
+        }
+
+        @Bean
+        public NormalComponent testBean() {
+            return new NormalComponent();
+        }
+
+        @Bean
+        public AbstractComponent firstBean() {
+            return new FirstComponent();
+        }
+
+        @Bean
+        public AbstractComponent secondBean() {
+            return new SecondComponent();
+        }
+    }
+    public interface AbstractComponent {}
+    public static class FirstComponent implements AbstractComponent {}
+    public static class SecondComponent implements AbstractComponent {}
 }

@@ -8,6 +8,7 @@ import java.lang.reflect.Method;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.junit.jupiter.api.Assertions.assertAll;
 
 class MethodBeanDefinitionTest {
 
@@ -16,6 +17,15 @@ class MethodBeanDefinitionTest {
     private final MethodBeanDefinition methodBeanDefinition = MethodBeanDefinition.from(beanDefinition, method);
 
     MethodBeanDefinitionTest() throws NoSuchMethodException {
+    }
+
+    @Test
+    void Method로_BeanDefinition을_생성한다() {
+        MethodBeanDefinition actual = MethodBeanDefinition.from(beanDefinition, method);
+        assertAll(
+                () -> assertThat(actual.getType()).isEqualTo(String.class),
+                () -> assertThat(actual.getBeanClassName()).isEqualTo("test")
+        );
     }
 
     @Test

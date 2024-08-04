@@ -7,11 +7,13 @@ import java.util.List;
 
 public class MethodBeanDefinition implements BeanDefinition {
 
+    private final String beanName;
     private final Class<?> type;
     private final BeanScope beanScope;
     private final BeanDefinition superBeanDefinition;
 
-    public MethodBeanDefinition(Class<?> type, BeanScope beanScope, BeanDefinition superBeanDefinition) {
+    public MethodBeanDefinition(String beanName, Class<?> type, BeanScope beanScope, BeanDefinition superBeanDefinition) {
+        this.beanName = beanName;
         this.type = type;
         this.beanScope = beanScope;
         this.superBeanDefinition = superBeanDefinition;
@@ -19,6 +21,7 @@ public class MethodBeanDefinition implements BeanDefinition {
 
     public static MethodBeanDefinition from(BeanDefinition beanDefinition, Method method) {
         return new MethodBeanDefinition(
+                method.getName(),
                 method.getReturnType(),
                 parseBeanScope(method),
                 beanDefinition
@@ -40,7 +43,7 @@ public class MethodBeanDefinition implements BeanDefinition {
 
     @Override
     public String getBeanClassName() {
-        return type.getName();
+        return beanName;
     }
 
     @Override

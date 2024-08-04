@@ -96,7 +96,7 @@ public class DefaultListableBeanFactory implements BeanFactory {
     }
 
     private void createMethodBean(Set<BeanDefinition> preBeanDefinitions, Method beanCreateMethod, Object configuration) {
-        BeanDefinition beanDefinition = beanDefinitionRegistry.getBeanDefinition(beanCreateMethod.getReturnType());
+        BeanDefinition beanDefinition = beanDefinitionRegistry.getBeanDefinition(beanCreateMethod.getName());
         validateAndSetPreBeanDefinitions(beanDefinition, preBeanDefinitions);
         Object bean = BeanFactoryUtils.invokeMethod(beanCreateMethod, configuration, parseParameters(beanCreateMethod))
                 .orElseThrow(() -> new IllegalStateException("빈 생성 시 예외가 발생했습니다."));
