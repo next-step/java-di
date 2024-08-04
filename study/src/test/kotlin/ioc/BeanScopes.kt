@@ -22,6 +22,8 @@ import org.springframework.context.annotation.AnnotationConfigApplicationContext
  * | Session     | HTTP 세션마다 하나의 Bean 인스턴스를 생성합니다. 웹용 ApplicationContext의 컨텍스트에서만 유효합니다.       |
  * | Application | ServletContext마다 하나의 Bean 인스턴스를 생성합니다. 웹용 ApplicationContext의 컨텍스트에서만 유효합니다. |
  * | WebSocket   | Web Socket마다 하나의 Bean 인스턴스를 생성합니다. 웹용 ApplicationContext의 컨텍스트에서만 유효합니다.     |
+ *
+ * XXX: 각 스코프가 어떤 용도로 쓰이는지 확인해보자
  */
 class BeanScopes : FreeSpec({
 
@@ -46,7 +48,7 @@ class BeanScopes : FreeSpec({
         val secondSingletonObject = applicationContext.getBean("singletonBean", SampleObject::class.java)
 
         // 싱글톤 스코프로 정의된 Bean은 여러 번 요청해도 동일한 인스턴스를 반환합니다.
-        firstSingletonObject shouldBe null // secondSingletonObject
+        firstSingletonObject shouldBe secondSingletonObject
     }
 
     """
@@ -66,7 +68,7 @@ class BeanScopes : FreeSpec({
         val secondPrototypeObject = applicationContext.getBean("prototypeBean", SampleObject::class.java)
 
         // 프로토타입 스코프로 정의된 Bean은 요청할 때마다 새로운 인스턴스를 생성합니다.
-        firstPrototypeObject shouldBe null // secondPrototypeObject
+        firstPrototypeObject shouldNotBe secondPrototypeObject
     }
 
     """
@@ -92,7 +94,7 @@ class BeanScopes : FreeSpec({
             firstPrototypeIntoSingleton shouldBe secondPrototypeIntoSingleton
 
             // ❓프로토타입 Bean인데 왜 같은 인스턴스를 반환할까요?
-            firstPrototypeIntoSingleton.prototypeBean shouldBe null // secondPrototypeIntoSingleton.prototypeBean
+            firstPrototypeIntoSingleton.prototypeBean shouldBe secondPrototypeIntoSingleton.prototypeBean
         }
 
         """
@@ -109,7 +111,7 @@ class BeanScopes : FreeSpec({
             firstSingletonIntoPrototype shouldNotBe secondSingletonIntoPrototype
 
             // 프로토타입 Bean이 의존하는 싱글톤 Bean은 동일한 인스턴스를 사용합니다.
-            firstSingletonIntoPrototype.singletonBean shouldBe null // secondSingletonIntoPrototype.singletonBean
+            firstSingletonIntoPrototype.singletonBean shouldBe secondSingletonIntoPrototype.singletonBean
         }
     }
 })
