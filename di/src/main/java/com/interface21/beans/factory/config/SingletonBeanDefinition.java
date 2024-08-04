@@ -5,7 +5,7 @@ import com.interface21.context.annotation.Scope;
 import java.lang.reflect.Method;
 import java.util.List;
 
-public class SingletonBeanDefinition implements BeanDefinition {
+public class SingletonBeanDefinition extends RootBeanDefinition {
 
     private static final BeanScope BEAN_SCOPE = BeanScope.SINGLETON;
     private final Class<?> type;
@@ -53,15 +53,5 @@ public class SingletonBeanDefinition implements BeanDefinition {
     @Override
     public List<Method> getBeanCreateMethods() {
         throw new IllegalStateException("Bean 생성 메소드를 가지지 않습니다.");
-    }
-
-    @Override
-    public boolean isSubBeanDefinition() {
-        return false;
-    }
-
-    @Override
-    public BeanDefinition getSuperBeanDefinition() {
-        throw new IllegalStateException("SuperBeanDefinition이 없어 반환할 수 없습니다.");
     }
 }
