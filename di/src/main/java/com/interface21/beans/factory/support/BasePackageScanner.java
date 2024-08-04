@@ -8,8 +8,6 @@ import org.reflections.Reflections;
 import org.reflections.scanners.Scanners;
 
 public class BasePackageScanner {
-    private static final String ALL_PACKAGE = "";
-
     private final Class<?>[] componentScanClasses;
 
     public BasePackageScanner(Class<?>... componentScanClasses) {

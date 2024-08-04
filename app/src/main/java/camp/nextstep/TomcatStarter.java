@@ -1,6 +1,7 @@
 package camp.nextstep;
 
 import jakarta.servlet.ServletContext;
+import java.io.File;
 import org.apache.catalina.Context;
 import org.apache.catalina.LifecycleException;
 import org.apache.catalina.connector.Connector;
@@ -10,8 +11,6 @@ import org.apache.tomcat.util.scan.StandardJarScanFilter;
 import org.apache.tomcat.util.scan.StandardJarScanner;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.io.File;
 
 public class TomcatStarter {
 
@@ -31,8 +30,10 @@ public class TomcatStarter {
 
         final var docBase = new File(webappDirLocation).getAbsolutePath();
         final var context = (StandardContext) tomcat.addWebapp("", docBase);
+
         ServletContext servletContext = context.getServletContext();
         servletContext.setAttribute("startClass", applicationClass);
+
         skipTldScan(context);
         skipClearReferences(context);
     }
