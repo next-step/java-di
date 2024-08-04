@@ -107,3 +107,7 @@
 - SubBeanDefinition
   - 상위 BeanDefinition(ex configuration)에 의해 생성되는 Bean 정의값
   - 상위 BeanDefinition과 Method로 생성된다
+
+## 4단계 - @Configuration 구현하기(힌트)
+- ApplicationContext
+  - package와 configuration을 읽어 빈을 생성하고 HandlerExecution을 반환한다
