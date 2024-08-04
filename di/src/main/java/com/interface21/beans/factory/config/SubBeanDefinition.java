@@ -5,22 +5,22 @@ import com.interface21.context.annotation.Scope;
 import java.lang.reflect.Method;
 import java.util.List;
 
-public class MethodBeanDefinition implements BeanDefinition {
+public class SubBeanDefinition implements BeanDefinition {
 
     private final String beanName;
     private final Class<?> type;
     private final BeanScope beanScope;
     private final BeanDefinition superBeanDefinition;
 
-    public MethodBeanDefinition(String beanName, Class<?> type, BeanScope beanScope, BeanDefinition superBeanDefinition) {
+    public SubBeanDefinition(String beanName, Class<?> type, BeanScope beanScope, BeanDefinition superBeanDefinition) {
         this.beanName = beanName;
         this.type = type;
         this.beanScope = beanScope;
         this.superBeanDefinition = superBeanDefinition;
     }
 
-    public static MethodBeanDefinition from(BeanDefinition beanDefinition, Method method) {
-        return new MethodBeanDefinition(
+    public static SubBeanDefinition from(BeanDefinition beanDefinition, Method method) {
+        return new SubBeanDefinition(
                 method.getName(),
                 method.getReturnType(),
                 parseBeanScope(method),

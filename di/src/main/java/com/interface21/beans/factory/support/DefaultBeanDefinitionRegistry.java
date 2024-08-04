@@ -2,7 +2,7 @@ package com.interface21.beans.factory.support;
 
 import com.interface21.beans.BeanInstantiationException;
 import com.interface21.beans.factory.config.BeanDefinition;
-import com.interface21.beans.factory.config.MethodBeanDefinition;
+import com.interface21.beans.factory.config.SubBeanDefinition;
 import com.interface21.context.annotation.Configuration;
 import com.interface21.context.stereotype.Component;
 
@@ -29,7 +29,7 @@ public class DefaultBeanDefinitionRegistry implements BeanDefinitionRegistry {
     public void registerBeanDefinition(Class<?> clazz, BeanDefinition beanDefinition) {
         if (isConfiguration(clazz)) {
             beanDefinitionMap.put(clazz.getSimpleName(), beanDefinition);
-            registerMethodBeanDefinition(beanDefinition);
+            registerSubBeanDefinition(beanDefinition);
             return;
         }
         if (isComponentPresent(clazz)) {
@@ -39,10 +39,10 @@ public class DefaultBeanDefinitionRegistry implements BeanDefinitionRegistry {
         throw new IllegalArgumentException("Component가 있는 클래스만 저장할 수 있습니다.");
     }
 
-    private void registerMethodBeanDefinition(BeanDefinition beanDefinition) {
+    private void registerSubBeanDefinition(BeanDefinition beanDefinition) {
         for (Method beanCreateMethod : beanDefinition.getBeanCreateMethods()) {
-            MethodBeanDefinition methodBeanDefinition = MethodBeanDefinition.from(beanDefinition, beanCreateMethod);
-            beanDefinitionMap.put(methodBeanDefinition.getBeanClassName(), methodBeanDefinition);
+            SubBeanDefinition subBeanDefinition = SubBeanDefinition.from(beanDefinition, beanCreateMethod);
+            beanDefinitionMap.put(subBeanDefinition.getBeanClassName(), subBeanDefinition);
         }
     }
 

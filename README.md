@@ -104,6 +104,6 @@
   - Class를 받아 BeanDefinition을 생성한다
   - 기본적인 메소드 구성은 일반 BeanDefinition과 동일하다
   - beancreate method를 반환할 수 있다
-- MethodBeanDefinition
+- SubBeanDefinition
   - 상위 BeanDefinition(ex configuration)에 의해 생성되는 Bean 정의값
   - 상위 BeanDefinition과 Method로 생성된다

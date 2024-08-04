@@ -90,12 +90,12 @@ public class DefaultListableBeanFactory implements BeanFactory {
         Object configuration = createNewBean(beanDefinition, preBeanDefinitions);
         List<Method> beanCreateMethods = beanDefinition.getBeanCreateMethods();
         for (Method beanCreateMethod : beanCreateMethods) {
-            createMethodBean(preBeanDefinitions, beanCreateMethod, configuration);
+            createSubBean(preBeanDefinitions, beanCreateMethod, configuration);
         }
         return configuration;
     }
 
-    private void createMethodBean(Set<BeanDefinition> preBeanDefinitions, Method beanCreateMethod, Object configuration) {
+    private void createSubBean(Set<BeanDefinition> preBeanDefinitions, Method beanCreateMethod, Object configuration) {
         BeanDefinition beanDefinition = beanDefinitionRegistry.getBeanDefinition(beanCreateMethod.getName());
         validateAndSetPreBeanDefinitions(beanDefinition, preBeanDefinitions);
         Object bean = BeanFactoryUtils.invokeMethod(beanCreateMethod, configuration, parseParameters(beanCreateMethod))
