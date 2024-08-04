@@ -6,14 +6,19 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Stream;
 import org.reflections.Reflections;
-import org.reflections.util.ConfigurationBuilder;
+import org.reflections.scanners.Scanners;
 
 public class BasePackageScanner {
     private static final String ALL_PACKAGE = "";
 
+    private final Class<?>[] componentScanClasses;
+
+    public BasePackageScanner(Class<?>... componentScanClasses) {
+        this.componentScanClasses = componentScanClasses;
+    }
+
     public String[] scan() {
-        Reflections reflections = new Reflections(new ConfigurationBuilder()
-                .forPackage(ALL_PACKAGE));
+        Reflections reflections = new Reflections(extractPackageNames(), Scanners.TypesAnnotated);
         Set<Class<?>> typesAnnotatedWithComponentScan = reflections.getTypesAnnotatedWith(ComponentScan.class);
 
         List<String> classPackages = typesAnnotatedWithComponentScan.stream()
@@ -27,6 +32,12 @@ public class BasePackageScanner {
                 .toList();
 
         return Stream.concat(classPackages.stream(), basePackages.stream())
+                .toArray(String[]::new);
+    }
+
+    private String[] extractPackageNames() {
+        return Arrays.stream(componentScanClasses)
+                .map(Class::getPackageName)
                 .toArray(String[]::new);
     }
 

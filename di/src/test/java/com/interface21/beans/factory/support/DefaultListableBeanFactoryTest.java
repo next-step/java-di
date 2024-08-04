@@ -22,6 +22,7 @@ import samples.CrossReferenceB;
 import samples.InterfaceAImpl;
 import samples.InterfaceBImpl;
 import samples.SampleController;
+import samples.SampleScanConfig;
 
 class DefaultListableBeanFactoryTest {
 
@@ -32,7 +33,7 @@ class DefaultListableBeanFactoryTest {
     @SuppressWarnings("unchecked")
     void setUp() {
         reflections = new Reflections("samples");
-        beanFactory = new DefaultListableBeanFactory();
+        beanFactory = new DefaultListableBeanFactory(SampleScanConfig.class);
         beanFactory.initialize();
     }
 

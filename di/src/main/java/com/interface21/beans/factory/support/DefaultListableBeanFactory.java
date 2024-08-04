@@ -20,11 +20,13 @@ public class DefaultListableBeanFactory implements BeanFactory {
 
     private static final Logger log = LoggerFactory.getLogger(DefaultListableBeanFactory.class);
 
+    private final Class<?> startClass;
     private final BeanDefinitions beanDefinitions;
     private final Beans beans;
     private final CircularReferenceSensor circularReferenceSensor;
 
-    public DefaultListableBeanFactory() {
+    public DefaultListableBeanFactory(Class<?> startClass) {
+        this.startClass = startClass;
         this.beanDefinitions = new BeanDefinitions();
         this.beans = new Beans();
         this.circularReferenceSensor = new CircularReferenceSensor();
@@ -33,7 +35,7 @@ public class DefaultListableBeanFactory implements BeanFactory {
     public void initialize() {
         log.info("Start DefaultListableBeanFactory");
 
-        BasePackageScanner basePackageScanner = new BasePackageScanner();
+        BasePackageScanner basePackageScanner = new BasePackageScanner(startClass);
         BeanScanner beanScanner = new BeanScanner(basePackageScanner.scan());
 
         Set<Class<?>> componentBeanClasses = beanScanner.scanComponent();

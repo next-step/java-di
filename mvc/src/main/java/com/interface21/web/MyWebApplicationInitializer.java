@@ -16,7 +16,8 @@ public class MyWebApplicationInitializer implements WebApplicationInitializer {
 
     @Override
     public void onStartup(final ServletContext container) {
-        final var applicationContext = new AnnotationConfigWebApplicationContext();
+        Class<?> startClass = (Class<?>) container.getAttribute("startClass");
+        final var applicationContext = new AnnotationConfigWebApplicationContext(startClass);
 
         final var dispatcherServlet = new DispatcherServlet();
         dispatcherServlet.addHandlerMapping(new ManualHandlerMapping());

@@ -10,8 +10,8 @@ public class AnnotationConfigWebApplicationContext implements ApplicationContext
 
     private final DefaultListableBeanFactory beanFactory;
 
-    public AnnotationConfigWebApplicationContext() {
-        this.beanFactory = new DefaultListableBeanFactory();
+    public AnnotationConfigWebApplicationContext(Class<?> startClass) {
+        this.beanFactory = new DefaultListableBeanFactory(startClass);
         beanFactory.initialize();
     }
 
