@@ -40,6 +40,13 @@ class SimpleBeanDefinitionRegistryTest {
     }
 
     @Test
+    @DisplayName("이미 등록된 같은 이름의 beanDefinition 는 등록할 수 없다.")
+    void registerBeanDefinitionTest() {
+        assertThatThrownBy(() -> simpleBeanDefinitionRegistry.registerBeanDefinition(NoArgConstructorClass.class, SimpleBeanDefinition.from(NoArgConstructorClass.class)))
+                .isInstanceOf(BeanDefinitionException.class);
+    }
+
+    @Test
     @DisplayName("interface 로 찾을 시 존재하지 않으면 구체클래스를 찾아서 반환 받을 수 있다.")
     void getConcreteBeanDefinitionTest() {
         simpleBeanDefinitionRegistry.registerBeanDefinition(ConcreteClass.class, SimpleBeanDefinition.from(ConcreteClass.class));
@@ -101,5 +108,6 @@ class SimpleBeanDefinitionRegistryTest {
     public static class ConcreteClass implements NotConcreteClass {
     }
 
-    public interface NotConcreteClass {}
+    public interface NotConcreteClass {
+    }
 }

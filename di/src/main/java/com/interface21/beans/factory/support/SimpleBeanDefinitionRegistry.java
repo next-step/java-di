@@ -58,12 +58,18 @@ public class SimpleBeanDefinitionRegistry implements BeanDefinitionRegistry {
 
     @Override
     public void registerBeanDefinition(final Class<?> clazz, final BeanDefinition beanDefinition) {
+        if (beanDefinitionMap.values().stream().anyMatch(definition -> definition.hasSameName(beanDefinition))) {
+            throw new BeanDefinitionException("bean %s already exists for %s".formatted(beanDefinition.getBeanClassName(), clazz.getName()));
+        }
         this.beanDefinitionMap.put(clazz, beanDefinition);
     }
 
     @Override
     public void mergeBeanDefinitionRegistry(final BeanDefinitionRegistry beanDefinitionRegistry) {
-        this.beanDefinitionMap.putAll(beanDefinitionRegistry.getBeanDefinitions());
+        final Map<Class<?>, BeanDefinition> beanDefinitions = beanDefinitionRegistry.getBeanDefinitions();
+        for (final BeanDefinition beanDefinition : beanDefinitions.values()) {
+            registerBeanDefinition(beanDefinition.getType(), beanDefinition);
+        }
     }
 
     @Override

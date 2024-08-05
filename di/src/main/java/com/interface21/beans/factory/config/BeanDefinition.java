@@ -6,4 +6,7 @@ public interface BeanDefinition {
 
     String getBeanClassName();
 
+    default boolean hasSameName(final BeanDefinition beanDefinition) {
+        return getBeanClassName().equals(beanDefinition.getBeanClassName());
+    };
 }
