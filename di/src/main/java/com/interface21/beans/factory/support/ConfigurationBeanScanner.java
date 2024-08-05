@@ -16,7 +16,7 @@ public class ConfigurationBeanScanner {
         this.reflections = new Reflections(STEREOTYPE_PACKAGE, basePackages);
     }
 
-    public Set<Class<?>> scan() {
+    private Set<Class<?>> scan() {
         return new HashSet<>(reflections.getTypesAnnotatedWith(Configuration.class));
     }
 
