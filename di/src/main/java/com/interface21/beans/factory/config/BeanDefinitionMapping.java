@@ -1,6 +1,8 @@
 package com.interface21.beans.factory.config;
 
 import com.interface21.beans.BeanScanner;
+import com.interface21.beans.factory.support.BeanFactoryUtils;
+import com.interface21.context.annotation.Bean;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -26,7 +28,17 @@ public class BeanDefinitionMapping {
     }
 
     private void put(final Class<?> beanClass) {
+        putBeanMethods(beanClass);
+
         beanDefinitionMap.put(beanClass.getName(), new RootBeanDefinition(beanClass, beanClass.getName()));
+    }
+
+    private void putBeanMethods(final Class<?> beanClass) {
+        BeanFactoryUtils.getBeanMethods(beanClass, Bean.class).forEach(beanMethod -> {
+            final ConfigurationClassBeanDefinition beanDefinition = new ConfigurationClassBeanDefinition(beanMethod, beanClass);
+
+            beanDefinitionMap.put(beanDefinition.getBeanClassName(), beanDefinition);
+        });
     }
 
     public Set<Class<?>> getBeanClasses() {
@@ -35,5 +47,9 @@ public class BeanDefinitionMapping {
 
     public void clear() {
         beanDefinitionMap.clear();
+    }
+
+    public BeanDefinition getBeanDefinition(final Class<?> clazz) {
+        return beanDefinitionMap.get(clazz.getName());
     }
 }

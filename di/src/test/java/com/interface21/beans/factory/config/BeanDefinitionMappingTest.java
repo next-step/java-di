@@ -31,7 +31,7 @@ class BeanDefinitionMappingTest {
         final Set<Class<?>> actual = beanDefinitionMapping.getBeanClasses();
 
         // then
-        assertThat(actual).hasSize(6);
+        assertThat(actual).hasSize(8);
     }
 
     @DisplayName("모든 BeanDefinition 을 지운다")

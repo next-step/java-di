@@ -3,6 +3,8 @@ package com.interface21.beans.factory.support;
 import com.interface21.beans.BeanFactoryException;
 import com.interface21.beans.BeanInstantiationException;
 import com.interface21.context.stereotype.Controller;
+import org.h2.jdbcx.JdbcDataSource;
+import samples.JdbcSampleRepository;
 import wrong.CorrectBean;
 import wrong.CorrectBeanImpl;
 import wrong.DuplicateBean;
@@ -13,6 +15,7 @@ import org.junit.jupiter.api.Test;
 import org.reflections.Reflections;
 import samples.SampleController;
 
+import javax.sql.DataSource;
 import java.lang.annotation.Annotation;
 import java.util.HashSet;
 import java.util.List;
@@ -34,7 +37,6 @@ class DefaultListableBeanFactoryTest {
     void setUp() {
         reflections = new Reflections("samples");
         beanFactory = new DefaultListableBeanFactory("samples");
-        beanFactory.initialize();
     }
 
     @Test
@@ -53,7 +55,6 @@ class DefaultListableBeanFactoryTest {
     public void getDuplicateBean() throws Exception {
         // given
         final DefaultListableBeanFactory beanFactory = new DefaultListableBeanFactory("wrong");
-        beanFactory.initialize();
 
         // when then
         assertThatThrownBy(() -> beanFactory.getBean(DuplicateBean.class))
@@ -66,7 +67,6 @@ class DefaultListableBeanFactoryTest {
     public void getEmptyBean() throws Exception {
         // given
         final DefaultListableBeanFactory beanFactory = new DefaultListableBeanFactory("wrong");
-        beanFactory.initialize();
 
         // when then
         assertThatThrownBy(() -> beanFactory.getBean(EmptyBean.class))
@@ -79,7 +79,6 @@ class DefaultListableBeanFactoryTest {
     public void getBean() throws Exception {
         // given
         final DefaultListableBeanFactory beanFactory = new DefaultListableBeanFactory("wrong");
-        beanFactory.initialize();
 
         // when
         final CorrectBean actual = beanFactory.getBean(CorrectBean.class);
@@ -92,10 +91,10 @@ class DefaultListableBeanFactoryTest {
     @Test
     public void illDependentBean() throws Exception {
         // given
-        final DefaultListableBeanFactory beanFactory = new DefaultListableBeanFactory("ill_dependent");
+        final String basePackage = "ill_dependent";
 
         // when then
-        assertThatThrownBy(beanFactory::initialize)
+        assertThatThrownBy(() -> new DefaultListableBeanFactory(basePackage))
                 .isExactlyInstanceOf(BeanInstantiationException.class)
                 .hasMessage("Failed to instantiate [ill_dependent.NotBean]: Parameter is not bean");
     }
@@ -114,7 +113,16 @@ class DefaultListableBeanFactoryTest {
                 () -> assertThat(actual).isNotNull().hasSize(1),
                 () -> assertInstanceOf(SampleController.class, actual.get(0))
         );
+    }
 
+    @DisplayName("@Bean 으로 선언 된 빈을 생성 하여 주입 한다")
+    @Test
+    public void deBeanMethod() throws Exception {
+        // when
+        final DataSource actual = beanFactory.getBean(JdbcSampleRepository.class).getDataSource();
+
+        // then
+        assertThat(actual).isNotNull().isInstanceOf(JdbcDataSource.class);
     }
 
     @SuppressWarnings("unchecked")
