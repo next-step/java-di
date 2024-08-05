@@ -2,8 +2,8 @@ package com.interface21.beans;
 
 public class NoSuchBeanDefinitionException extends RuntimeException {
 
-    public NoSuchBeanDefinitionException(final Class<?> clazz) {
-        super("can not find bean of " + clazz.getName());
+    public NoSuchBeanDefinitionException(final String beanName) {
+        super("can not find bean of " + beanName);
     }
 
 }

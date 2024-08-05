@@ -6,22 +6,29 @@ import com.interface21.beans.factory.BeanFactory;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 public class SimpleBeanFactory implements BeanFactory {
 
-    private final Map<Class<?>, Object> singletonObjects;
+    private final Map<String, Object> singletonObjects;
 
     public SimpleBeanFactory() {
         this.singletonObjects = new HashMap<>();
     }
 
-    public void addBean(final Class<?> clazz, final Object bean) {
-        this.singletonObjects.put(clazz, bean);
+    public void addBean(final String beanName, final Object bean) {
+        if (singletonObjects.containsKey(beanName)) {
+            throw new IllegalArgumentException("Bean " + beanName + " is already exist");
+        }
+
+        this.singletonObjects.put(beanName, bean);
     }
 
     @Override
     public Set<Class<?>> getBeanClasses() {
-        return singletonObjects.keySet();
+        return singletonObjects.values().stream()
+                .map(Object::getClass)
+                .collect(Collectors.toSet());
     }
 
     @Override
@@ -29,10 +36,21 @@ public class SimpleBeanFactory implements BeanFactory {
     public <T> T getBean(final Class<T> clazz) {
         return (T) singletonObjects.entrySet()
                 .stream()
-                .filter(entry -> clazz.isAssignableFrom(entry.getKey()))
+                .filter(entry -> clazz.isAssignableFrom(entry.getValue().getClass()))
                 .findFirst()
                 .map(Map.Entry::getValue)
-                .orElseThrow(() -> new NoSuchBeanDefinitionException(clazz));
+                .orElseThrow(() -> new NoSuchBeanDefinitionException(clazz.getName()));
+    }
+
+    @Override
+    @SuppressWarnings("unchecked")
+    public <T> T getBean(final String beanName) {
+        return (T) singletonObjects.entrySet()
+                .stream()
+                .filter(entry -> entry.getKey().equals(beanName))
+                .findFirst()
+                .map(Map.Entry::getValue)
+                .orElseThrow(() -> new NoSuchBeanDefinitionException(beanName));
     }
 
     @Override
@@ -40,7 +58,7 @@ public class SimpleBeanFactory implements BeanFactory {
         singletonObjects.clear();
     }
 
-    public boolean containsBean(final Class<?> parameterType) {
-        return this.singletonObjects.containsKey(parameterType);
+    public boolean containsBean(final String beanName) {
+        return this.singletonObjects.containsKey(beanName);
     }
 }

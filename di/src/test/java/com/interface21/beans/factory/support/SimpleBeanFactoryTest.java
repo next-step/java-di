@@ -10,7 +10,6 @@ import java.util.Set;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.assertj.core.api.Assertions.entry;
 import static org.assertj.core.api.SoftAssertions.assertSoftly;
 
 public class SimpleBeanFactoryTest {
@@ -26,7 +25,7 @@ public class SimpleBeanFactoryTest {
     @DisplayName("등록한 객체를 조회하면 동일한 객체가 조회된다.")
     void addAndGetTest() {
         final FirstTestBean firstTestBean = new FirstTestBean();
-        beanFactory.addBean(FirstTestBean.class, firstTestBean);
+        beanFactory.addBean("firstTestBean", firstTestBean);
 
         final FirstTestBean result = beanFactory.getBean(FirstTestBean.class);
 
@@ -36,12 +35,21 @@ public class SimpleBeanFactoryTest {
     @Test
     @DisplayName("등록한 Bean 정보들을 조회할 수 있다.")
     void getBeanClassesTest() {
-        beanFactory.addBean(FirstTestBean.class, new FirstTestBean());
-        beanFactory.addBean(SecondTestBean.class, new SecondTestBean());
+        beanFactory.addBean("firstTestBean", new FirstTestBean());
+        beanFactory.addBean("secondTestBean", new SecondTestBean());
 
         final Set<Class<?>> beanClasses = beanFactory.getBeanClasses();
 
         assertThat(beanClasses).containsExactlyInAnyOrder(FirstTestBean.class, SecondTestBean.class);
+    }
+
+    @Test
+    @DisplayName("이미 등록된 이름의 Bean 을 다시 등록하면 예외가 던져진다.")
+    void addBeanNameAlreadyExistTest() {
+        beanFactory.addBean("firstTestBean", new FirstTestBean());
+
+        assertThatThrownBy(() -> beanFactory.addBean("firstTestBean", new SecondTestBean()))
+                .isInstanceOf(IllegalArgumentException.class);
     }
 
     @Test
@@ -55,7 +63,7 @@ public class SimpleBeanFactoryTest {
     @DisplayName("Bean 을 전부 비울 수 있다.")
     void clearTest() {
         final FirstTestBean firstTestBean = new FirstTestBean();
-        beanFactory.addBean(FirstTestBean.class, firstTestBean);
+        beanFactory.addBean("firstTestBean", firstTestBean);
 
         beanFactory.clear();
 
@@ -70,9 +78,9 @@ public class SimpleBeanFactoryTest {
     @DisplayName("해당 클래스의 Bean 이 등록되어 있는지 여부를 반환받을 수 있다.")
     void containsBeanTest() {
         final FirstTestBean firstTestBean = new FirstTestBean();
-        beanFactory.addBean(FirstTestBean.class, firstTestBean);
+        beanFactory.addBean("firstTestBean", firstTestBean);
 
-        assertThat(beanFactory.containsBean(FirstTestBean.class)).isTrue();
+        assertThat(beanFactory.containsBean("firstTestBean")).isTrue();
     }
 
     public static class FirstTestBean {
