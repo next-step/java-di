@@ -53,7 +53,6 @@ public class SimpleBeanDefinition implements BeanDefinition {
         return Character.toLowerCase(simpleName.charAt(0)) + simpleName.substring(1);
     }
 
-    @Override
     public Constructor<?> getConstructor() {
         return constructor;
     }

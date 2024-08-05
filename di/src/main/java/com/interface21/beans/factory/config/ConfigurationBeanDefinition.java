@@ -1,6 +1,5 @@
 package com.interface21.beans.factory.config;
 
-import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
 
 public class ConfigurationBeanDefinition implements BeanDefinition {
@@ -24,11 +23,6 @@ public class ConfigurationBeanDefinition implements BeanDefinition {
     @Override
     public String getBeanClassName() {
         return beanMethod.getName();
-    }
-
-    @Override
-    public Constructor<?> getConstructor() {
-        throw new UnsupportedOperationException("Not supported yet.");
     }
 
     public Method getBeanMethod() {
