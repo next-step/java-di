@@ -16,7 +16,7 @@ class ConfigurationBeanScannerTest {
     @Test
     @DisplayName("Configuration 클래스의 @ComponentScan 을 통해 basePackage 정보들을 조회할 수 있다.")
     void getBasePackagesTest() {
-        final ConfigurationBeanScanner configurationBeanScanner = new ConfigurationBeanScanner(List.of(ComponentScanWithDefault.class, ComponentScanWithValue.class, ComponentScanWithBasePackages.class));
+        final ConfigurationBeanScanner configurationBeanScanner = new ConfigurationBeanScanner(List.of(ComponentScanWithDefault.class, ComponentScanWithValue.class, ComponentScanWithBasePackages.class, ComponentScanWithComplexValues.class));
 
         final Object[] basePackages = configurationBeanScanner.getBasePackages();
 
@@ -25,11 +25,15 @@ class ConfigurationBeanScannerTest {
                 "valueOne",
                 "valueTwo",
                 "baseOne",
-                "baseTwo");
+                "baseTwo",
+                "complexValue",
+                "complexBaseOne",
+                "complexBaseTwo"
+        );
     }
 
     @Test
-    @DisplayName("@Configuration 이 없는 클래스가 있으면 예외를 던진다..")
+    @DisplayName("@Configuration 이 없는 클래스가 있으면 예외를 던진다.")
     void testEmptyBasePackage() {
         assertThatThrownBy(() -> new ConfigurationBeanScanner(List.of(ConfigWithoutAnnotationClass.class)))
                 .isInstanceOf(IllegalArgumentException.class);
@@ -61,6 +65,12 @@ class ConfigurationBeanScannerTest {
     @Configuration
     @ComponentScan(basePackages = {"baseOne", "baseTwo"})
     public static class ComponentScanWithBasePackages {
+
+    }
+
+    @Configuration
+    @ComponentScan(value = {"complexValue"}, basePackages = {"complexBaseOne", "complexBaseTwo"})
+    public static class ComponentScanWithComplexValues {
 
     }
 

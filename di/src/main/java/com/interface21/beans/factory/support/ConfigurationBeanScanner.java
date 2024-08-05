@@ -9,6 +9,7 @@ import org.reflections.Reflections;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Stream;
 
 public class ConfigurationBeanScanner implements BeanDefinitionScanner {
     private final List<Class<?>> configurationClasses;
@@ -45,11 +46,10 @@ public class ConfigurationBeanScanner implements BeanDefinitionScanner {
 
     private List<String> getBasePackages(final Class<?> configClass) {
         final ComponentScan annotation = configClass.getAnnotation(ComponentScan.class);
-        if (annotation.value().length > 0) {
-            return List.of(annotation.value());
-        } else if (annotation.basePackages().length > 0) {
-            return List.of(annotation.basePackages());
+        final List<String> basePackages = Stream.concat(Arrays.stream(annotation.value()), Arrays.stream(annotation.basePackages())).toList();
+        if (basePackages.isEmpty()) {
+            return List.of(configClass.getPackageName());
         }
-        return List.of(configClass.getPackageName());
+        return basePackages;
     }
 }
