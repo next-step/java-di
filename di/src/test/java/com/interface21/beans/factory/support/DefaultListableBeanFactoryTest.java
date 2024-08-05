@@ -64,7 +64,7 @@ class DefaultListableBeanFactoryTest {
     void getBeanClassesTest() {
         final Set<Class<?>> beanClasses = beanFactory.getBeanClasses();
 
-        assertThat(beanClasses).containsExactlyInAnyOrder(SampleController.class, SampleService.class, JdbcSampleRepository.class);
+        assertThat(beanClasses).containsExactlyInAnyOrder(SampleController.class, SampleService.class, JdbcSampleRepository.class, ExampleConfig.class, IntegrationConfig.class, MyConfiguration.class);
     }
 
     @Test

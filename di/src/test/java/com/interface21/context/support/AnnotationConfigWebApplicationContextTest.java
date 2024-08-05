@@ -3,7 +3,10 @@ package com.interface21.context.support;
 import com.interface21.context.ApplicationContext;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import samples.ExampleConfig;
+import samples.IntegrationConfig;
 import samples.JdbcSampleRepository;
+import samples.MyConfiguration;
 import samples.SampleController;
 import samples.SampleService;
 
@@ -26,6 +29,6 @@ class AnnotationConfigWebApplicationContextTest {
     void getBeanClassesTest() {
         final ApplicationContext applicationContext = new AnnotationConfigWebApplicationContext("samples");
 
-        assertThat(applicationContext.getBeanClasses()).containsExactlyInAnyOrder(SampleController.class, SampleService.class, JdbcSampleRepository.class);
+        assertThat(applicationContext.getBeanClasses()).containsExactlyInAnyOrder(SampleController.class, SampleService.class, JdbcSampleRepository.class, ExampleConfig.class, IntegrationConfig.class, MyConfiguration.class);
     }
 }

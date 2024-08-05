@@ -2,6 +2,7 @@ package com.interface21.beans.factory.support;
 
 import com.interface21.beans.BeanScanFailureException;
 import com.interface21.beans.factory.config.SimpleBeanDefinition;
+import com.interface21.context.annotation.Configuration;
 import com.interface21.context.stereotype.Controller;
 import com.interface21.context.stereotype.Repository;
 import com.interface21.context.stereotype.Service;
@@ -19,7 +20,7 @@ public class BeanScanner {
         if (basePackage == null || basePackage.length == 0) {
             throw new BeanScanFailureException("basePackage can not be empty");
         }
-        beanAnnotations = List.of(Controller.class, Service.class, Repository.class);
+        beanAnnotations = List.of(Controller.class, Service.class, Repository.class, Configuration.class);
         reflections = new Reflections(basePackage);
     }
 
