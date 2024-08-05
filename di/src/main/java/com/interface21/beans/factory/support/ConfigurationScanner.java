@@ -10,7 +10,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
 
-public class ConfigurationScanner {
+public class ConfigurationScanner implements BeanDefinitionScanner {
     private final List<Class<?>> configurationClasses;
 
     public ConfigurationScanner(final List<Class<?>> configurationClasses) {
@@ -24,7 +24,8 @@ public class ConfigurationScanner {
         }
     }
 
-    public BeanDefinitionRegistry scanBean() {
+    @Override
+    public BeanDefinitionRegistry scan() {
         final BeanDefinitionRegistry beanDefinitionRegistry = new SimpleBeanDefinitionRegistry();
         final Reflections reflections = new Reflections(getBasePackages());
         final Set<Class<?>> configClasses = reflections.getTypesAnnotatedWith(Configuration.class);

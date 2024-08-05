@@ -37,10 +37,10 @@ class ConfigurationScannerTest {
 
     @Test
     @DisplayName("Configuration 클래스의 @Bean 메서드를 찾아 BeanRegistry 에 등록한다")
-    void scanBeanTest() {
+    void scanTest() {
         final ConfigurationScanner configurationScanner = new ConfigurationScanner(List.of(TestConfig.class));
 
-        final BeanDefinitionRegistry beanDefinitionRegistry = configurationScanner.scanBean();
+        final BeanDefinitionRegistry beanDefinitionRegistry = configurationScanner.scan();
 
         assertThat(beanDefinitionRegistry.getBeanDefinition(TestBean.class)).isNotNull();
 

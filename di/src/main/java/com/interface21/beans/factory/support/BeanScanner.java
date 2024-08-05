@@ -12,7 +12,7 @@ import java.lang.annotation.Annotation;
 import java.util.List;
 import java.util.Set;
 
-public class BeanScanner {
+public class BeanScanner implements BeanDefinitionScanner {
     private final List<Class<? extends Annotation>> beanAnnotations;
     private final Reflections reflections;
 
@@ -24,6 +24,7 @@ public class BeanScanner {
         reflections = new Reflections(basePackage);
     }
 
+    @Override
     public BeanDefinitionRegistry scan() {
         final BeanDefinitionRegistry beanDefinitionRegistry = new SimpleBeanDefinitionRegistry();
         beanAnnotations.stream()
