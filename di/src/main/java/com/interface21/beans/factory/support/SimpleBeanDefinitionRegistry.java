@@ -36,10 +36,19 @@ public class SimpleBeanDefinitionRegistry implements BeanDefinitionRegistry {
     @Override
     public BeanDefinition getBeanDefinition(final Class<?> clazz) {
         final BeanDefinition beanDefinition = beanDefinitionMap.get(clazz);
-        if (beanDefinition == null) {
+        if (beanDefinition != null) {
+            return beanDefinition;
+        }
+
+        final Class<?> concreteClass = BeanFactoryUtils.findConcreteClass(clazz, getBeanClasses())
+                .orElseThrow(() -> new BeanDefinitionException("Could not autowire. No concrete class found for %s.".formatted(clazz.getName())));
+
+        final BeanDefinition concreteBeanDefinition = beanDefinitionMap.get(concreteClass);
+        if (concreteBeanDefinition == null) {
             throw new BeanDefinitionException("cannot find bean for " + clazz.getName());
         }
-        return beanDefinition;
+
+        return concreteBeanDefinition;
     }
 
     @Override

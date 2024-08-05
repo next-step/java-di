@@ -40,6 +40,15 @@ class SimpleBeanDefinitionRegistryTest {
     }
 
     @Test
+    @DisplayName("interface 로 찾을 시 존재하지 않으면 구체클래스를 찾아서 반환 받을 수 있다.")
+    void getConcreteBeanDefinitionTest() {
+        simpleBeanDefinitionRegistry.registerBeanDefinition(ConcreteClass.class, SimpleBeanDefinition.from(ConcreteClass.class));
+        final BeanDefinition beanDefinition = simpleBeanDefinitionRegistry.getBeanDefinition(NotConcreteClass.class);
+
+        assertThat(beanDefinition.getType()).isEqualTo(ConcreteClass.class);
+    }
+
+    @Test
     @DisplayName("존재하지 않는 beanDefinition 요청 시 예외를 던진다.")
     void getBeanDefinitionFailTest() {
         assertThatThrownBy(() -> simpleBeanDefinitionRegistry.getBeanDefinition(NotExistClass.class))
@@ -88,4 +97,9 @@ class SimpleBeanDefinitionRegistryTest {
 
     public static class NotExistClass {
     }
+
+    public static class ConcreteClass implements NotConcreteClass {
+    }
+
+    public interface NotConcreteClass {}
 }
