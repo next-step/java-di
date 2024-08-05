@@ -4,7 +4,6 @@ import com.interface21.beans.BeanDefinitionException;
 import com.interface21.beans.factory.config.BeanDefinition;
 import com.interface21.beans.factory.config.SimpleBeanDefinition;
 
-import java.lang.reflect.Constructor;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
@@ -34,12 +33,12 @@ public class SimpleBeanDefinitionRegistry implements BeanDefinitionRegistry {
     }
 
     @Override
-    public Constructor<?> getBeanConstructor(final Class<?> clazz) {
+    public BeanDefinition getBeanDefinition(final Class<?> clazz) {
         final BeanDefinition beanDefinition = beanDefinitionMap.get(clazz);
         if (beanDefinition == null) {
             throw new BeanDefinitionException("cannot find bean for " + clazz.getName());
         }
-        return beanDefinition.getConstructor();
+        return beanDefinition;
     }
 
     @Override

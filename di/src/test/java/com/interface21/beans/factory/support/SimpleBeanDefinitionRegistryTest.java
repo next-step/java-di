@@ -2,12 +2,12 @@ package com.interface21.beans.factory.support;
 
 
 import com.interface21.beans.BeanDefinitionException;
+import com.interface21.beans.factory.config.BeanDefinition;
 import com.interface21.beans.factory.config.SimpleBeanDefinition;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
-import java.lang.reflect.Constructor;
 import java.util.Set;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -32,17 +32,17 @@ class SimpleBeanDefinitionRegistryTest {
     }
 
     @Test
-    @DisplayName("bean 의 생성자를 반환받을 수 있다.")
-    void getBeanConstructorTest() {
-        final Constructor<?> beanConstructor = simpleBeanDefinitionRegistry.getBeanConstructor(OneConstructorClass.class);
+    @DisplayName("beanDefinition 을 반환받을 수 있다.")
+    void getBeanDefinitionTest() {
+        final BeanDefinition beanDefinition = simpleBeanDefinitionRegistry.getBeanDefinition(OneConstructorClass.class);
 
-        assertThat(beanConstructor.getParameterCount()).isEqualTo(1);
+        assertThat(beanDefinition.getType()).isEqualTo(OneConstructorClass.class);
     }
 
     @Test
-    @DisplayName("존재하지 않는 bean 의 생성자 요청 시 예외를 던진다.")
-    void getBeanConstructorFailTest() {
-        assertThatThrownBy(() -> simpleBeanDefinitionRegistry.getBeanConstructor(NotExistClass.class))
+    @DisplayName("존재하지 않는 beanDefinition 요청 시 예외를 던진다.")
+    void getBeanDefinitionFailTest() {
+        assertThatThrownBy(() -> simpleBeanDefinitionRegistry.getBeanDefinition(NotExistClass.class))
                 .isInstanceOf(BeanDefinitionException.class)
                 .hasMessageContaining("cannot find bean for");
     }
