@@ -37,6 +37,6 @@
 
 ### 🚀 1단계 - DI 컨테이너 구현하기
 #### 요구사항 DI 컨테이너 테스트 통과하기
-- [ ] : 1. ControllerScanner를 DI 컨테이너가 있는 패키지로 옮겨서 @Controller, @Service, @Repository에 대한 지원이 가능하도록 리펙토링
-- [ ] : 2. AnnotationHandlerMapping이 BeanFactory와 BeanScanner를 활용해 동작하도록 리팩터링
+- [x] : 1. ControllerScanner를 DI 컨테이너가 있는 패키지로 옮겨서 @Controller, @Service, @Repository에 대한 지원이 가능하도록 리펙토링
+- [x] : 2. AnnotationHandlerMapping이 BeanFactory와 BeanScanner를 활용해 동작하도록 리팩터링
 
