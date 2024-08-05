@@ -1,13 +1,14 @@
-package samples;
+package camp.nextstep.dao;
 
 import com.interface21.context.annotation.Bean;
+import com.interface21.context.annotation.ComponentScan;
 import com.interface21.context.annotation.Configuration;
+import javax.sql.DataSource;
 import org.h2.jdbcx.JdbcDataSource;
 
-import javax.sql.DataSource;
-
 @Configuration
-public class ExampleConfig {
+@ComponentScan
+public class MyConfiguration {
 
     @Bean
     public DataSource dataSource() {
@@ -16,5 +17,10 @@ public class ExampleConfig {
         jdbcDataSource.setUser("");
         jdbcDataSource.setPassword("");
         return jdbcDataSource;
+    }
+
+    @Bean
+    public JdbcTemplate jdbcTemplate(final DataSource dataSource) {
+        return new JdbcTemplate(dataSource);
     }
 }

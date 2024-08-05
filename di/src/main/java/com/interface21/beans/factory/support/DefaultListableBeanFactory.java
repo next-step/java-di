@@ -2,8 +2,11 @@ package com.interface21.beans.factory.support;
 
 import com.interface21.beans.BeanUtils;
 import com.interface21.beans.factory.BeanFactory;
+import com.interface21.beans.factory.config.BeanDefinition;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Constructor;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
 import java.util.Arrays;
 import java.util.List;
@@ -17,23 +20,29 @@ public class DefaultListableBeanFactory implements BeanFactory {
 
     private static final Logger log = LoggerFactory.getLogger(DefaultListableBeanFactory.class);
 
+    private final Class<?> startClass;
     private final BeanDefinitions beanDefinitions;
     private final Beans beans;
     private final CircularReferenceSensor circularReferenceSensor;
-    private final String[] basePackages;
 
-    public DefaultListableBeanFactory(String... basePackages) {
+    public DefaultListableBeanFactory(Class<?> startClass) {
+        this.startClass = startClass;
         this.beanDefinitions = new BeanDefinitions();
         this.beans = new Beans();
         this.circularReferenceSensor = new CircularReferenceSensor();
-        this.basePackages = basePackages;
     }
 
     public void initialize() {
         log.info("Start DefaultListableBeanFactory");
-        BeanScanner beanScanner = new BeanScanner(basePackages);
-        Set<Class<?>> beanClasses = beanScanner.scan();
-        beanDefinitions.registerBeanDefinitions(beanClasses);
+
+        BasePackageScanner basePackageScanner = new BasePackageScanner(startClass);
+        BeanScanner beanScanner = new BeanScanner(basePackageScanner.scan());
+
+        Set<Class<?>> componentBeanClasses = beanScanner.scanComponent();
+        beanDefinitions.registerComponentBeanDefinitions(componentBeanClasses);
+
+        Set<Class<?>> configurationClasses = beanScanner.scanConfiguration();
+        beanDefinitions.registerConfigurationBeanDefinitions(configurationClasses);
     }
 
     @Override
@@ -44,8 +53,8 @@ public class DefaultListableBeanFactory implements BeanFactory {
     @SuppressWarnings("unchecked")
     @Override
     public <T> T getBean(final Class<T> clazz) {
-        if (clazz == null || beanDefinitions.isNotRegistered(clazz)) {
-            throw new IllegalArgumentException("빈으로 등록할 수 없는 Class이거나 Null입니다.");
+        if (clazz == null) {
+            throw new IllegalArgumentException("Null이 들어올 수 없습니다.");
         }
 
         if (beans.isRegistered(clazz)) {
@@ -60,49 +69,50 @@ public class DefaultListableBeanFactory implements BeanFactory {
     private Object createBean(Class<?> clazz) {
         circularReferenceSensor.addTarget(clazz);
 
-        Constructor<?> constructor = findAutoWiredConstructor(clazz);
-        Object[] constructorArgs = getConstructorArgs(constructor);
-        Object newBean = BeanUtils.instantiateClass(constructor, constructorArgs);
+        BeanDefinition beanDefinition = beanDefinitions.getByType(clazz);
+        Object newBean = createBean(beanDefinition);
         beans.register(newBean);
+
         return newBean;
     }
 
-    private Constructor<?> findAutoWiredConstructor(Class<?> clazz) {
-        Set<Class<?>> beanTypes = beanDefinitions.extractTypes();
-        Class<?> concreteClass = getConcreteClass(clazz, beanTypes);
-
-        Constructor<?> autowiredConstructor = BeanFactoryUtils.getAutowiredConstructor(concreteClass);
-        if (autowiredConstructor == null) {
-            return concreteClass.getDeclaredConstructors()[0];
+    public Object createBean(BeanDefinition beanDefinition) {
+        if (beanDefinition instanceof ComponentBeanDefinition componentBeanDefinition) {
+            Constructor<?> constructor = componentBeanDefinition.getAutoWiredConstructor();
+            Object[] constructorArgs = instantiateAllParameters(constructor.getParameters());
+            return BeanUtils.instantiateClass(constructor, constructorArgs);
         }
-        return autowiredConstructor;
+
+        if (beanDefinition instanceof ConfigurationBeanDefinition configurationBeanDefinition) {
+            Method creationMethod = configurationBeanDefinition.getCreationMethod();
+            Object[] methodParameters = instantiateAllParameters(creationMethod.getParameters());
+            try {
+                return creationMethod.invoke(configurationBeanDefinition.getConfigurationObject(), methodParameters);
+            } catch (IllegalAccessException | InvocationTargetException e) {
+                throw new RuntimeException(e);
+            }
+        }
+
+        throw new IllegalArgumentException("빈으로 생성할 수 없는 타입입니다. type=%s".formatted(beanDefinition.getType()));
     }
 
-    private Object[] getConstructorArgs(Constructor<?> constructor) {
-        List<? extends Class<?>> types = extractParameterTypes(constructor);
+    private List<? extends Class<?>> extractParameterTypes(Parameter[] parameters) {
+        return Arrays.stream(parameters)
+                .map(Parameter::getType)
+                .toList();
+    }
+
+    private Object[] instantiateAllParameters(Parameter[] parameters) {
+        List<? extends Class<?>> types = extractParameterTypes(parameters);
         detectCirculation(types);
+
         return types.stream()
                 .map(this::getBean)
                 .toArray();
     }
 
-    private List<? extends Class<?>> extractParameterTypes(Constructor<?> constructor) {
-        return Arrays.stream(constructor.getParameters())
-                .map(Parameter::getType)
-                .toList();
-    }
-
     private void detectCirculation(List<? extends Class<?>> types) {
-        types.forEach(type -> {
-            Set<Class<?>> beanTypes = beanDefinitions.extractTypes();
-            Class<?> concreteClass = getConcreteClass(type, beanTypes);
-            circularReferenceSensor.detect(concreteClass);
-        });
-    }
-
-    private Class<?> getConcreteClass(Class<?> clazz, Set<Class<?>> beanTypes) {
-        return BeanFactoryUtils.findConcreteClass(clazz, beanTypes)
-                .orElseThrow(() -> new IllegalArgumentException("인터페이스를 구현하는 구체 클래스가 없습니다. interface=%s, beanTypes=%s".formatted(clazz, beanTypes)));
+        types.forEach(circularReferenceSensor::detect);
     }
 
     @Override

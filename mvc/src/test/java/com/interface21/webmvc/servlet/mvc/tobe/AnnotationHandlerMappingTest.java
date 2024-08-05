@@ -4,11 +4,14 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
+import com.interface21.context.stereotype.Controller;
 import com.interface21.context.support.AnnotationConfigWebApplicationContext;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import java.util.Map;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import samples.TestController;
 
 class AnnotationHandlerMappingTest {
 
@@ -16,7 +19,9 @@ class AnnotationHandlerMappingTest {
 
     @BeforeEach
     void setUp() {
-        handlerMapping = new AnnotationHandlerMapping(new AnnotationConfigWebApplicationContext("samples"));
+        AnnotationConfigWebApplicationContext mock = mock(AnnotationConfigWebApplicationContext.class);
+        when(mock.getBeansAnnotatedWith(Controller.class)).thenReturn(Map.of(TestController.class, new TestController()));
+        handlerMapping = new AnnotationHandlerMapping(mock);
         handlerMapping.initialize();
     }
 

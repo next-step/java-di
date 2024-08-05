@@ -31,13 +31,14 @@ class Introduction : FreeSpec({
         val sampleObject = beanFactory.getBean("sampleObject", SampleObject::class.java)
 
         // 조회한 Bean 객체가 SampleObject 타입인지 확인합니다.
-        sampleObject.shouldBeTypeOf<Object>()
+        sampleObject.shouldBeTypeOf<SampleObject>()
     }
 
     """
     ApplicationContext
     스프링 IoC 컨테이너로 BeanFactory를 확장한 인터페이스며 BeanFactory의 모든 기능을 포함하고 있습니다.
     IoC 컨테이너 기능 외에 AOP, i18n, Event publication 같은 엔터프라이즈 전용 기능을 추가로 제공합니다.
+    - i18n : 국제화 기능 
     스프링 부트의 SpringApplication.run() 메서드는 내부적으로 ApplicationContext를 사용합니다.
     """ {
         // ApplicationContext 객체를 생성합니다.
@@ -50,10 +51,10 @@ class Introduction : FreeSpec({
         val sampleObject = applicationContext.getBean("sampleObject", SampleObject::class.java)
 
         // 조회한 Bean 객체가 SampleObject 타입인지 확인합니다.
-        sampleObject.shouldBeTypeOf<Object>()
+        sampleObject.shouldBeTypeOf<SampleObject>()
 
         // ApplicationContext가 BeanFactory를 포함하는지 확인합시다.
-        applicationContext.shouldBeInstanceOf<Object>()
+        applicationContext.shouldBeInstanceOf<BeanFactory>()
     }
 
     """
@@ -73,6 +74,7 @@ class Introduction : FreeSpec({
         // beanObject 객체는 Bean입니다.
         val beanObject = applicationContext.getBean("sampleObject", SampleObject::class.java)
 
-        applicationContext.containsBean("sampleObject") shouldBe false
+        applicationContext.containsBean("sampleObject") shouldBe true
+        applicationContext.containsBean("notBeanObject") shouldBe false
     }
 })
