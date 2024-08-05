@@ -1,5 +1,6 @@
 package com.interface21.beans.factory.support;
 
+import com.interface21.context.annotation.Bean;
 import com.interface21.context.annotation.ComponentScan;
 import com.interface21.context.annotation.Configuration;
 import org.junit.jupiter.api.DisplayName;
@@ -34,6 +35,17 @@ class ConfigurationScannerTest {
                 .isInstanceOf(IllegalArgumentException.class);
     }
 
+    @Test
+    @DisplayName("Configuration 클래스의 @Bean 메서드를 찾아 BeanRegistry 에 등록한다")
+    void scanBeanTest() {
+        final ConfigurationScanner configurationScanner = new ConfigurationScanner(List.of(TestConfig.class));
+
+        final BeanDefinitionRegistry beanDefinitionRegistry = configurationScanner.scanBean();
+
+        assertThat(beanDefinitionRegistry.getBeanDefinition(TestBean.class)).isNotNull();
+
+    }
+
     @Configuration
     @ComponentScan
     public static class ComponentScanWithDefault {
@@ -54,5 +66,18 @@ class ConfigurationScannerTest {
 
     public static class ConfigWithoutAnnotationClass {
 
+    }
+
+    @Configuration
+    @ComponentScan
+    static class TestConfig {
+        @Bean
+        public TestBean testBean() {
+            return new TestBean();
+        }
+
+    }
+
+    static class TestBean {
     }
 }
