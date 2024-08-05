@@ -33,6 +33,6 @@ public class ConfigurationScanner {
         } else if (annotation.basePackages().length > 0) {
             return List.of(annotation.basePackages());
         }
-        return List.of(configClass.getName());
+        return List.of(configClass.getPackageName());
     }
 }

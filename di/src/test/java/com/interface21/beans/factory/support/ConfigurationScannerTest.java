@@ -14,13 +14,13 @@ class ConfigurationScannerTest {
 
     @Test
     @DisplayName("Configuration 클래스의 @ComponentScan 을 통해 basePackage 정보들을 조회할 수 있다.")
-    void getTypesAnnotatedWithTest() {
+    void getBasePackagesTest() {
         final ConfigurationScanner configurationScanner = new ConfigurationScanner(List.of(ComponentScanWithDefault.class, ComponentScanWithValue.class, ComponentScanWithBasePackages.class));
 
         final Object[] basePackages = configurationScanner.getBasePackages();
 
         assertThat(basePackages).containsExactlyInAnyOrder(
-                "com.interface21.beans.factory.support.ConfigurationScannerTest$ComponentScanWithDefault",
+                "com.interface21.beans.factory.support",
                 "valueOne",
                 "valueTwo",
                 "baseOne",
