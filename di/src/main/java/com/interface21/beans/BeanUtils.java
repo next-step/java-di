@@ -3,6 +3,7 @@ package com.interface21.beans;
 import com.interface21.core.util.ReflectionUtils;
 
 import java.lang.reflect.Constructor;
+import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.util.Map;
 
@@ -35,6 +36,17 @@ public abstract class BeanUtils {
             throw new BeanInstantiationException(clazz, "Is the constructor accessible?", ex);
         } catch (InvocationTargetException | NoSuchMethodException ex) {
             throw new BeanInstantiationException(clazz, "No matching method found.", ex);
+        }
+    }
+
+    public static void setField(Field field, Object bean, Object value) {
+        try {
+            field.setAccessible(true);
+            field.set(bean, value);
+        } catch (IllegalAccessException ex) {
+            throw new BeanInstantiationException(field.getType(), "Field is not accessible", ex);
+        } catch (IllegalArgumentException ex) {
+            throw new BeanInstantiationException(field.getDeclaringClass(), "Illegal argument on field", ex);
         }
     }
 
