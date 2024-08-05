@@ -4,12 +4,14 @@ import com.interface21.beans.BeanCurrentlyInCreationException;
 import com.interface21.beans.BeanInstantiationException;
 import com.interface21.beans.factory.BeanFactory;
 import com.interface21.beans.factory.config.BeanDefinition;
+import com.interface21.beans.factory.config.ConfigurationBeanDefinition;
 import com.interface21.beans.factory.config.SimpleBeanDefinition;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.stream.Stream;
@@ -48,9 +50,7 @@ public class DefaultListableBeanFactory implements BeanFactory {
         }
         tempBeansInCreation.add(beanClass);
 
-        final Class<?> concreteClass = BeanFactoryUtils.findConcreteClass(beanClass, getBeanClasses())
-                .orElseThrow(() -> new BeanInstantiationException(beanClass, "Could not autowire. No concrete class found for %s.".formatted(beanClass.getName())));
-        final Object createdBean = createBean(beanDefinitionRegistry.getBeanDefinition(concreteClass));
+        final Object createdBean = createBean(beanDefinitionRegistry.getBeanDefinition(beanClass));
         beanFactory.addBean(beanClass, createdBean);
 
         tempBeansInCreation.remove(beanClass);
@@ -62,6 +62,9 @@ public class DefaultListableBeanFactory implements BeanFactory {
             if (beanDefinition instanceof final SimpleBeanDefinition simpleBeanDefinition) {
                 final Constructor<?> constructor = simpleBeanDefinition.getConstructor();
                 return constructor.newInstance(createParameterArgs(constructor.getParameterTypes()));
+            } else if (beanDefinition instanceof final ConfigurationBeanDefinition configurationBeanDefinition) {
+                final Method beanMethod = configurationBeanDefinition.getBeanMethod();
+                return beanMethod.invoke(getOrCreateBean(beanMethod.getDeclaringClass()), createParameterArgs(beanMethod.getParameterTypes()));
             }
             throw new BeanInstantiationException(beanDefinition.getType(), "Could not instantiate bean of type '%s'".formatted(beanDefinition.getType()));
         } catch (final InvocationTargetException | InstantiationException | IllegalAccessException e) {

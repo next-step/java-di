@@ -7,11 +7,17 @@ import com.interface21.beans.factory.annotation.Autowired;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import samples.ExampleConfig;
+import samples.IntegrationConfig;
 import samples.JdbcSampleRepository;
+import samples.JdbcTemplate;
+import samples.MyConfiguration;
 import samples.SampleController;
 import samples.SampleControllerInterface;
 import samples.SampleService;
 
+import javax.sql.DataSource;
+import java.util.List;
 import java.util.Set;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -25,9 +31,14 @@ class DefaultListableBeanFactoryTest {
 
     @BeforeEach
     void setUp() {
-        final BeanScanner beanScanner = new BeanScanner("samples");
-        this.beanFactory = new DefaultListableBeanFactory(beanScanner.scan());
+        final ConfigurationScanner configurationScanner = new ConfigurationScanner(List.of(MyConfiguration.class));
+        final BeanScanner beanScanner = new BeanScanner(configurationScanner.getBasePackages());
+        final BeanDefinitionRegistry beanDefinitionRegistry = beanScanner.scan();
+        final BeanDefinitionRegistry configBeanDefinitionRegistry = configurationScanner.scanBean();
+        beanDefinitionRegistry.mergeBeanDefinitionRegistry(configBeanDefinitionRegistry);
+        this.beanFactory = new DefaultListableBeanFactory(beanDefinitionRegistry);
         beanFactory.initialize();
+
     }
 
     @Test
@@ -64,7 +75,16 @@ class DefaultListableBeanFactoryTest {
     void getBeanClassesTest() {
         final Set<Class<?>> beanClasses = beanFactory.getBeanClasses();
 
-        assertThat(beanClasses).containsExactlyInAnyOrder(SampleController.class, SampleService.class, JdbcSampleRepository.class, ExampleConfig.class, IntegrationConfig.class, MyConfiguration.class);
+        assertThat(beanClasses).containsExactlyInAnyOrder(
+                SampleController.class,
+                SampleService.class,
+                JdbcSampleRepository.class,
+                ExampleConfig.class,
+                IntegrationConfig.class,
+                MyConfiguration.class,
+                JdbcTemplate.class,
+                DataSource.class
+        );
     }
 
     @Test
@@ -143,5 +163,13 @@ class DefaultListableBeanFactoryTest {
         assertThatThrownBy(circularBeanFactory::initialize)
                 .isInstanceOf(BeanCurrentlyInCreationException.class)
                 .hasMessageContaining("Circular dependency detected");
+    }
+
+    @Test
+    @DisplayName("Configuration 에서 추가한 Bean 을 조회할 수 있다.")
+    void diWithConfigTest() {
+        final DataSource dataSource = beanFactory.getBean(DataSource.class);
+
+        assertThat(dataSource).isNotNull();
     }
 }
