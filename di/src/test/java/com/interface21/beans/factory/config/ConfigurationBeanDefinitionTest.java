@@ -15,7 +15,7 @@ class ConfigurationBeanDefinitionTest {
     @BeforeEach
     void setUp() throws NoSuchMethodException {
         // 준비된 테스트 메서드
-        testMethod = TestConfig.class.getMethod("testBean");
+        testMethod = TestConfig.class.getMethod("testBean", String.class);
     }
 
     @Test
@@ -48,10 +48,25 @@ class ConfigurationBeanDefinitionTest {
         assertThat(method).isEqualTo(testMethod);
     }
 
+    @Test
+    @DisplayName("createBean 은 메서드를 호출하여 빈을 생성한다.")
+    void createBeanTest() throws Exception {
+        final ConfigurationBeanDefinition beanDefinition = ConfigurationBeanDefinition.from(testMethod);
+
+        final Object bean = beanDefinition.createBean(clazz -> {
+            if (clazz.isAssignableFrom(TestConfig.class)) {
+                return new TestConfig();
+            }
+            return "prefix";
+        });
+
+        assertThat(bean).isEqualTo("prefixtest");
+    }
+
     // 테스트용 Config 클래스
     static class TestConfig {
-        public String testBean() {
-            return "test";
+        public String testBean(final String prefix) {
+            return prefix + "test";
         }
     }
 }
