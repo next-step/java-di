@@ -4,6 +4,7 @@ import com.interface21.beans.BeanDefinitionException;
 import com.interface21.beans.factory.config.BeanDefinition;
 import com.interface21.beans.factory.config.SimpleBeanDefinition;
 
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
@@ -49,5 +50,15 @@ public class SimpleBeanDefinitionRegistry implements BeanDefinitionRegistry {
     @Override
     public void registerBeanDefinition(final Class<?> clazz, final BeanDefinition beanDefinition) {
         this.beanDefinitionMap.put(clazz, beanDefinition);
+    }
+
+    @Override
+    public void mergeBeanDefinitionRegistry(final BeanDefinitionRegistry beanDefinitionRegistry) {
+        this.beanDefinitionMap.putAll(beanDefinitionRegistry.getBeanDefinitions());
+    }
+
+    @Override
+    public Map<Class<?>, BeanDefinition> getBeanDefinitions() {
+        return Collections.unmodifiableMap(beanDefinitionMap);
     }
 }

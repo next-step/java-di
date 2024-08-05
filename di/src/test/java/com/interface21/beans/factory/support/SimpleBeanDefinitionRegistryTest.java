@@ -65,6 +65,19 @@ class SimpleBeanDefinitionRegistryTest {
         assertThat(simpleBeanDefinitionRegistry.getBeanClasses()).containsExactly(NoArgConstructorClass.class);
     }
 
+    @Test
+    @DisplayName("다른 BeanDefinitionRegistry 를 병합할 수 있다.")
+    void mergeBeanDefinitionRegistryTest() {
+        final SimpleBeanDefinitionRegistry anotherRegistry = new SimpleBeanDefinitionRegistry(Set.of(NotExistClass.class));
+
+        simpleBeanDefinitionRegistry.mergeBeanDefinitionRegistry(anotherRegistry);
+
+        assertThat(simpleBeanDefinitionRegistry.getBeanClasses()).containsExactlyInAnyOrder(
+                NoArgConstructorClass.class, OneConstructorClass.class, NotExistClass.class
+        );
+    }
+
+
     public static class NoArgConstructorClass {
     }
 
