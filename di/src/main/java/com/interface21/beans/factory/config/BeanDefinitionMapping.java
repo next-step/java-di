@@ -1,5 +1,7 @@
 package com.interface21.beans.factory.config;
 
+import com.interface21.beans.BeanScanner;
+
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
@@ -8,7 +10,18 @@ import java.util.stream.Collectors;
 public class BeanDefinitionMapping {
     private final Map<String, BeanDefinition> beanDefinitionMap = new HashMap<>();
 
-    public void toBeanDefinitionMap(final Set<Class<?>> beanClasses) {
+    private final BeanScanner scanner;
+
+    public BeanDefinitionMapping(final String... basePackages) {
+        this.scanner = new BeanScanner((Object) basePackages);
+    }
+
+    public void scanBeanDefinitions() {
+        final Set<Class<?>> beanClasses = scanner.scanClassesTypeAnnotatedWith();
+        toBeanDefinitionMap(beanClasses);
+    }
+
+    private void toBeanDefinitionMap(final Set<Class<?>> beanClasses) {
         beanClasses.forEach(this::put);
     }
 

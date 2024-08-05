@@ -1,5 +1,7 @@
 package com.interface21.web;
 
+import com.interface21.beans.factory.BeanFactory;
+import com.interface21.beans.factory.support.DefaultListableBeanFactory;
 import com.interface21.core.util.ReflectionUtils;
 import jakarta.servlet.ServletContainerInitializer;
 import jakarta.servlet.ServletContext;
@@ -37,5 +39,9 @@ public class MyServletContainerInitializer implements ServletContainerInitialize
         for (WebApplicationInitializer initializer : initializers) {
             initializer.onStartup(servletContext);
         }
+    }
+
+    private void prepareBeanFactory(final ServletContext servletContext) {
+        servletContext.setAttribute(BeanFactory.BEAN_FACTORY_CONTEXT_ATTRIBUTE, new DefaultListableBeanFactory());
     }
 }

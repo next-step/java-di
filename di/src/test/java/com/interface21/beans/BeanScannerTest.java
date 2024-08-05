@@ -15,7 +15,7 @@ class BeanScannerTest {
     @DisplayName("패키지 내의 클래스를 스캔 후 반환 한다")
     @Test
     public void scanClassesTypeAnnotatedWith() throws Exception {
-        final Set<Class<?>> actual = beanScanner.scanClassesTypeAnnotatedWith(Component.class);
+        final Set<Class<?>> actual = beanScanner.scanClassesTypeAnnotatedWith();
 
         assertThat(actual).hasSize(6);
     }

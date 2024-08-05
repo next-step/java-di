@@ -1,7 +1,10 @@
 package camp.nextstep;
 
+import com.interface21.webmvc.servlet.mvc.tobe.DispatcherServlet;
+import jakarta.servlet.Servlet;
 import org.apache.catalina.Context;
 import org.apache.catalina.LifecycleException;
+import org.apache.catalina.Wrapper;
 import org.apache.catalina.connector.Connector;
 import org.apache.catalina.core.StandardContext;
 import org.apache.catalina.startup.Tomcat;
@@ -18,6 +21,8 @@ public class TomcatStarter {
 
     private static final String WEBAPP_DIR_LOCATION = "app/src/main/webapp/";
 
+    private final Servlet dispatcherServlet = new DispatcherServlet();
+
     private final Tomcat tomcat;
 
     public TomcatStarter(final int port) {
@@ -30,6 +35,12 @@ public class TomcatStarter {
 
         final var docBase = new File(webappDirLocation).getAbsolutePath();
         final var context = (StandardContext) tomcat.addWebapp("", docBase);
+
+        context.addServletContainerInitializer(new BeanFactoryServletContainerInitializer(), null);
+
+        final Wrapper sw = this.tomcat.addServlet(context.getPath(), "dispatcherServlet", dispatcherServlet);
+        sw.addMapping("/");
+
         skipTldScan(context);
         skipClearReferences(context);
     }

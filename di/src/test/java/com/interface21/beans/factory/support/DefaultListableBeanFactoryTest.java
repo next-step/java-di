@@ -2,6 +2,7 @@ package com.interface21.beans.factory.support;
 
 import com.interface21.beans.BeanFactoryException;
 import com.interface21.beans.BeanInstantiationException;
+import com.interface21.context.stereotype.Controller;
 import wrong.CorrectBean;
 import wrong.CorrectBeanImpl;
 import wrong.DuplicateBean;
@@ -14,10 +15,13 @@ import samples.SampleController;
 
 import java.lang.annotation.Annotation;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.junit.jupiter.api.Assertions.assertAll;
+import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 class DefaultListableBeanFactoryTest {
@@ -94,6 +98,23 @@ class DefaultListableBeanFactoryTest {
         assertThatThrownBy(beanFactory::initialize)
                 .isExactlyInstanceOf(BeanInstantiationException.class)
                 .hasMessage("Failed to instantiate [ill_dependent.NotBean]: Parameter is not bean");
+    }
+
+    @DisplayName("애너테이션이 붙은 빈들을 반환 한다")
+    @Test
+    public void getBeansForAnnotation() throws Exception {
+        // given
+        final Class<Controller> controllerAnnotation = Controller.class;
+
+        // when
+        final List<Object> actual = beanFactory.getBeansForAnnotation(controllerAnnotation);
+
+        // then
+        assertAll(
+                () -> assertThat(actual).isNotNull().hasSize(1),
+                () -> assertInstanceOf(SampleController.class, actual.get(0))
+        );
+
     }
 
     @SuppressWarnings("unchecked")
