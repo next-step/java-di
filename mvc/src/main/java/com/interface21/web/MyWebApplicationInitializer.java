@@ -1,5 +1,7 @@
 package com.interface21.web;
 
+import com.interface21.context.annotation.ComponentScan;
+import com.interface21.context.annotation.Configuration;
 import com.interface21.context.support.AnnotationConfigWebApplicationContext;
 import com.interface21.webmvc.servlet.mvc.DispatcherServlet;
 import com.interface21.webmvc.servlet.mvc.asis.ControllerHandlerAdapter;
@@ -10,17 +12,19 @@ import jakarta.servlet.ServletContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+@Configuration
+@ComponentScan({ "camp.nextstep", "com.interface21" })
 public class MyWebApplicationInitializer implements WebApplicationInitializer {
 
     private static final Logger log = LoggerFactory.getLogger(MyWebApplicationInitializer.class);
 
     @Override
     public void onStartup(final ServletContext container) {
-        final var applicationContext = new AnnotationConfigWebApplicationContext();
+        final var applicationContext = new AnnotationConfigWebApplicationContext(getClass());
 
         final var dispatcherServlet = new DispatcherServlet();
         dispatcherServlet.addHandlerMapping(new ManualHandlerMapping());
-        dispatcherServlet.addHandlerMapping(new AnnotationHandlerMapping("camp.nextstep.controller"));
+        dispatcherServlet.addHandlerMapping(new AnnotationHandlerMapping(applicationContext));
 
         dispatcherServlet.addHandlerAdapter(new ControllerHandlerAdapter());
         dispatcherServlet.addHandlerAdapter(new HandlerExecutionHandlerAdapter());
