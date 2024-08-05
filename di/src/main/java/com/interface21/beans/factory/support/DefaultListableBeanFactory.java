@@ -72,10 +72,10 @@ public class DefaultListableBeanFactory implements BeanFactory {
     }
 
     private void createBeansByClass(final Set<Class<?>> preInstantiatedClasses) {
-        preInstantiatedClasses.forEach(this::createBeanInstance);
+        preInstantiatedClasses.forEach(this::createOrGetBeanInstance);
     }
 
-    private Object createBeanInstance(final Class<?> clazz) {
+    private Object createOrGetBeanInstance(final Class<?> clazz) {
         if (isBeanInitialized(clazz)) {
             return getBean(clazz);
         }
@@ -83,10 +83,18 @@ public class DefaultListableBeanFactory implements BeanFactory {
         validateBeanType(clazz);
 
         final Class<?> beanClass = BeanFactoryUtils.findConcreteClass(clazz, getBeanClasses()).orElse(clazz);
-        final BeanDefinition beanDefinition = beanDefinitionMap.getBeanDefinition(beanClass);
+
+        final Object beanInstance = createBeanInstance(beanClass);
+        saveBean(beanClass, beanInstance);
+
+        return beanInstance;
+    }
+
+    private Object createBeanInstance(final Class<?> clazz) {
+        final BeanDefinition beanDefinition = beanDefinitionMap.getBeanDefinition(clazz);
 
         if (beanDefinition instanceof RootBeanDefinition) {
-            return createByConstructor(clazz, beanClass);
+            return createByConstructor(clazz);
         }
 
         return createByBeanMethod(clazz, (ConfigurationClassBeanDefinition) beanDefinition);
@@ -102,7 +110,7 @@ public class DefaultListableBeanFactory implements BeanFactory {
         }
     }
 
-    private Object createByConstructor(final Class<?> clazz, final Class<?> beanClass) {
+    private Object createByConstructor(final Class<?> beanClass) {
         final Constructor<?> constructor = findConstructor(beanClass);
 
         try {
@@ -110,13 +118,9 @@ public class DefaultListableBeanFactory implements BeanFactory {
 
             constructor.setAccessible(true);
 
-            final Object instance = constructor.newInstance(parameters);
-
-            saveBean(beanClass, instance);
-
-            return instance;
+            return constructor.newInstance(parameters);
         } catch (InvocationTargetException | InstantiationException | IllegalAccessException e) {
-            throw new BeanInstantiationException(clazz, "Failed to instantiate bean", e);
+            throw new BeanInstantiationException(beanClass, "Failed to instantiate bean", e);
         } finally {
             constructor.setAccessible(false);
         }
@@ -154,7 +158,7 @@ public class DefaultListableBeanFactory implements BeanFactory {
 
             factoryMethod.setAccessible(true);
 
-            return factoryMethod.invoke(createBeanInstance(factoryBeanType), parameters);
+            return factoryMethod.invoke(createOrGetBeanInstance(factoryBeanType), parameters);
         } catch (IllegalAccessException | InvocationTargetException e) {
             throw new BeanInstantiationException(clazz, "Failed to instantiate bean", e);
         } finally {
@@ -174,7 +178,7 @@ public class DefaultListableBeanFactory implements BeanFactory {
     private Object getParameter(final Class<?> parameterType) {
         validateParameterType(parameterType);
 
-        return createBeanInstance(parameterType);
+        return createOrGetBeanInstance(parameterType);
     }
 
     private void validateParameterType(final Class<?> parameterType) {

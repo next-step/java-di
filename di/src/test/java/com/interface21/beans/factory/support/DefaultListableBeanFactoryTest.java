@@ -3,6 +3,8 @@ package com.interface21.beans.factory.support;
 import com.interface21.beans.BeanFactoryException;
 import com.interface21.beans.BeanInstantiationException;
 import com.interface21.context.stereotype.Controller;
+import di.DiRepository;
+import di.DiService;
 import org.h2.jdbcx.JdbcDataSource;
 import samples.JdbcSampleRepository;
 import wrong.CorrectBean;
@@ -115,14 +117,27 @@ class DefaultListableBeanFactoryTest {
         );
     }
 
-    @DisplayName("@Bean 으로 선언 된 빈을 생성 하여 주입 한다")
+    @DisplayName("@Bean 으로 선언 된 빈을 생성 하여 @Component 빈에 주입 한다")
     @Test
-    public void deBeanMethod() throws Exception {
+    public void diBeanMethod() throws Exception {
         // when
         final DataSource actual = beanFactory.getBean(JdbcSampleRepository.class).getDataSource();
 
         // then
         assertThat(actual).isNotNull().isInstanceOf(JdbcDataSource.class);
+    }
+
+    @DisplayName("@Component 로 생성한 빈을 @Bean 빈에 주입 한다")
+    @Test
+    public void diComponent() throws Exception {
+        // given
+        final DefaultListableBeanFactory beanFactory = new DefaultListableBeanFactory("di");
+
+        // when
+        final DiRepository actual = beanFactory.getBean(DiService.class).getRepository();
+
+        // then
+        assertThat(actual).isNotNull();
     }
 
     @SuppressWarnings("unchecked")
