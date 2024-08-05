@@ -109,7 +109,7 @@ class DefaultListableBeanFactoryTest {
                 .isInstanceOf(IllegalStateException.class);
     }
 
-    private static class ConstructorExceptionClass {
+    public static class ConstructorExceptionClass {
         @Autowired
         public ConstructorExceptionClass() {
             throw new IllegalStateException();
@@ -128,7 +128,7 @@ class DefaultListableBeanFactoryTest {
                 .isInstanceOf(InstantiationException.class);
     }
 
-    private static abstract class AbstractClass {
+    public static abstract class AbstractClass {
         @Autowired
         public AbstractClass() {
         }
@@ -146,7 +146,7 @@ class DefaultListableBeanFactoryTest {
                 .isInstanceOf(IllegalAccessException.class);
     }
 
-    private static class PrivateConstructorClass {
+    public static class PrivateConstructorClass {
         @Autowired
         private PrivateConstructorClass() {
         }
