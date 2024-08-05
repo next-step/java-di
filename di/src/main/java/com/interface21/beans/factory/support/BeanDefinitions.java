@@ -1,8 +1,6 @@
 package com.interface21.beans.factory.support;
 
-import com.interface21.beans.BeanUtils;
 import com.interface21.beans.factory.config.BeanDefinition;
-import com.interface21.context.annotation.Bean;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
@@ -12,23 +10,8 @@ import java.util.stream.Collectors;
 public class BeanDefinitions {
     private final Map<String, BeanDefinition> nameToBeanDefinitionMap = new HashMap<>();
 
-    public void registerComponentBeanDefinitions(Set<Class<?>> beanClasses) {
-        for (Class<?> beanClass : beanClasses) {
-            ComponentBeanDefinition beanDefinition = new ComponentBeanDefinition(beanClass);
-            nameToBeanDefinitionMap.put(beanDefinition.getName(), beanDefinition);
-        }
-    }
-
-    public void registerConfigurationBeanDefinitions(Set<Class<?>> configurationClasses) {
-        configurationClasses.forEach(configurationClass -> {
-            Object configurationObject = BeanUtils.instantiate(configurationClass);
-            BeanFactoryUtils.getBeanMethods(configurationClass, Bean.class)
-                    .forEach(beanMethod -> {
-                        Class<?> beanClass = beanMethod.getReturnType();
-                        ConfigurationBeanDefinition beanDefinition = new ConfigurationBeanDefinition(beanClass, beanMethod, configurationObject);
-                        nameToBeanDefinitionMap.put(beanDefinition.getName(), beanDefinition);
-                    });
-        });
+    public void register(BeanDefinition beanDefinition) {
+        nameToBeanDefinitionMap.put(beanDefinition.getName(), beanDefinition);
     }
 
     public Set<Class<?>> extractTypes() {
