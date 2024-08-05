@@ -78,6 +78,18 @@ class SimpleBeanDefinitionTest {
                 .hasMessageContaining("Only one constructor can have @Autowired annotation");
     }
 
+
+    @Test
+    @DisplayName("createBean 은 생성자를 호출하여 빈을 생성한다.")
+    void createBeanTest() throws Exception {
+        final SimpleBeanDefinition beanDefinition = SimpleBeanDefinition.from(OneConstructorClass.class);
+
+        final Object bean = beanDefinition.createBean(clazz -> "param");
+
+        assertThat(bean).isInstanceOf(OneConstructorClass.class);
+        assertThat(((OneConstructorClass) bean).param).isEqualTo("param");
+    }
+
     public static class NoArgConstructorClass {
     }
 
@@ -86,7 +98,9 @@ class SimpleBeanDefinitionTest {
     }
 
     public static class OneConstructorClass {
+        private final String param;
         public OneConstructorClass(final String param) {
+            this.param = param;
         }
     }
 

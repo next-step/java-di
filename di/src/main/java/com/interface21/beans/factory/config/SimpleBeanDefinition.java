@@ -5,7 +5,10 @@ import com.interface21.beans.factory.annotation.Qualifier;
 import com.interface21.beans.factory.support.BeanFactoryUtils;
 
 import java.lang.reflect.Constructor;
+import java.lang.reflect.InvocationTargetException;
 import java.util.Set;
+import java.util.function.Function;
+import java.util.stream.Stream;
 
 public class SimpleBeanDefinition implements BeanDefinition {
     private static final int BEAN_CONSTRUCTOR_COUNT = 1;
@@ -51,6 +54,17 @@ public class SimpleBeanDefinition implements BeanDefinition {
         }
         final String simpleName = beanClass.getSimpleName();
         return Character.toLowerCase(simpleName.charAt(0)) + simpleName.substring(1);
+    }
+
+    @Override
+    public Object createBean(final Function<Class<?>, Object> beanSupplier) throws InvocationTargetException, IllegalAccessException, InstantiationException {
+        return constructor.newInstance(createParameterArgs(beanSupplier));
+    }
+
+    private Object[] createParameterArgs(final Function<Class<?>, Object> beanSupplier) {
+        return Stream.of(constructor.getParameterTypes())
+                .map(beanSupplier)
+                .toArray();
     }
 
     public Constructor<?> getConstructor() {
