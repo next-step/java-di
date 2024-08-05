@@ -7,7 +7,6 @@ import java.lang.reflect.Constructor;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Optional;
 import java.util.Set;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -28,53 +27,39 @@ public class DefaultListableBeanFactory implements BeanFactory {
 
     public void initialize() {
         log.info("initialize bean factory");
-        Set<Class<?>> beanClasses = beanDefinitionMap.keySet();
-        for (Class<?> beanClass : beanClasses) {
-            Object bean = initBean(beanClass);
+        for (Class<?> beanClass : beanDefinitionMap.keySet()) {
+            Object bean = initializeBean(beanClass);
             singletonObjects.put(beanClass, bean);
         }
     }
 
-    private Object initBean(Class<?> beanClass) {
-        Optional<Class<?>> concreteClass = BeanFactoryUtils.findConcreteClass(beanClass, beanDefinitionMap.keySet());
-        if (concreteClass.isEmpty()) {
-            throw new IllegalStateException("Could not find concrete class for bean class: " + beanClass);
-        }
-        return createBean(concreteClass.get());
+    private Object initializeBean(Class<?> beanClass) {
+        return BeanFactoryUtils.findConcreteClass(beanClass, getBeanClasses())
+                               .map(concreteClass -> createBean(beanDefinitionMap.get(concreteClass)))
+                               .orElseThrow(() -> new IllegalStateException("Could not find concrete class for bean class: " + beanClass));
     }
 
-    private Object createBean(Class<?> clazz) {
+    private Object createBean(BeanDefinition beanDefinition) {
+        Constructor<?> constructor = beanDefinition.getConstructor();
+        Object[] arguments = Arrays.stream(constructor.getParameterTypes())
+                                   .map(this::getOrCreateBean)
+                                   .toArray();
+        return instantiateBean(constructor, arguments);
+    }
+
+    private static Object instantiateBean(Constructor<?> constructor, Object[] arguments) {
         try {
-            Constructor<?> constructor = findBeanConstructor(clazz);
-            return constructor.newInstance(Arrays.stream(constructor.getParameterTypes())
-                                                 .map(this::getOrCreateBean)
-                                                 .toArray());
+            return constructor.newInstance(arguments);
         } catch (Exception e) {
-            log.error("Failed to create bean for class: {}", clazz, e);
-            throw new IllegalStateException("Could not create bean for class: " + clazz, e);
+            throw new IllegalStateException("Failed to instantiate bean", e);
         }
-    }
-
-    private static Constructor<?> findBeanConstructor(Class<?> clazz) {
-        Set<Constructor> injectedConstructors = BeanFactoryUtils.getInjectedConstructors(clazz);
-        if (injectedConstructors.size() == 1) {
-            return injectedConstructors.iterator().next();
-        } else if (injectedConstructors.size() > 1) {
-            throw new IllegalStateException("Multiple constructors annotated with @Autowired found for class: " + clazz);
-        }
-
-        Constructor<?>[] constructors = clazz.getConstructors();
-        if (constructors.length == 1) {
-            return constructors[0];
-        }
-        throw new IllegalStateException("No constructor found for class: " + clazz);
     }
 
     private Object getOrCreateBean(Class<?> clazz) {
         if (singletonObjects.containsKey(clazz)) {
             return singletonObjects.get(clazz);
         }
-        return initBean(clazz);
+        return initializeBean(clazz);
     }
 
     @Override
