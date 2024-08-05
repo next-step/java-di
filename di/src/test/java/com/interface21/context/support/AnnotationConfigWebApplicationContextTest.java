@@ -3,8 +3,6 @@ package com.interface21.context.support;
 import com.interface21.context.ApplicationContext;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import samples.ExampleConfig;
-import samples.IntegrationConfig;
 import samples.JdbcSampleRepository;
 import samples.JdbcTemplate;
 import samples.MyConfiguration;
@@ -36,8 +34,6 @@ class AnnotationConfigWebApplicationContextTest {
                 SampleController.class,
                 SampleService.class,
                 JdbcSampleRepository.class,
-                ExampleConfig.class,
-                IntegrationConfig.class,
                 MyConfiguration.class,
                 JdbcTemplate.class,
                 DataSource.class

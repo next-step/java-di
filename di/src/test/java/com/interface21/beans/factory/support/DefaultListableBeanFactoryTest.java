@@ -7,8 +7,6 @@ import com.interface21.beans.factory.annotation.Autowired;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import samples.ExampleConfig;
-import samples.IntegrationConfig;
 import samples.JdbcSampleRepository;
 import samples.JdbcTemplate;
 import samples.MyConfiguration;
@@ -79,8 +77,6 @@ class DefaultListableBeanFactoryTest {
                 SampleController.class,
                 SampleService.class,
                 JdbcSampleRepository.class,
-                ExampleConfig.class,
-                IntegrationConfig.class,
                 MyConfiguration.class,
                 JdbcTemplate.class,
                 DataSource.class

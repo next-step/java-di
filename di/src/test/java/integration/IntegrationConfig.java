@@ -1,8 +1,9 @@
-package samples;
+package integration;
 
 import com.interface21.context.annotation.Bean;
 import com.interface21.context.annotation.Configuration;
 import org.h2.jdbcx.JdbcDataSource;
+import samples.JdbcTemplate;
 
 import javax.sql.DataSource;
 

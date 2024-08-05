@@ -4,8 +4,6 @@ package com.interface21.beans.factory.support;
 import com.interface21.beans.BeanScanFailureException;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import samples.ExampleConfig;
-import samples.IntegrationConfig;
 import samples.JdbcSampleRepository;
 import samples.MyConfiguration;
 import samples.SampleController;
@@ -23,7 +21,7 @@ public class BeanScannerTest {
 
         final BeanDefinitionRegistry beanDefinitionRegistry = beanScanner.scan();
 
-        assertThat(beanDefinitionRegistry.getBeanClasses()).containsExactlyInAnyOrder(SampleController.class, SampleService.class, JdbcSampleRepository.class, ExampleConfig.class, IntegrationConfig.class, MyConfiguration.class);
+        assertThat(beanDefinitionRegistry.getBeanClasses()).containsExactlyInAnyOrder(SampleController.class, SampleService.class, JdbcSampleRepository.class, MyConfiguration.class);
     }
 
     @Test
