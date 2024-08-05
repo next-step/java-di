@@ -165,7 +165,11 @@ class DefaultListableBeanFactoryTest {
     @DisplayName("Configuration 에서 추가한 Bean 을 조회할 수 있다.")
     void diWithConfigTest() {
         final DataSource dataSource = beanFactory.getBean(DataSource.class);
+        final JdbcSampleRepository repository = beanFactory.getBean(JdbcSampleRepository.class);
 
-        assertThat(dataSource).isNotNull();
+        assertSoftly(softly -> {
+            softly.assertThat(dataSource).isNotNull();
+            softly.assertThat(repository.getDataSource()).isSameAs(dataSource);
+        });
     }
 }

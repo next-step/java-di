@@ -48,6 +48,10 @@ public class DefaultListableBeanFactory implements BeanFactory {
         if (tempBeansInCreation.contains(beanClass)) {
             throw new BeanCurrentlyInCreationException(tempBeansInCreation);
         }
+        if (beanFactory.containsBean(beanClass)) {
+            return beanFactory.getBean(beanClass);
+        }
+
         tempBeansInCreation.add(beanClass);
 
         final Object createdBean = createBean(beanDefinitionRegistry.getBeanDefinition(beanClass));
