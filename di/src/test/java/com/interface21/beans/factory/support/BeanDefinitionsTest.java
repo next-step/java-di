@@ -9,42 +9,16 @@ import java.util.Set;
 import javax.sql.DataSource;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import samples.IntegrationConfig;
-import samples.JdbcTemplate;
 import samples.SampleService;
 import samples.TestDataSource;
 import samples.TestDataSource2;
 
 class BeanDefinitionsTest {
-    @DisplayName("ComponentBeanDefinition 을 등록한다.")
-    @Test
-    void registerComponentBeanDefinitions() {
-        BeanDefinitions beanDefinitions = new BeanDefinitions();
-        Class<SampleService> beanType = SampleService.class;
-
-        beanDefinitions.registerComponentBeanDefinitions(Set.of(beanType));
-
-        assertThat(beanDefinitions.getByType(beanType)).isInstanceOf(ComponentBeanDefinition.class);
-    }
-
-    @DisplayName("ConfigurationBeanDefinition 을 등록한다.")
-    @Test
-    void registerConfigurationBeanDefinitions() {
-        BeanDefinitions beanDefinitions = new BeanDefinitions();
-
-        beanDefinitions.registerConfigurationBeanDefinitions(Set.of(IntegrationConfig.class));
-
-        assertAll(
-                () -> assertThat(beanDefinitions.getByType(DataSource.class)).isInstanceOf(ConfigurationBeanDefinition.class),
-                () -> assertThat(beanDefinitions.getByType(JdbcTemplate.class)).isInstanceOf(ConfigurationBeanDefinition.class)
-        );
-    }
-
     @DisplayName("등록된 BeanDefinitions의 type을 추출한다.")
     @Test
     void extractTypes() {
         BeanDefinitions beanDefinitions = new BeanDefinitions();
-        beanDefinitions.registerComponentBeanDefinitions(Set.of(SampleService.class));
+        beanDefinitions.register(new ComponentBeanDefinition(SampleService.class));
 
         Set<Class<?>> beanTypes = beanDefinitions.extractTypes();
 
@@ -55,8 +29,8 @@ class BeanDefinitionsTest {
     @Test
     void getByType() {
         BeanDefinitions beanDefinitions = new BeanDefinitions();
-        beanDefinitions.registerComponentBeanDefinitions(Set.of(TestDataSource.class));
-        beanDefinitions.registerConfigurationBeanDefinitions(Set.of(IntegrationConfig.class));  // DataSource 타입으로 빈이 등록된다.
+        beanDefinitions.register(new ComponentBeanDefinition(TestDataSource.class));
+        beanDefinitions.register(new ComponentBeanDefinition(DataSource.class));
 
         BeanDefinition beanDefinition = beanDefinitions.getByType(DataSource.class);
 
@@ -70,7 +44,7 @@ class BeanDefinitionsTest {
     @Test
     void getByType2() {
         BeanDefinitions beanDefinitions = new BeanDefinitions();
-        beanDefinitions.registerComponentBeanDefinitions(Set.of(TestDataSource.class));
+        beanDefinitions.register(new ComponentBeanDefinition(TestDataSource.class));
 
         BeanDefinition beanDefinition = beanDefinitions.getByType(DataSource.class);
 
@@ -84,8 +58,8 @@ class BeanDefinitionsTest {
     @Test
     void getByType3() {
         BeanDefinitions beanDefinitions = new BeanDefinitions();
-        beanDefinitions.registerComponentBeanDefinitions(Set.of(TestDataSource.class));
-        beanDefinitions.registerComponentBeanDefinitions(Set.of(TestDataSource2.class));
+        beanDefinitions.register(new ComponentBeanDefinition(TestDataSource.class));
+        beanDefinitions.register(new ComponentBeanDefinition(TestDataSource2.class));
 
         assertThatThrownBy(() -> beanDefinitions.getByType(DataSource.class))
                 .isInstanceOf(IllegalArgumentException.class);
