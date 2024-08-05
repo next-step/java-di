@@ -10,10 +10,10 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
 
-public class ConfigurationScanner implements BeanDefinitionScanner {
+public class ConfigurationBeanScanner implements BeanDefinitionScanner {
     private final List<Class<?>> configurationClasses;
 
-    public ConfigurationScanner(final List<Class<?>> configurationClasses) {
+    public ConfigurationBeanScanner(final List<Class<?>> configurationClasses) {
         validate(configurationClasses);
         this.configurationClasses = configurationClasses;
     }

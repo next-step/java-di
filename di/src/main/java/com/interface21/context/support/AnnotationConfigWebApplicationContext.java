@@ -1,7 +1,7 @@
 package com.interface21.context.support;
 
 import com.interface21.beans.factory.support.BeanDefinitionRegistry;
-import com.interface21.beans.factory.support.BeanScanners;
+import com.interface21.beans.factory.support.BeanScanner;
 import com.interface21.beans.factory.support.DefaultListableBeanFactory;
 import com.interface21.context.ApplicationContext;
 
@@ -12,7 +12,7 @@ public class AnnotationConfigWebApplicationContext implements ApplicationContext
     private final DefaultListableBeanFactory beanFactory;
 
     public AnnotationConfigWebApplicationContext(final Class<?> applicationClass) {
-        final BeanScanners beanScanners = new BeanScanners(applicationClass);
+        final BeanScanner beanScanners = new BeanScanner(applicationClass);
         final BeanDefinitionRegistry beanDefinitionRegistry = beanScanners.scan();
 
         this.beanFactory = new DefaultListableBeanFactory(beanDefinitionRegistry);

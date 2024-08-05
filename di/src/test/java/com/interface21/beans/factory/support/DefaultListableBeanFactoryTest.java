@@ -15,7 +15,6 @@ import samples.SampleControllerInterface;
 import samples.SampleService;
 
 import javax.sql.DataSource;
-import java.util.List;
 import java.util.Set;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -29,7 +28,7 @@ class DefaultListableBeanFactoryTest {
 
     @BeforeEach
     void setUp() {
-        final BeanScanners beanScanners = new BeanScanners(MyConfiguration.class);
+        final BeanScanner beanScanners = new BeanScanner(MyConfiguration.class);
         final BeanDefinitionRegistry beanDefinitionRegistry = beanScanners.scan();
 
         this.beanFactory = new DefaultListableBeanFactory(beanDefinitionRegistry);
@@ -151,8 +150,8 @@ class DefaultListableBeanFactoryTest {
     @Test
     @DisplayName("Bean 생성 시 순환참조가 감지되면 예외가 던져진다.")
     void circularBeanDetectTest() {
-        final BeanScanner circularBeanScanner = new BeanScanner("circular.samples");
-        final DefaultListableBeanFactory circularBeanFactory = new DefaultListableBeanFactory(circularBeanScanner.scan());
+        final ClassPathBeanScanner circularClassPathBeanScanner = new ClassPathBeanScanner("circular.samples");
+        final DefaultListableBeanFactory circularBeanFactory = new DefaultListableBeanFactory(circularClassPathBeanScanner.scan());
 
         assertThatThrownBy(circularBeanFactory::initialize)
                 .isInstanceOf(BeanCurrentlyInCreationException.class)

@@ -12,12 +12,12 @@ import javax.sql.DataSource;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-class BeanScannersTest {
+class ClassPathBeanScannerTest {
 
     @Test
     @DisplayName("scan 을 통해 모든 BeanDefinitionRegistry 를 반환받을 수 있다")
     void scanTest() {
-        final BeanScanners beanScanners = new BeanScanners(MyConfiguration.class);
+        final BeanScanner beanScanners = new BeanScanner(MyConfiguration.class);
 
         final BeanDefinitionRegistry beanDefinitionRegistry = beanScanners.scan();
 
