@@ -8,38 +8,48 @@ import java.lang.reflect.Method;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.junit.jupiter.api.Assertions.assertAll;
 
-class MethodBeanDefinitionTest {
+class SubBeanDefinitionTest {
 
     private final BeanDefinition beanDefinition = ConfigurationBeanDefinition.from(SuccessConfiguration.class);
     private final Method method = SuccessConfiguration.class.getMethod("test");
-    private final MethodBeanDefinition methodBeanDefinition = MethodBeanDefinition.from(beanDefinition, method);
+    private final SubBeanDefinition subBeanDefinition = SubBeanDefinition.from(beanDefinition, method);
 
-    MethodBeanDefinitionTest() throws NoSuchMethodException {
+    SubBeanDefinitionTest() throws NoSuchMethodException {
+    }
+
+    @Test
+    void Method로_BeanDefinition을_생성한다() {
+        SubBeanDefinition actual = SubBeanDefinition.from(beanDefinition, method);
+        assertAll(
+                () -> assertThat(actual.getType()).isEqualTo(String.class),
+                () -> assertThat(actual.getBeanClassName()).isEqualTo("test")
+        );
     }
 
     @Test
     void configuration가_아닌지_확인한다() {
-        boolean actual = methodBeanDefinition.isConfiguration();
+        boolean actual = subBeanDefinition.isConfiguration();
         assertThat(actual).isFalse();
     }
 
     @Test
     void createMethod를_반환하려하면_예외가_발생한다() {
-        assertThatThrownBy(methodBeanDefinition::getBeanCreateMethods)
+        assertThatThrownBy(subBeanDefinition::getBeanCreateMethods)
                 .isInstanceOf(IllegalStateException.class)
                 .hasMessage("Bean 생성 메소드를 가지지 않습니다.");
     }
 
     @Test
     void subBeanDefinition인지_확인한다() {
-        boolean actual = methodBeanDefinition.isSubBeanDefinition();
+        boolean actual = subBeanDefinition.isSubBeanDefinition();
         assertThat(actual).isTrue();
     }
 
     @Test
     void 상위_BeanDefinition을_반환한다() {
-        BeanDefinition actual = methodBeanDefinition.getSuperBeanDefinition();
+        BeanDefinition actual = subBeanDefinition.getSuperBeanDefinition();
         assertThat(actual).isEqualTo(beanDefinition);
     }
 

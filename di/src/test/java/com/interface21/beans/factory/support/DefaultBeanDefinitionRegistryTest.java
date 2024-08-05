@@ -29,7 +29,7 @@ class DefaultBeanDefinitionRegistryTest {
     void Configuration을_저장하는_경우_하위_메소드빈도_함께_저장한다() {
         DefaultBeanDefinitionRegistry beanDefinitionRegistry = new DefaultBeanDefinitionRegistry();
         beanDefinitionRegistry.registerBeanDefinition(TestConfiguration.class, ConfigurationBeanDefinition.from(TestConfiguration.class));
-        assertThat(beanDefinitionRegistry.getBeanDefinitionMap()).containsOnlyKeys("TestConfiguration", "java.lang.String");
+        assertThat(beanDefinitionRegistry.getBeanDefinitionMap()).containsOnlyKeys("TestConfiguration", "testBean");
     }
 
     @Test
@@ -54,6 +54,23 @@ class DefaultBeanDefinitionRegistryTest {
         assertThatThrownBy(() -> registry.getBeanDefinition(TestController.class))
                 .isInstanceOf(BeanInstantiationException.class)
                 .hasMessageContaining("생성할 수 있는 빈이 아닙니다.");
+    }
+
+    @Test
+    void 존재하지_않는_beanName으로_BeanDefinition을_찾으려하는_경우_예외가_발생한다() {
+        DefaultBeanDefinitionRegistry registry = new DefaultBeanDefinitionRegistry();
+        assertThatThrownBy(() -> registry.getBeanDefinition("error"))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessage("빈 이름에 해당하는 BeanDefinition이 없습니다.");
+    }
+
+    @Test
+    void beanName으로_BeanDefinition을_찾아_반환한다() {
+        DefaultBeanDefinitionRegistry registry = new DefaultBeanDefinitionRegistry();
+        registry.registerBeanDefinition(TestConfiguration.class, ConfigurationBeanDefinition.from(TestConfiguration.class));
+
+        BeanDefinition actual = registry.getBeanDefinition("testBean");
+        assertThat(actual.getType()).isEqualTo(String.class);
     }
 
     @Test

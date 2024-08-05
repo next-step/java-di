@@ -1,10 +1,10 @@
 package com.interface21.web;
 
-import com.interface21.context.support.AnnotationConfigWebApplicationContext;
 import com.interface21.webmvc.servlet.mvc.DispatcherServlet;
 import com.interface21.webmvc.servlet.mvc.asis.ControllerHandlerAdapter;
 import com.interface21.webmvc.servlet.mvc.asis.ManualHandlerMapping;
 import com.interface21.webmvc.servlet.mvc.tobe.AnnotationHandlerMapping;
+import com.interface21.webmvc.servlet.mvc.tobe.ApplicationContext;
 import com.interface21.webmvc.servlet.mvc.tobe.HandlerExecutionHandlerAdapter;
 import jakarta.servlet.ServletContext;
 import org.slf4j.Logger;
@@ -18,11 +18,10 @@ public class MyWebApplicationInitializer implements WebApplicationInitializer {
 
     @Override
     public void onStartup(final ServletContext container) {
-        final var applicationContext = new AnnotationConfigWebApplicationContext();
-
         final var dispatcherServlet = new DispatcherServlet();
+        final var applicationContext = new ApplicationContext(List.of(), "camp.nextstep.controller");
         dispatcherServlet.addHandlerMapping(new ManualHandlerMapping());
-        dispatcherServlet.addHandlerMapping(new AnnotationHandlerMapping(List.of(), "camp.nextstep.controller"));
+        dispatcherServlet.addHandlerMapping(new AnnotationHandlerMapping(applicationContext));
 
         dispatcherServlet.addHandlerAdapter(new ControllerHandlerAdapter());
         dispatcherServlet.addHandlerAdapter(new HandlerExecutionHandlerAdapter());

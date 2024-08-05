@@ -93,6 +93,11 @@
     - 상위 BeanDefinition이 없으면 false이다
   - 상위 BeanDefinition을 반환한다
     - 상위 BeanDefinition이 없으면 예외를 발생한다
+
+- RootBeanDefinition
+  - 최상위 BeanDefinition의 보일러 플레이트로 사용한다
+  - isSubBeanDefinition가 항상 false이다
+  - getSuperBeanDefinition를 가져오려하면 예외가 발새앟ㄴ다
 - ConfigurationBeanDefinition
   - Configuration 어노테이션이 달리지 않은 클래스로 생성하려하면 예외가 발생한다
   - Bean 어노테이션이 달리지 않은 메소드 리스트로 생성하려하면 예외가 발생한다
@@ -101,3 +106,8 @@
   - beancreate method를 반환할 수 있다
 - SubBeanDefinition
   - 상위 BeanDefinition(ex configuration)에 의해 생성되는 Bean 정의값
+  - 상위 BeanDefinition과 Method로 생성된다
+
+## 4단계 - @Configuration 구현하기(힌트)
+- ApplicationContext
+  - package와 configuration을 읽어 빈을 생성하고 HandlerExecution을 반환한다

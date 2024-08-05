@@ -9,5 +9,7 @@ public interface BeanDefinitionRegistry {
 
     BeanDefinition getBeanDefinition(Class<?> clazz);
 
+    BeanDefinition getBeanDefinition(String beanName);
+
     List<BeanDefinition> getBeanDefinitions();
 }

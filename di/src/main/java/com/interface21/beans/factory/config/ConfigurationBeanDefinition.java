@@ -7,7 +7,7 @@ import java.lang.reflect.Method;
 import java.util.Arrays;
 import java.util.List;
 
-public class ConfigurationBeanDefinition implements BeanDefinition {
+public class ConfigurationBeanDefinition extends RootBeanDefinition {
 
     private static final BeanScope BEAN_SCOPE = BeanScope.SINGLETON;
 
@@ -70,15 +70,5 @@ public class ConfigurationBeanDefinition implements BeanDefinition {
     @Override
     public List<Method> getBeanCreateMethods() {
         return beanCreateMethods;
-    }
-
-    @Override
-    public boolean isSubBeanDefinition() {
-        return false;
-    }
-
-    @Override
-    public BeanDefinition getSuperBeanDefinition() {
-        throw new IllegalStateException("SuperBeanDefinition이 없어 반환할 수 없습니다.");
     }
 }
