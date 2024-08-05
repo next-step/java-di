@@ -10,7 +10,7 @@ import javax.sql.DataSource;
 public class IntegrationConfig {
 
     @Bean
-    public DataSource dataSource() {
+    public DataSource IntegrationDataSource() {
         final var jdbcDataSource = new JdbcDataSource();
         jdbcDataSource.setUrl("jdbc:h2:mem:test;DB_CLOSE_DELAY=-1;");
         jdbcDataSource.setUser("");
@@ -19,7 +19,7 @@ public class IntegrationConfig {
     }
 
     @Bean
-    public JdbcTemplate jdbcTemplate(DataSource dataSource) {
+    public JdbcTemplate IntegrationJdbcTemplate(DataSource dataSource) {
         return new JdbcTemplate(dataSource);
     }
 }
