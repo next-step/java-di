@@ -4,17 +4,12 @@ import com.interface21.beans.BeanCurrentlyInCreationException;
 import com.interface21.beans.BeanInstantiationException;
 import com.interface21.beans.factory.BeanFactory;
 import com.interface21.beans.factory.config.BeanDefinition;
-import com.interface21.beans.factory.config.ConfigurationBeanDefinition;
-import com.interface21.beans.factory.config.SimpleBeanDefinition;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
 import java.util.HashSet;
 import java.util.Set;
-import java.util.stream.Stream;
 
 public class DefaultListableBeanFactory implements BeanFactory {
 
@@ -63,23 +58,10 @@ public class DefaultListableBeanFactory implements BeanFactory {
 
     private Object createBean(final BeanDefinition beanDefinition) {
         try {
-            if (beanDefinition instanceof final SimpleBeanDefinition simpleBeanDefinition) {
-                final Constructor<?> constructor = simpleBeanDefinition.getConstructor();
-                return constructor.newInstance(createParameterArgs(constructor.getParameterTypes()));
-            } else if (beanDefinition instanceof final ConfigurationBeanDefinition configurationBeanDefinition) {
-                final Method beanMethod = configurationBeanDefinition.getBeanMethod();
-                return beanMethod.invoke(getOrCreateBean(beanMethod.getDeclaringClass()), createParameterArgs(beanMethod.getParameterTypes()));
-            }
-            throw new BeanInstantiationException(beanDefinition.getType(), "Could not instantiate bean of type '%s'".formatted(beanDefinition.getType()));
+            return beanDefinition.createBean(this::getOrCreateBean);
         } catch (final InvocationTargetException | InstantiationException | IllegalAccessException e) {
             throw new BeanInstantiationException(beanDefinition.getType(), e.getMessage(), e);
         }
-    }
-
-    private Object[] createParameterArgs(final Class<?>[] parameterTypes) {
-        return Stream.of(parameterTypes)
-                .map(this::getOrCreateBean)
-                .toArray();
     }
 
     private Object getOrCreateBean(final Class<?> parameterType) {
