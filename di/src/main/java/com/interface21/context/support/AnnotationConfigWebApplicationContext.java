@@ -18,7 +18,9 @@ public class AnnotationConfigWebApplicationContext implements ApplicationContext
         final BeanScanner beanScanner = new BeanScanner(configurationScanner.getBasePackages());
         final BeanDefinitionRegistry beanDefinitionRegistry = beanScanner.scan();
         final BeanDefinitionRegistry configBeanDefinitionRegistry = configurationScanner.scanBean();
+
         beanDefinitionRegistry.mergeBeanDefinitionRegistry(configBeanDefinitionRegistry);
+
         this.beanFactory = new DefaultListableBeanFactory(beanDefinitionRegistry);
         beanFactory.initialize();
     }
