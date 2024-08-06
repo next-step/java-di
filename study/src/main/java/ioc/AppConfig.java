@@ -13,6 +13,11 @@ public class AppConfig {
     return new SampleObject();
   }
 
+  @Bean
+  public SampleObject samObject() {
+    return new SampleObject();
+  }
+
   @Bean(name = {"firstName", "secondName"})
   public SampleObject sampleAlias() {
     return new SampleObject();
