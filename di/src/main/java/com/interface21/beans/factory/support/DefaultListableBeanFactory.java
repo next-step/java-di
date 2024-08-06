@@ -36,13 +36,13 @@ public class DefaultListableBeanFactory implements BeanFactory {
         log.info("Start DefaultListableBeanFactory");
 
         BasePackageScanner basePackageScanner = new BasePackageScanner(startClass);
-        BeanScanner beanScanner = new BeanScanner(basePackageScanner.scan());
+        String[] basePackages = basePackageScanner.scan();
 
-        Set<Class<?>> componentBeanClasses = beanScanner.scanComponent();
-        beanDefinitions.registerComponentBeanDefinitions(componentBeanClasses);
+        ClassPathBeanScanner classPathBeanScanner = new ClassPathBeanScanner(basePackages);
+        classPathBeanScanner.registerBeanDefinitions(beanDefinitions);
 
-        Set<Class<?>> configurationClasses = beanScanner.scanConfiguration();
-        beanDefinitions.registerConfigurationBeanDefinitions(configurationClasses);
+        ConfigurationBeanScanner configurationBeanScanner = new ConfigurationBeanScanner(basePackages);
+        configurationBeanScanner.registerBeanDefinitions(beanDefinitions);
     }
 
     @Override
