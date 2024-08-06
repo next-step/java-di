@@ -2,7 +2,7 @@ package com.interface21.beans.factory.support;
 
 import com.interface21.beans.factory.config.BeanDefinition;
 
-import java.lang.reflect.Constructor;
+import java.util.Map;
 import java.util.Set;
 
 public interface BeanDefinitionRegistry {
@@ -10,7 +10,11 @@ public interface BeanDefinitionRegistry {
 
     Set<Class<?>> getBeanClasses();
 
-    Constructor<?> getBeanConstructor(Class<?> clazz);
+    BeanDefinition getBeanDefinition(Class<?> clazz);
 
     void clear();
+
+    void mergeBeanDefinitionRegistry(BeanDefinitionRegistry configBeanDefinitionRegistry);
+
+    Map<Class<?>, BeanDefinition> getBeanDefinitions();
 }

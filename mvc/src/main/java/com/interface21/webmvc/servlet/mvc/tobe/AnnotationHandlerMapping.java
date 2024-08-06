@@ -16,16 +16,15 @@ public class AnnotationHandlerMapping implements HandlerMapping {
 
     private static final Logger log = LoggerFactory.getLogger(AnnotationHandlerMapping.class);
 
-    private final Object[] basePackage;
+    private final ApplicationContext applicationContext;
     private final HandlerExecutions handlerExecutions;
 
-    public AnnotationHandlerMapping(final Object... basePackage) {
-        this.basePackage = basePackage;
+    public AnnotationHandlerMapping(final ApplicationContext applicationContext) {
+        this.applicationContext = applicationContext;
         this.handlerExecutions = new HandlerExecutions();
     }
 
     public void initialize() {
-        final ApplicationContext applicationContext = new AnnotationConfigWebApplicationContext(basePackage);
         applicationContext.getBeanClasses()
                 .stream()
                 .filter(beanClass -> beanClass.isAnnotationPresent(Controller.class))

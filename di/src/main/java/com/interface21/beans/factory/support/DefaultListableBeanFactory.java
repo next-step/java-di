@@ -3,14 +3,13 @@ package com.interface21.beans.factory.support;
 import com.interface21.beans.BeanCurrentlyInCreationException;
 import com.interface21.beans.BeanInstantiationException;
 import com.interface21.beans.factory.BeanFactory;
+import com.interface21.beans.factory.config.BeanDefinition;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.util.HashSet;
 import java.util.Set;
-import java.util.stream.Stream;
 
 public class DefaultListableBeanFactory implements BeanFactory {
 
@@ -41,31 +40,28 @@ public class DefaultListableBeanFactory implements BeanFactory {
     }
 
     private Object initBean(final Class<?> beanClass) {
-        if (!tempBeansInCreation.add(beanClass)) {
+        if (tempBeansInCreation.contains(beanClass)) {
             throw new BeanCurrentlyInCreationException(tempBeansInCreation);
         }
+        if (beanFactory.containsBean(beanClass)) {
+            return beanFactory.getBean(beanClass);
+        }
 
-        final Class<?> concreteClass = BeanFactoryUtils.findConcreteClass(beanClass, getBeanClasses())
-                .orElseThrow(() -> new BeanInstantiationException(beanClass, "Could not autowire. No concrete class found for %s.".formatted(beanClass.getName())));
-        final Object createdBean = createBean(beanDefinitionRegistry.getBeanConstructor(concreteClass));
+        tempBeansInCreation.add(beanClass);
+
+        final Object createdBean = createBean(beanDefinitionRegistry.getBeanDefinition(beanClass));
         beanFactory.addBean(beanClass, createdBean);
 
         tempBeansInCreation.remove(beanClass);
         return createdBean;
     }
 
-    private Object createBean(final Constructor<?> constructor) {
+    private Object createBean(final BeanDefinition beanDefinition) {
         try {
-            return constructor.newInstance(createConstructorArgs(constructor));
+            return beanDefinition.createBean(this::getOrCreateBean);
         } catch (final InvocationTargetException | InstantiationException | IllegalAccessException e) {
-            throw new BeanInstantiationException(constructor.getDeclaringClass(), e.getMessage(), e);
+            throw new BeanInstantiationException(beanDefinition.getType(), e.getMessage(), e);
         }
-    }
-
-    private Object[] createConstructorArgs(final Constructor<?> constructor) {
-        return Stream.of(constructor.getParameterTypes())
-                .map(this::getOrCreateBean)
-                .toArray();
     }
 
     private Object getOrCreateBean(final Class<?> parameterType) {
