@@ -1,9 +1,9 @@
 package com.interface21.webmvc.servlet.mvc.tobe.support;
 
+import java.util.Arrays;
+
 import com.interface21.core.MethodParameter;
 import com.interface21.web.method.support.HandlerMethodArgumentResolver;
-
-import java.util.Arrays;
 
 public abstract class AbstractAnnotationArgumentResolver implements HandlerMethodArgumentResolver {
 

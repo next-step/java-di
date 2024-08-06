@@ -1,11 +1,13 @@
 package com.interface21.webmvc.servlet.mvc.tobe.support;
 
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+
+import org.apache.commons.lang3.StringUtils;
+
 import com.interface21.core.MethodParameter;
 import com.interface21.web.bind.annotation.RequestParam;
 import com.interface21.webmvc.servlet.mvc.MethodArgumentTypeNotSupportedException;
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
-import org.apache.commons.lang3.StringUtils;
 
 public class RequestParamArgumentResolver extends AbstractAnnotationArgumentResolver {
 
@@ -15,7 +17,10 @@ public class RequestParamArgumentResolver extends AbstractAnnotationArgumentReso
     }
 
     @Override
-    public Object resolveArgument(MethodParameter methodParameter, HttpServletRequest request, HttpServletResponse response) {
+    public Object resolveArgument(
+            MethodParameter methodParameter,
+            HttpServletRequest request,
+            HttpServletResponse response) {
         RequestParam requestParam = getAnnotation(methodParameter, RequestParam.class);
         String key = getRequestParamKey(requestParam, methodParameter.getParameterName());
 
@@ -31,9 +36,10 @@ public class RequestParamArgumentResolver extends AbstractAnnotationArgumentReso
     }
 
     private String getRequestParamKey(RequestParam requestParam, String parameterName) {
-        return StringUtils.isNotBlank(requestParam.name()) ? requestParam.name()
-                : StringUtils.isNotBlank(requestParam.value()) ? requestParam.value()
-                : parameterName;
+        return StringUtils.isNotBlank(requestParam.name())
+                ? requestParam.name()
+                : StringUtils.isNotBlank(requestParam.value())
+                        ? requestParam.value()
+                        : parameterName;
     }
-
 }

@@ -34,3 +34,14 @@
 
 ### 프로토타입 스코프
 <img src="docs/images/prototype.png" alt="prototype">
+
+--- 
+
+## 요구사항
+
+- [ ] 인스턴스 생성 및 의존관계 설정을 애너테이션으로 자동화한다
+  - 지원하는 애너테이션은 
+   - [ ] @Controller
+   - [ ] 서비스는 @Service
+   - [ ] DAO는 @Repository 
+   - [ ] 이 3개의 설정으로 생성된 각 인스턴스 간의 의존관계는 @Autowired를 사용한다

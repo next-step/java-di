@@ -1,12 +1,14 @@
 package com.interface21.webmvc.servlet.mvc.asis;
 
-import com.interface21.webmvc.servlet.mvc.HandlerMapping;
+import java.util.HashMap;
+import java.util.Map;
+
 import jakarta.servlet.http.HttpServletRequest;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.HashMap;
-import java.util.Map;
+import com.interface21.webmvc.servlet.mvc.HandlerMapping;
 
 public class ManualHandlerMapping implements HandlerMapping {
 
@@ -19,8 +21,14 @@ public class ManualHandlerMapping implements HandlerMapping {
         controllers.put("/", new ForwardController("/index.jsp"));
 
         log.info("Initialized Handler Mapping!");
-        controllers.keySet()
-                .forEach(path -> log.info("Path : {}, Controller : {}", path, controllers.get(path).getClass()));
+        controllers
+                .keySet()
+                .forEach(
+                        path ->
+                                log.info(
+                                        "Path : {}, Controller : {}",
+                                        path,
+                                        controllers.get(path).getClass()));
     }
 
     @Override

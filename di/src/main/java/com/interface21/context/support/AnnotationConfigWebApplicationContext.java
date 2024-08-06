@@ -1,9 +1,9 @@
 package com.interface21.context.support;
 
+import java.util.Set;
+
 import com.interface21.beans.factory.support.DefaultListableBeanFactory;
 import com.interface21.context.ApplicationContext;
-
-import java.util.Set;
 
 public class AnnotationConfigWebApplicationContext implements ApplicationContext {
 

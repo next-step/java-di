@@ -1,15 +1,16 @@
 package com.interface21.beans.factory.support;
 
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-import org.reflections.Reflections;
-import samples.SampleController;
+import static org.junit.jupiter.api.Assertions.*;
 
 import java.lang.annotation.Annotation;
 import java.util.HashSet;
 import java.util.Set;
 
-import static org.junit.jupiter.api.Assertions.assertNotNull;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.reflections.Reflections;
+
+import samples.SampleController;
 
 class DefaultListableBeanFactoryTest {
 

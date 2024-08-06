@@ -1,14 +1,16 @@
 package com.interface21.web;
 
+import jakarta.servlet.ServletContext;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.interface21.context.support.AnnotationConfigWebApplicationContext;
 import com.interface21.webmvc.servlet.mvc.DispatcherServlet;
 import com.interface21.webmvc.servlet.mvc.asis.ControllerHandlerAdapter;
 import com.interface21.webmvc.servlet.mvc.asis.ManualHandlerMapping;
 import com.interface21.webmvc.servlet.mvc.tobe.AnnotationHandlerMapping;
 import com.interface21.webmvc.servlet.mvc.tobe.HandlerExecutionHandlerAdapter;
-import jakarta.servlet.ServletContext;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 public class MyWebApplicationInitializer implements WebApplicationInitializer {
 
@@ -20,7 +22,8 @@ public class MyWebApplicationInitializer implements WebApplicationInitializer {
 
         final var dispatcherServlet = new DispatcherServlet();
         dispatcherServlet.addHandlerMapping(new ManualHandlerMapping());
-        dispatcherServlet.addHandlerMapping(new AnnotationHandlerMapping("camp.nextstep.controller"));
+        dispatcherServlet.addHandlerMapping(
+                new AnnotationHandlerMapping("camp.nextstep.controller"));
 
         dispatcherServlet.addHandlerAdapter(new ControllerHandlerAdapter());
         dispatcherServlet.addHandlerAdapter(new HandlerExecutionHandlerAdapter());

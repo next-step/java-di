@@ -1,4 +1,3 @@
 package annotation.sample;
 
-public interface MessageSender {
-}
+public interface MessageSender {}

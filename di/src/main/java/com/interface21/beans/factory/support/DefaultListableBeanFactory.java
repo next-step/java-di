@@ -1,13 +1,14 @@
 package com.interface21.beans.factory.support;
 
-import com.interface21.beans.factory.BeanFactory;
-import com.interface21.beans.factory.config.BeanDefinition;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import com.interface21.beans.factory.BeanFactory;
+import com.interface21.beans.factory.config.BeanDefinition;
 
 public class DefaultListableBeanFactory implements BeanFactory {
 
@@ -19,6 +20,7 @@ public class DefaultListableBeanFactory implements BeanFactory {
 
     @Override
     public Set<Class<?>> getBeanClasses() {
+
         return Set.of();
     }
 
@@ -27,10 +29,8 @@ public class DefaultListableBeanFactory implements BeanFactory {
         return null;
     }
 
-    public void initialize() {
-    }
+    public void initialize() {}
 
     @Override
-    public void clear() {
-    }
+    public void clear() {}
 }

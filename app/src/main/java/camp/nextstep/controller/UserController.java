@@ -1,6 +1,8 @@
 package camp.nextstep.controller;
 
-import camp.nextstep.dao.InMemoryUserDao;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.interface21.context.stereotype.Controller;
 import com.interface21.web.bind.annotation.PathVariable;
 import com.interface21.web.bind.annotation.RequestMapping;
@@ -8,8 +10,8 @@ import com.interface21.web.bind.annotation.RequestMethod;
 import com.interface21.web.bind.annotation.RequestParam;
 import com.interface21.webmvc.servlet.ModelAndView;
 import com.interface21.webmvc.servlet.view.JsonView;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+
+import camp.nextstep.dao.InMemoryUserDao;
 
 @Controller
 public class UserController {

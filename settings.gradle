@@ -1,3 +1,11 @@
+pluginManagement {
+    plugins {
+        id("java")
+        id("com.diffplug.spotless") version "6.25.0"
+    }
+}
+
+
 rootProject.name = 'java-di'
 include 'app'
 include 'di'

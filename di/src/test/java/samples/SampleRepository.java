@@ -1,4 +1,3 @@
 package samples;
 
-public interface SampleRepository {
-}
+public interface SampleRepository {}

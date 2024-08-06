@@ -1,10 +1,11 @@
 package samples;
 
-import com.interface21.context.annotation.Bean;
-import com.interface21.context.annotation.Configuration;
+import javax.sql.DataSource;
+
 import org.h2.jdbcx.JdbcDataSource;
 
-import javax.sql.DataSource;
+import com.interface21.context.annotation.Bean;
+import com.interface21.context.annotation.Configuration;
 
 @Configuration
 public class IntegrationConfig {
