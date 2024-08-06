@@ -17,7 +17,7 @@ public class DefaultListableBeanFactory implements BeanFactory {
 
     private final BeanDefinitionRegistry beanDefinitionRegistry;
     private final SimpleBeanFactory beanFactory;
-    private final Set<Class<?>> tempBeansInCreation;
+    private final Set<BeanDefinition> tempBeansInCreation;
 
     public DefaultListableBeanFactory(final BeanDefinitionRegistry beanDefinitionRegistry) {
         this.beanDefinitionRegistry = beanDefinitionRegistry;
@@ -35,24 +35,32 @@ public class DefaultListableBeanFactory implements BeanFactory {
         return beanFactory.getBean(clazz);
     }
 
-    public void initialize() {
-        getBeanClasses().forEach(this::initBean);
+    @Override
+    public <T> T getBean(final String beanName) {
+        return beanFactory.getBean(beanName);
     }
 
-    private Object initBean(final Class<?> beanClass) {
-        if (tempBeansInCreation.contains(beanClass)) {
+    public void initialize() {
+        beanDefinitionRegistry.getBeanDefinitions()
+                .forEach((s, beanDefinition) -> initBean(beanDefinition));
+    }
+
+    private Object initBean(final BeanDefinition beanDefinition) {
+        if (tempBeansInCreation.contains(beanDefinition)) {
             throw new BeanCurrentlyInCreationException(tempBeansInCreation);
         }
-        if (beanFactory.containsBean(beanClass)) {
-            return beanFactory.getBean(beanClass);
+
+        final String beanClassName = beanDefinition.getBeanClassName();
+        if (beanFactory.containsBean(beanClassName)) {
+            return beanFactory.getBean(beanClassName);
         }
 
-        tempBeansInCreation.add(beanClass);
+        tempBeansInCreation.add(beanDefinition);
 
-        final Object createdBean = createBean(beanDefinitionRegistry.getBeanDefinition(beanClass));
-        beanFactory.addBean(beanClass, createdBean);
+        final Object createdBean = createBean(beanDefinition);
+        beanFactory.addBean(beanClassName, createdBean);
 
-        tempBeansInCreation.remove(beanClass);
+        tempBeansInCreation.remove(beanDefinition);
         return createdBean;
     }
 
@@ -65,10 +73,12 @@ public class DefaultListableBeanFactory implements BeanFactory {
     }
 
     private Object getOrCreateBean(final Class<?> parameterType) {
-        if (beanFactory.containsBean(parameterType)) {
-            return beanFactory.getBean(parameterType);
+        final BeanDefinition beanDefinition = beanDefinitionRegistry.getBeanDefinition(parameterType);
+        final String beanClassName = beanDefinition.getBeanClassName();
+        if (beanFactory.containsBean(beanClassName)) {
+            return beanFactory.getBean(beanClassName);
         }
-        return initBean(parameterType);
+        return initBean(beanDefinition);
     }
 
     @Override

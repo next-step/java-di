@@ -1,20 +1,22 @@
 package com.interface21.beans;
 
+import com.interface21.beans.factory.config.BeanDefinition;
+
 import java.util.Collection;
 import java.util.StringJoiner;
 
 public class BeanCurrentlyInCreationException extends RuntimeException {
-    public BeanCurrentlyInCreationException(final Collection<Class<?>> classes) {
-        super("Circular dependency detected: " + describeCircularDependency(classes));
+    public BeanCurrentlyInCreationException(final Collection<BeanDefinition> beanDefinitions) {
+        super("Circular dependency detected: " + describeCircularDependency(beanDefinitions));
     }
 
-    private static String describeCircularDependency(final Collection<Class<?>> classes) {
-        if (classes.isEmpty()) {
+    private static String describeCircularDependency(final Collection<BeanDefinition> beanDefinitions) {
+        if (beanDefinitions.isEmpty()) {
             return "";
         }
         final StringJoiner stringJoiner = new StringJoiner(" ---> ");
-        classes.forEach(clazz -> stringJoiner.add(clazz.getName()));
-        stringJoiner.add(classes.iterator().next().getName());
+        beanDefinitions.forEach(beanDefinition -> stringJoiner.add(beanDefinition.getBeanClassName()));
+        stringJoiner.add(beanDefinitions.iterator().next().getBeanClassName());
 
         return stringJoiner.toString();
     }
