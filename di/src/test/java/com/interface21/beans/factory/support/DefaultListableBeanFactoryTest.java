@@ -4,6 +4,7 @@ import com.interface21.beans.BeanCurrentlyInCreationException;
 import com.interface21.beans.BeanInstantiationException;
 import com.interface21.beans.NoSuchBeanDefinitionException;
 import com.interface21.beans.factory.annotation.Autowired;
+import example.ExampleConfig;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -33,7 +34,6 @@ class DefaultListableBeanFactoryTest {
 
         this.beanFactory = new DefaultListableBeanFactory(beanDefinitionRegistry);
         beanFactory.initialize();
-
     }
 
     @Test
@@ -167,6 +167,27 @@ class DefaultListableBeanFactoryTest {
         assertSoftly(softly -> {
             softly.assertThat(dataSource).isNotNull();
             softly.assertThat(repository.getDataSource()).isSameAs(dataSource);
+        });
+    }
+
+    @Test
+    @DisplayName("Configuration 에서 추가한 Bean 을 조회할 수 있다.")
+    void diWithExampleConfigTest() {
+        final BeanScanner beanScanners = new BeanScanner(ExampleConfig.class);
+        final BeanDefinitionRegistry beanDefinitionRegistry = beanScanners.scan();
+
+        this.beanFactory = new DefaultListableBeanFactory(beanDefinitionRegistry);
+        beanFactory.initialize();
+
+        final DataSource dataSource = beanFactory.getBean(DataSource.class);
+        final DataSource exampleDataSource = beanFactory.getBean("exampleDataSource");
+        final JdbcSampleRepository repository = beanFactory.getBean(JdbcSampleRepository.class);
+
+        assertSoftly(softly -> {
+            softly.assertThat(dataSource).isNotNull();
+            softly.assertThat(exampleDataSource).isNotNull();
+            softly.assertThat(repository.getDataSource()).isSameAs(dataSource);
+            softly.assertThat(exampleDataSource).isNotSameAs(dataSource);
         });
     }
 }
