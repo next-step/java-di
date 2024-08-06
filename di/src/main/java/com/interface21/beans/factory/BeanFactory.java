@@ -1,5 +1,7 @@
 package com.interface21.beans.factory;
 
+import java.lang.annotation.Annotation;
+import java.util.Map;
 import java.util.Set;
 
 public interface BeanFactory {
@@ -8,5 +10,7 @@ public interface BeanFactory {
 
     <T> T getBean(Class<T> clazz);
 
+    Map<Class<?>, Object> getBeansWithAnnotation(Class<? extends Annotation> annotationType);
+    
     void clear();
 }

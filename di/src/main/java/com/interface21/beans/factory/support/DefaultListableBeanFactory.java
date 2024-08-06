@@ -3,9 +3,11 @@ package com.interface21.beans.factory.support;
 import com.interface21.beans.BeanInstantiationException;
 import com.interface21.beans.factory.BeanFactory;
 import com.interface21.beans.factory.config.BeanDefinition;
+import java.lang.annotation.Annotation;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -28,6 +30,13 @@ public class DefaultListableBeanFactory implements BeanFactory, BeanDefinitionRe
             return (T) singletonObjects.get(clazz);
         }
         return findAndCreateBean(clazz);
+    }
+
+    @Override
+    public Map<Class<?>, Object> getBeansWithAnnotation(Class<? extends Annotation> annotationType) {
+        return beanDefinitionMap.entrySet().stream()
+            .filter(entry -> entry.getKey().isAnnotationPresent(annotationType))
+            .collect(Collectors.toMap(Map.Entry::getKey, entry -> getBean(entry.getKey())));
     }
 
     private <T> T findAndCreateBean(Class<T> clazz) {

@@ -4,6 +4,8 @@ import com.interface21.beans.factory.support.BeanScanner;
 import com.interface21.beans.factory.support.DefaultListableBeanFactory;
 import com.interface21.context.ApplicationContext;
 
+import java.lang.annotation.Annotation;
+import java.util.Map;
 import java.util.Set;
 
 public class AnnotationConfigWebApplicationContext implements ApplicationContext {
@@ -24,5 +26,10 @@ public class AnnotationConfigWebApplicationContext implements ApplicationContext
     @Override
     public Set<Class<?>> getBeanClasses() {
         return beanFactory.getBeanClasses();
+    }
+
+    @Override
+    public Map<Class<?>, Object> getBeansWithAnnotation(Class<? extends Annotation> annotationType) {
+        return beanFactory.getBeansWithAnnotation(annotationType);
     }
 }
