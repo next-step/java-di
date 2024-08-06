@@ -11,6 +11,6 @@ public interface BeanFactory {
     <T> T getBean(Class<T> clazz);
 
     Map<Class<?>, Object> getBeansWithAnnotation(Class<? extends Annotation> annotationType);
-    
+
     void clear();
 }
