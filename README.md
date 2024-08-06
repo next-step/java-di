@@ -41,4 +41,4 @@
 - [x] : 2. AnnotationHandlerMapping이 BeanFactory와 BeanScanner를 활용해 동작하도록 리팩터링
 
 ### 🚀 1단계 - DI 컨테이너 구현하기(힌트)
-- [ ] : 1. AnnotationHandlerMapping이 BeanFactory와 BeanScanner를 활용해 동작하도록 리팩터링
+- [x] : 1. AnnotationHandlerMapping이 BeanFactory와 BeanScanner를 활용해 동작하도록 리팩터링
