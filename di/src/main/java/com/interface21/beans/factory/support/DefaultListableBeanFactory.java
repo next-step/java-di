@@ -3,18 +3,12 @@ package com.interface21.beans.factory.support;
 import com.interface21.beans.BeanFactoryException;
 import com.interface21.beans.BeanInstantiationException;
 import com.interface21.beans.factory.BeanFactory;
-import com.interface21.beans.factory.annotation.Autowired;
 import com.interface21.beans.factory.config.BeanDefinition;
 import com.interface21.beans.factory.config.BeanDefinitionMapping;
-import com.interface21.beans.factory.config.ConfigurationClassBeanDefinition;
-import com.interface21.beans.factory.config.RootBeanDefinition;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.lang.annotation.Annotation;
-import java.lang.reflect.Constructor;
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
 import java.util.*;
 
 public class DefaultListableBeanFactory implements BeanFactory {
@@ -84,20 +78,17 @@ public class DefaultListableBeanFactory implements BeanFactory {
 
         final Class<?> beanClass = BeanFactoryUtils.findConcreteClass(clazz, getBeanClasses()).orElse(clazz);
 
-        final Object beanInstance = createBeanInstance(beanClass);
-        saveBean(beanClass, beanInstance);
-
-        return beanInstance;
+        return createBeanInstance(beanClass);
     }
 
     private Object createBeanInstance(final Class<?> clazz) {
         final BeanDefinition beanDefinition = beanDefinitionMap.getBeanDefinition(clazz);
 
-        if (beanDefinition instanceof RootBeanDefinition) {
-            return createByConstructor(clazz);
-        }
+        final Object beanInstance = beanDefinition.createInstance(this::createOrGetBeanInstance);
 
-        return createByBeanMethod(clazz, (ConfigurationClassBeanDefinition) beanDefinition);
+        saveBean(clazz, beanInstance);
+
+        return beanInstance;
     }
 
     private boolean isBeanInitialized(final Class<?> beanType) {
@@ -107,85 +98,6 @@ public class DefaultListableBeanFactory implements BeanFactory {
     private void validateBeanType(final Class<?> clazz) {
         if (isNotBeanType(clazz)) {
             throw new BeanInstantiationException(clazz, "Class not BeanType");
-        }
-    }
-
-    private Object createByConstructor(final Class<?> beanClass) {
-        final Constructor<?> constructor = findConstructor(beanClass);
-
-        try {
-            final Object[] parameters = createParameters(constructor.getParameterTypes());
-
-            constructor.setAccessible(true);
-
-            return constructor.newInstance(parameters);
-        } catch (InvocationTargetException | InstantiationException | IllegalAccessException e) {
-            throw new BeanInstantiationException(beanClass, "Failed to instantiate bean", e);
-        } finally {
-            constructor.setAccessible(false);
-        }
-    }
-
-    private Constructor<?> findConstructor(final Class<?> clazz) {
-        final Constructor<?>[] constructors = clazz.getDeclaredConstructors();
-
-        if (constructors.length == 1) {
-            return constructors[0];
-        }
-
-        return findAutowiredConstructor(constructors);
-    }
-
-    private Constructor<?> findAutowiredConstructor(final Constructor<?>[] constructors) {
-        final Constructor<?>[] autowiredConstructors = Arrays.stream(constructors)
-                .filter(constructor -> constructor.isAnnotationPresent(Autowired.class))
-                .toArray(Constructor[]::new);
-
-        if (autowiredConstructors.length != 1) {
-            throw new BeanInstantiationException(constructors[0].getDeclaringClass(), "Autowire constructor not found");
-        }
-
-        return autowiredConstructors[0];
-    }
-
-    private Object createByBeanMethod(final Class<?> clazz, final ConfigurationClassBeanDefinition beanDefinition) {
-        final Method factoryMethod = beanDefinition.getFactoryMethod();
-
-        try {
-            final Class<?> factoryBeanType = beanDefinition.getFactoryBeanType();
-
-            final Object[] parameters = createParameters(factoryMethod.getParameterTypes());
-
-            factoryMethod.setAccessible(true);
-
-            return factoryMethod.invoke(createOrGetBeanInstance(factoryBeanType), parameters);
-        } catch (IllegalAccessException | InvocationTargetException e) {
-            throw new BeanInstantiationException(clazz, "Failed to instantiate bean", e);
-        } finally {
-            factoryMethod.setAccessible(false);
-        }
-    }
-
-    private Object[] createParameters(final Class<?>[] parameterTypes) {
-        if (parameterTypes.length == 0) {
-            return new Object[]{};
-        }
-
-        return Arrays.stream(parameterTypes)
-                .map(this::getParameter).toArray();
-    }
-
-    private Object getParameter(final Class<?> parameterType) {
-        validateParameterType(parameterType);
-
-        return createOrGetBeanInstance(parameterType);
-    }
-
-    private void validateParameterType(final Class<?> parameterType) {
-        if (isNotBeanType(parameterType)) {
-            log.error("parameter is not bean. parameterTypes = {}", parameterType);
-
-            throw new BeanInstantiationException(parameterType, "Parameter is not bean");
         }
     }
 

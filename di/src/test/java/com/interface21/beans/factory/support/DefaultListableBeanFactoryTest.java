@@ -98,7 +98,7 @@ class DefaultListableBeanFactoryTest {
         // when then
         assertThatThrownBy(() -> new DefaultListableBeanFactory(basePackage))
                 .isExactlyInstanceOf(BeanInstantiationException.class)
-                .hasMessage("Failed to instantiate [ill_dependent.NotBean]: Parameter is not bean");
+                .hasMessage("Failed to instantiate [ill_dependent.NotBean]: Class not BeanType");
     }
 
     @DisplayName("애너테이션이 붙은 빈들을 반환 한다")
