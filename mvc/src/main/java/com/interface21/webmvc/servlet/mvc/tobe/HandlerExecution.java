@@ -34,6 +34,10 @@ public class HandlerExecution {
         this.method = method;
     }
 
+    public Method getMethod() {
+        return method;
+    }
+
     public ModelAndView handle(HttpServletRequest request, HttpServletResponse response) throws Exception {
         MethodParameter[] methodParameters = getMethodParameters();
         Object[] arguments = new Object[methodParameters.length];
