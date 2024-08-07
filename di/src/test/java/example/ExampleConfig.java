@@ -1,12 +1,14 @@
 package example;
 
 import com.interface21.context.annotation.Bean;
+import com.interface21.context.annotation.ComponentScan;
 import com.interface21.context.annotation.Configuration;
 import org.h2.jdbcx.JdbcDataSource;
 
 import javax.sql.DataSource;
 
 @Configuration
+@ComponentScan({"example", "samples"})
 public class ExampleConfig {
 
     @Bean

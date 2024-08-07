@@ -13,19 +13,20 @@ import java.util.List;
 import java.util.Set;
 
 public class ClassPathBeanScanner implements BeanDefinitionScanner {
-    private final List<Class<? extends Annotation>> beanAnnotations;
-    private final Reflections reflections;
+    private static final List<Class<? extends Annotation>> beanAnnotations = List.of(Controller.class, Service.class, Repository.class, Configuration.class);
+
+    private final Object[] basePackage;
 
     public ClassPathBeanScanner(final Object... basePackage) {
         if (basePackage == null || basePackage.length == 0) {
             throw new BeanScanFailureException("basePackage can not be empty");
         }
-        beanAnnotations = List.of(Controller.class, Service.class, Repository.class, Configuration.class);
-        reflections = new Reflections(basePackage);
+        this.basePackage = basePackage;
     }
 
     @Override
     public BeanDefinitionRegistry scan() {
+        final Reflections reflections = new Reflections(basePackage);
         final BeanDefinitionRegistry beanDefinitionRegistry = new SimpleBeanDefinitionRegistry();
         beanAnnotations.stream()
                 .map(reflections::getTypesAnnotatedWith)

@@ -11,18 +11,18 @@ import java.lang.reflect.InvocationTargetException;
 import java.util.HashSet;
 import java.util.Set;
 
-public class DefaultListableBeanFactory implements BeanFactory {
+public class NewDefaultListableBeanFactory implements NewBeanDefinitionRegistry, BeanFactory {
 
-    private static final Logger log = LoggerFactory.getLogger(DefaultListableBeanFactory.class);
+    private static final Logger log = LoggerFactory.getLogger(NewDefaultListableBeanFactory.class);
 
     private final BeanDefinitionRegistry beanDefinitionRegistry;
     private final SimpleBeanFactory beanFactory;
     private final Set<BeanDefinition> tempBeansInCreation;
 
-    public DefaultListableBeanFactory(final BeanDefinitionRegistry beanDefinitionRegistry) {
-        this.beanDefinitionRegistry = beanDefinitionRegistry;
-        beanFactory = new SimpleBeanFactory();
-        tempBeansInCreation = new HashSet<>();
+    public NewDefaultListableBeanFactory() {
+        this.beanDefinitionRegistry = new SimpleBeanDefinitionRegistry();
+        this.beanFactory = new SimpleBeanFactory();
+        this.tempBeansInCreation = new HashSet<>();
     }
 
     @Override
@@ -88,4 +88,8 @@ public class DefaultListableBeanFactory implements BeanFactory {
         tempBeansInCreation.clear();
     }
 
+    @Override
+    public void registerBeanDefinition(final Class<?> clazz, final BeanDefinition beanDefinition) {
+        beanDefinitionRegistry.registerBeanDefinition(clazz, beanDefinition);
+    }
 }

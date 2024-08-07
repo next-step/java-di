@@ -16,5 +16,5 @@ public interface BeanDefinitionRegistry {
 
     void mergeBeanDefinitionRegistry(BeanDefinitionRegistry configBeanDefinitionRegistry);
 
-    Map<Class<?>, BeanDefinition> getBeanDefinitions();
+    Map<String, BeanDefinition> getBeanDefinitions();
 }

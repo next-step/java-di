@@ -13,7 +13,7 @@ import java.util.stream.Collectors;
 
 public class SimpleBeanDefinitionRegistry implements BeanDefinitionRegistry {
 
-    private final Map<Class<?>, BeanDefinition> beanDefinitionMap;
+    private final Map<String, BeanDefinition> beanDefinitionMap;
 
     public SimpleBeanDefinitionRegistry() {
         this(new HashSet<>());
@@ -23,32 +23,33 @@ public class SimpleBeanDefinitionRegistry implements BeanDefinitionRegistry {
         beanDefinitionMap = beanClasses.stream()
                 .map(SimpleBeanDefinition::from)
                 .collect(Collectors.toMap(
-                        SimpleBeanDefinition::getType,
+                        SimpleBeanDefinition::getBeanClassName,
                         Function.identity()
                 ));
     }
 
     @Override
     public Set<Class<?>> getBeanClasses() {
-        return beanDefinitionMap.keySet();
+        return beanDefinitionMap.values().stream()
+                .map(BeanDefinition::getType)
+                .collect(Collectors.toSet());
     }
 
     @Override
     public BeanDefinition getBeanDefinition(final Class<?> clazz) {
-        final BeanDefinition beanDefinition = beanDefinitionMap.get(clazz);
-        if (beanDefinition != null) {
-            return beanDefinition;
-        }
+        return beanDefinitionMap.values().stream()
+                .filter(beanDefinition -> beanDefinition.getType().equals(clazz))
+                .findFirst()
+                .orElseGet(() -> findByConcreteClass(clazz));
+    }
 
+    private BeanDefinition findByConcreteClass(final Class<?> clazz) {
         final Class<?> concreteClass = BeanFactoryUtils.findConcreteClass(clazz, getBeanClasses())
                 .orElseThrow(() -> new BeanDefinitionException("Could not autowire. No concrete class found for %s.".formatted(clazz.getName())));
-
-        final BeanDefinition concreteBeanDefinition = beanDefinitionMap.get(concreteClass);
-        if (concreteBeanDefinition == null) {
-            throw new BeanDefinitionException("cannot find bean for " + clazz.getName());
-        }
-
-        return concreteBeanDefinition;
+        return beanDefinitionMap.values().stream()
+                .filter(beanDefinition -> beanDefinition.getType().equals(concreteClass))
+                .findFirst()
+                .orElseThrow(() -> new BeanDefinitionException("cannot find bean for " + clazz.getName()));
     }
 
     @Override
@@ -61,19 +62,19 @@ public class SimpleBeanDefinitionRegistry implements BeanDefinitionRegistry {
         if (beanDefinitionMap.values().stream().anyMatch(definition -> definition.hasSameName(beanDefinition))) {
             throw new BeanDefinitionException("bean %s already exists for %s".formatted(beanDefinition.getBeanClassName(), clazz.getName()));
         }
-        this.beanDefinitionMap.put(clazz, beanDefinition);
+        this.beanDefinitionMap.put(beanDefinition.getBeanClassName(), beanDefinition);
     }
 
     @Override
     public void mergeBeanDefinitionRegistry(final BeanDefinitionRegistry beanDefinitionRegistry) {
-        final Map<Class<?>, BeanDefinition> beanDefinitions = beanDefinitionRegistry.getBeanDefinitions();
+        final Map<String, BeanDefinition> beanDefinitions = beanDefinitionRegistry.getBeanDefinitions();
         for (final BeanDefinition beanDefinition : beanDefinitions.values()) {
             registerBeanDefinition(beanDefinition.getType(), beanDefinition);
         }
     }
 
     @Override
-    public Map<Class<?>, BeanDefinition> getBeanDefinitions() {
+    public Map<String, BeanDefinition> getBeanDefinitions() {
         return Collections.unmodifiableMap(beanDefinitionMap);
     }
 }
