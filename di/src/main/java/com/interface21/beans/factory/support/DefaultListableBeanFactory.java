@@ -43,7 +43,7 @@ public class DefaultListableBeanFactory implements BeanFactory {
     private Object createBean(BeanDefinition beanDefinition) {
         Constructor<?> constructor = beanDefinition.getConstructor();
         Object[] arguments = Arrays.stream(constructor.getParameterTypes())
-                                   .map(this::getOrCreateBean)
+                                   .map(this::getBean)
                                    .toArray();
         return instantiateBean(constructor, arguments);
     }
@@ -54,13 +54,6 @@ public class DefaultListableBeanFactory implements BeanFactory {
         } catch (Exception e) {
             throw new IllegalStateException("Failed to instantiate bean", e);
         }
-    }
-
-    private Object getOrCreateBean(Class<?> clazz) {
-        if (singletonObjects.containsKey(clazz)) {
-            return singletonObjects.get(clazz);
-        }
-        return initializeBean(clazz);
     }
 
     @Override
