@@ -2,6 +2,7 @@ package com.interface21.beans.factory.config;
 
 import com.interface21.beans.factory.support.BeanFactoryUtils;
 import java.lang.reflect.Constructor;
+import java.util.Optional;
 import java.util.Set;
 
 public class GenericBeanDefinition implements BeanDefinition {
@@ -10,7 +11,7 @@ public class GenericBeanDefinition implements BeanDefinition {
     private final String beanClassName;
     private final Constructor<?> constructor;
 
-    public GenericBeanDefinition(Class<?> type, String beanClassName, Constructor<?> constructor) {
+    private GenericBeanDefinition(Class<?> type, String beanClassName, Constructor<?> constructor) {
         this.type = type;
         this.beanClassName = beanClassName;
         this.constructor = constructor;
@@ -26,15 +27,21 @@ public class GenericBeanDefinition implements BeanDefinition {
     }
 
     private static Constructor<?> findBeanConstructor(Class<?> clazz) {
+        return findAutowiredConstructor(clazz)
+            .orElseGet(() -> findDefaultConstructor(clazz));
+    }
+
+    private static Optional<Constructor> findAutowiredConstructor(Class<?> clazz) {
         Set<Constructor> injectedConstructors = BeanFactoryUtils.getInjectedConstructors(clazz);
         if (injectedConstructors.size() > 1) {
             throw new IllegalStateException("Multiple constructors annotated with @Autowired found for class: " + clazz);
         }
-        if (injectedConstructors.size() == 1) {
-            return injectedConstructors.iterator().next();
-        }
+        return injectedConstructors.stream().findFirst();
+    }
 
+    private static Constructor<?> findDefaultConstructor(Class<?> clazz) {
         Constructor<?>[] constructors = clazz.getConstructors();
+
         if (constructors.length == 1) {
             return constructors[0];
         }
