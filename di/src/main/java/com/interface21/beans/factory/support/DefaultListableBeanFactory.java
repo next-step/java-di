@@ -28,15 +28,16 @@ public class DefaultListableBeanFactory implements BeanFactory {
     public void initialize() {
         log.info("initialize bean factory");
         for (Class<?> beanClass : beanDefinitionMap.keySet()) {
-            Object bean = initializeBean(beanClass);
-            singletonObjects.put(beanClass, bean);
+            getBean(beanClass);
         }
     }
 
     private Object initializeBean(Class<?> beanClass) {
-        return BeanFactoryUtils.findConcreteClass(beanClass, getBeanClasses())
-                               .map(concreteClass -> createBean(beanDefinitionMap.get(concreteClass)))
-                               .orElseThrow(() -> new IllegalStateException("Could not find concrete class for bean class: " + beanClass));
+        Object bean = BeanFactoryUtils.findConcreteClass(beanClass, getBeanClasses())
+                                      .map(concreteClass -> createBean(beanDefinitionMap.get(concreteClass)))
+                                      .orElseThrow(() -> new IllegalStateException("Could not find concrete class for bean class: " + beanClass));
+        singletonObjects.put(beanClass, bean);
+        return bean;
     }
 
     private Object createBean(BeanDefinition beanDefinition) {
@@ -64,12 +65,15 @@ public class DefaultListableBeanFactory implements BeanFactory {
 
     @Override
     public Set<Class<?>> getBeanClasses() {
-        return singletonObjects.keySet();
+        return beanDefinitionMap.keySet();
     }
 
     @Override
     public <T> T getBean(final Class<T> clazz) {
-        return (T) singletonObjects.get(clazz);
+        if (singletonObjects.containsKey(clazz)) {
+            singletonObjects.get(clazz);
+        }
+        return (T) initializeBean(clazz);
     }
 
     @Override
