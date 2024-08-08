@@ -3,11 +3,13 @@ package com.interface21.beans.factory.support;
 import com.interface21.beans.factory.BeanFactory;
 import com.interface21.beans.factory.config.BeanDefinition;
 import com.interface21.beans.factory.config.GenericBeanDefinition;
+import com.interface21.context.stereotype.Controller;
 import java.lang.reflect.Constructor;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -67,6 +69,13 @@ public class DefaultListableBeanFactory implements BeanFactory {
             singletonObjects.get(clazz);
         }
         return (T) initializeBean(clazz);
+    }
+
+    @Override
+    public Map<Class<?>, Object> getControllers() {
+        return singletonObjects.keySet().stream()
+                               .filter(beanClass -> beanClass.isAnnotationPresent(Controller.class))
+                               .collect(Collectors.toMap(beanClass -> beanClass, this::getBean));
     }
 
     @Override
