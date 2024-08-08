@@ -1,8 +1,11 @@
 package camp.nextstep;
 
+import com.interface21.context.annotation.ComponentScan;
+
 import java.io.IOException;
 import java.util.stream.Stream;
 
+@ComponentScan
 public class Application {
 
     private static final int DEFAULT_PORT = 8080;
