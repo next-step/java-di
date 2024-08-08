@@ -5,6 +5,7 @@ import com.interface21.beans.BeanInstantiationException;
 import com.interface21.beans.factory.BeanFactory;
 import com.interface21.beans.factory.config.BeanDefinition;
 import com.interface21.beans.factory.config.BeanDefinitionMapping;
+import com.interface21.beans.factory.config.ConfigurationClassBeanDefinitionReader;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -16,6 +17,7 @@ public class DefaultListableBeanFactory implements BeanFactory {
     private static final Logger log = LoggerFactory.getLogger(DefaultListableBeanFactory.class);
 
     private final BeanDefinitionMapping beanDefinitionMap;
+    private final BeanDefinitionReader reader;
 
     private final Map<Class<?>, Object> singletonObjects = new HashMap<>();
 
@@ -23,6 +25,7 @@ public class DefaultListableBeanFactory implements BeanFactory {
 
     public DefaultListableBeanFactory(final String... basePackages) {
         this.beanDefinitionMap = new BeanDefinitionMapping(basePackages);
+        this.reader = new ConfigurationClassBeanDefinitionReader(this.beanDefinitionMap);
         initialize();
     }
 
@@ -61,7 +64,7 @@ public class DefaultListableBeanFactory implements BeanFactory {
 
     private void initialize() {
         beanDefinitionMap.scanBeanDefinitions();
-
+        reader.loadBeanDefinitions(beanDefinitionMap.getBeanClasses().toArray(new Class<?>[0]));
         createBeansByClass(beanDefinitionMap.getBeanClasses());
     }
 

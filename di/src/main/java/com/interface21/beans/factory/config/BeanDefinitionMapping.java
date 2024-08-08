@@ -1,7 +1,6 @@
 package com.interface21.beans.factory.config;
 
 import com.interface21.beans.BeanScanner;
-import com.interface21.beans.factory.support.BeanDefinitionReader;
 import com.interface21.beans.factory.support.BeanDefinitionRegistry;
 
 import java.util.HashMap;
@@ -11,11 +10,9 @@ import java.util.stream.Collectors;
 
 public class BeanDefinitionMapping implements BeanDefinitionRegistry {
     private final Map<String, BeanDefinition> beanDefinitionMap = new HashMap<>();
-    private final BeanDefinitionReader reader;
     private final BeanScanner scanner;
 
     public BeanDefinitionMapping(final String... basePackages) {
-        this.reader = new ConfigurationClassBeanDefinitionReader(this);
         this.scanner = new BeanScanner((Object) basePackages);
     }
 
@@ -27,7 +24,6 @@ public class BeanDefinitionMapping implements BeanDefinitionRegistry {
     public void scanBeanDefinitions() {
         final Set<Class<?>> beanClasses = scanner.scanClassesTypeAnnotatedWith();
         toBeanDefinitionMap(beanClasses);
-        reader.loadBeanDefinitions(beanClasses.toArray(new Class<?>[0]));
     }
 
     private void toBeanDefinitionMap(final Set<Class<?>> beanClasses) {
