@@ -1,6 +1,7 @@
 package camp.nextstep.controller;
 
-import camp.nextstep.dao.InMemoryUserDao;
+import camp.nextstep.dao.UserDao;
+import com.interface21.beans.factory.annotation.Autowired;
 import com.interface21.context.stereotype.Controller;
 import com.interface21.web.bind.annotation.PathVariable;
 import com.interface21.web.bind.annotation.RequestMapping;
@@ -13,13 +14,13 @@ import org.slf4j.LoggerFactory;
 
 @Controller
 public class UserController {
-
     private static final Logger log = LoggerFactory.getLogger(UserController.class);
 
-    private final InMemoryUserDao userDao;
+    private final UserDao userDao;
 
-    public UserController() {
-        this.userDao = new InMemoryUserDao();
+    @Autowired
+    public UserController(UserDao userDao) {
+        this.userDao = userDao;
     }
 
     @RequestMapping(value = "/api/user/{id}", method = RequestMethod.GET)

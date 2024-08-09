@@ -7,7 +7,7 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 @Repository
-public class InMemoryUserDao {
+public class InMemoryUserDao implements UserDao {
 
     private static final Map<String, User> database = new ConcurrentHashMap<>();
 
@@ -16,10 +16,12 @@ public class InMemoryUserDao {
         database.put(user.getAccount(), user);
     }
 
+    @Override
     public void save(final User user) {
         database.put(user.getAccount(), user);
     }
 
+    @Override
     public User findById(final long id) {
         return database.values()
             .stream()
@@ -28,6 +30,7 @@ public class InMemoryUserDao {
             .orElse(null);
     }
 
+    @Override
     public User findByAccount(final String account) {
         return database.get(account);
     }

@@ -1,6 +1,6 @@
 package camp.nextstep.service;
 
-import camp.nextstep.dao.InMemoryUserDao;
+import camp.nextstep.dao.UserDao;
 import camp.nextstep.domain.User;
 import com.interface21.beans.factory.annotation.Autowired;
 import com.interface21.context.stereotype.Service;
@@ -8,10 +8,10 @@ import com.interface21.context.stereotype.Service;
 @Service
 public class UserService {
 
-    private final InMemoryUserDao userDao;
+    private final UserDao userDao;
 
     @Autowired
-    public UserService(InMemoryUserDao userDao) {
+    public UserService(UserDao userDao) {
         this.userDao = userDao;
     }
 

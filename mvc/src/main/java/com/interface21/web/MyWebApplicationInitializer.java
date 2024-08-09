@@ -16,11 +16,12 @@ public class MyWebApplicationInitializer implements WebApplicationInitializer {
 
     @Override
     public void onStartup(final ServletContext container) {
-        final var applicationContext = new AnnotationConfigWebApplicationContext();
+        final var applicationContext = new AnnotationConfigWebApplicationContext("camp.nextstep");
+        applicationContext.initialize();
 
         final var dispatcherServlet = new DispatcherServlet();
         dispatcherServlet.addHandlerMapping(new ManualHandlerMapping());
-        dispatcherServlet.addHandlerMapping(new AnnotationHandlerMapping("camp.nextstep.controller"));
+        dispatcherServlet.addHandlerMapping(new AnnotationHandlerMapping(applicationContext));
 
         dispatcherServlet.addHandlerAdapter(new ControllerHandlerAdapter());
         dispatcherServlet.addHandlerAdapter(new HandlerExecutionHandlerAdapter());
