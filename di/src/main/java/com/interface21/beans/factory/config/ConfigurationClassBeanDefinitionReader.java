@@ -32,6 +32,11 @@ public class ConfigurationClassBeanDefinitionReader implements BeanDefinitionRea
         registry.registerBeanDefinition(beanDefinition.type, beanDefinition);
     }
 
+    public void register(final Class<?> annotatedClass) {
+        registry.registerBeanDefinition(annotatedClass, new RootBeanDefinition(annotatedClass, annotatedClass.getName()));
+        loadBeanDefinitions(annotatedClass);
+    }
+
     private static class ConfigurationClassBeanDefinition implements BeanDefinition {
 
         private final Class<?> type;

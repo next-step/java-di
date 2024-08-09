@@ -20,7 +20,7 @@ class BeanDefinitionMappingTest {
         assertDoesNotThrow(beanDefinitionMapping::scanBeanDefinitions);
     }
 
-    @DisplayName("모든 Bean 의 Class 를 반환 한다")
+    @DisplayName("@Bean 메서드를 제외한 Bean Class 를 반환 한다")
     @Test
     public void getBeanClasses() throws Exception {
         // given
@@ -31,7 +31,7 @@ class BeanDefinitionMappingTest {
         final Set<Class<?>> actual = beanDefinitionMapping.getBeanClasses();
 
         // then
-        assertThat(actual).hasSize(8);
+        assertThat(actual).hasSize(6);
     }
 
     @DisplayName("모든 BeanDefinition 을 지운다")
