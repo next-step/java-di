@@ -8,7 +8,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-public class BeanDefinitionMapping implements BeanDefinitionRegistry {
+public class BeanDefinitionMapping {
     private final Map<String, BeanDefinition> beanDefinitionMap = new HashMap<>();
     private final BeanScanner scanner;
 
@@ -16,7 +16,6 @@ public class BeanDefinitionMapping implements BeanDefinitionRegistry {
         this.scanner = new BeanScanner((Object) basePackages);
     }
 
-    @Override
     public void registerBeanDefinition(final Class<?> clazz, final BeanDefinition beanDefinition) {
         beanDefinitionMap.put(clazz.getName(), beanDefinition);
     }
