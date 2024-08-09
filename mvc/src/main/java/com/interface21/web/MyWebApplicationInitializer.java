@@ -20,7 +20,7 @@ public class MyWebApplicationInitializer implements WebApplicationInitializer {
 
         final var dispatcherServlet = new DispatcherServlet();
         dispatcherServlet.addHandlerMapping(new ManualHandlerMapping());
-        dispatcherServlet.addHandlerMapping(new AnnotationHandlerMapping("camp.nextstep.controller"));
+        dispatcherServlet.addHandlerMapping(new AnnotationHandlerMapping(applicationContext));
 
         dispatcherServlet.addHandlerAdapter(new ControllerHandlerAdapter());
         dispatcherServlet.addHandlerAdapter(new HandlerExecutionHandlerAdapter());
