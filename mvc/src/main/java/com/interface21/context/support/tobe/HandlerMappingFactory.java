@@ -1,7 +1,5 @@
 package com.interface21.context.support.tobe;
 
-import com.interface21.context.ApplicationContext;
-import com.interface21.context.stereotype.Controller;
 import com.interface21.web.bind.annotation.RequestMapping;
 import com.interface21.web.bind.annotation.RequestMethod;
 import com.interface21.web.method.support.HandlerMethodArgumentResolver;
@@ -17,7 +15,6 @@ import org.slf4j.LoggerFactory;
 
 import java.lang.reflect.Method;
 import java.util.Arrays;
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -35,38 +32,32 @@ public class HandlerMappingFactory {
             new ModelArgumentResolver()
     );
 
-    private final ApplicationContext applicationContext;
-
-    public HandlerMappingFactory(ApplicationContext applicationContext) {
-        this.applicationContext = applicationContext;
+    public Map<HandlerKey, HandlerExecution> getHandlerMappings(Map<Class<?>, Object> beanClasses) {
+        final var handlerExecutionsMap = new HashMap<HandlerKey, HandlerExecution>();
+        beanClasses.forEach((controllerClass, controllerBean) ->
+                addHandlerExecutions(handlerExecutionsMap, controllerClass, controllerBean)
+        );
+        return handlerExecutionsMap;
     }
 
-    public Map<HandlerKey, HandlerExecution> getHandlerMappings(Collection<Class<?>> beanClasses) {
-        final var handlers = new HashMap<HandlerKey, HandlerExecution>();
-        beanClasses.stream()
-                   .filter(this::isHandler)
-                   .forEach(beanClass -> {
-                       Object target = applicationContext.getBean(beanClass);
-                       addHandlerExecution(handlers, target, beanClass.getMethods());
-                   });
-        return handlers;
-    }
-
-    private boolean isHandler(Class<?> beanType) {
-        return beanType.isAnnotationPresent(Controller.class);
-    }
-
-    private void addHandlerExecution(final Map<HandlerKey, HandlerExecution> handlerExecutions,
-                                     final Object target,
-                                     final Method[] methods) {
+    private void addHandlerExecutions(HashMap<HandlerKey, HandlerExecution> handlerExecutionsMap,
+                                      Class<?> clazz,
+                                      Object bean) {
+        Method[] methods = clazz.getMethods();
         Arrays.stream(methods)
-              .filter(method -> method.isAnnotationPresent(RequestMapping.class))
-              .forEach(method -> {
-                  final var requestMapping = method.getAnnotation(RequestMapping.class);
-                  handlerExecutions.putAll(createHandlerExecutions(target, method, requestMapping));
-                  log.debug("register handlerExecution : url is {}, request method : {}, method is {}",
-                          requestMapping.value(), requestMapping.method(), method);
-              });
+              .filter(requestMappingMethod -> requestMappingMethod.isAnnotationPresent(RequestMapping.class))
+              .forEach(requestMappingMethod -> addHandlerExecution(handlerExecutionsMap, bean, requestMappingMethod));
+    }
+
+    private void addHandlerExecution(Map<HandlerKey, HandlerExecution> handlerExecutionsMap,
+                                     Object target,
+                                     Method method) {
+        RequestMapping requestMapping = method.getAnnotation(RequestMapping.class);
+        handlerExecutionsMap.putAll(
+                createHandlerExecutions(target, method, requestMapping)
+        );
+        log.debug("register handlerExecution : url is {}, request method : {}, method is {}",
+                requestMapping.value(), requestMapping.method(), method);
     }
 
     private Map<HandlerKey, HandlerExecution> createHandlerExecutions(final Object target,

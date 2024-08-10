@@ -1,7 +1,6 @@
 package com.interface21.webmvc.servlet.mvc.tobe;
 
-import com.interface21.context.ApplicationContext;
-import com.interface21.context.support.tobe.BeanScanner;
+import com.interface21.beans.factory.BeanFactory;
 import com.interface21.context.support.tobe.HandlerMappingFactory;
 import com.interface21.web.bind.annotation.RequestMethod;
 import com.interface21.webmvc.servlet.mvc.HandlerMapping;
@@ -16,26 +15,26 @@ public class AnnotationHandlerMapping implements HandlerMapping {
 
     private static final Logger log = LoggerFactory.getLogger(AnnotationHandlerMapping.class);
 
-    private final ApplicationContext applicationContext;
+    private final BeanFactory beanFactory;
     private final Map<HandlerKey, HandlerExecution> handlerExecutions;
 
-    public AnnotationHandlerMapping(ApplicationContext applicationContext) {
-        this.applicationContext = applicationContext;
+    public AnnotationHandlerMapping(BeanFactory beanFactory) {
+        this.beanFactory = beanFactory;
         this.handlerExecutions = new HashMap<>();
     }
 
     public void initialize() {
-        final var beanScanner = new BeanScanner(applicationContext);
-        final var handlerMappingBuilder = new HandlerMappingFactory(applicationContext);
+        registerAllHandlerMappings();
 
-        registerAllHandlerMappings(beanScanner, handlerMappingBuilder);
         log.info("Initialized AnnotationHandlerMapping!");
     }
 
-    private void registerAllHandlerMappings(BeanScanner beanScanner, HandlerMappingFactory handlerMappingFactory) {
-        final var beanClasses = beanScanner.scan();
-        final var handlerMappings = handlerMappingFactory.getHandlerMappings(beanClasses);
-        handlerExecutions.putAll(handlerMappings);
+    private void registerAllHandlerMappings() {
+        handlerExecutions.putAll(
+                new HandlerMappingFactory().getHandlerMappings(
+                        beanFactory.getControllers()
+                )
+        );
     }
 
     public Object getHandler(final HttpServletRequest request) {
