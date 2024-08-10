@@ -16,7 +16,6 @@ class ConfigurationClassBeanDefinitionReaderTest {
         final DefaultListableBeanFactory beanFactory = new DefaultListableBeanFactory();
         final ConfigurationClassBeanDefinitionReader cbr = new ConfigurationClassBeanDefinitionReader(beanFactory);
         cbr.register(ExampleConfig.class);
-        beanFactory.initialize();
         beanFactory.refresh();
 
         assertThat(beanFactory.getBean(DataSource.class)).isNotNull();

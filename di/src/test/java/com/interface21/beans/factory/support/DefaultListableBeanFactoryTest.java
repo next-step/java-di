@@ -41,7 +41,6 @@ class DefaultListableBeanFactoryTest {
     void setUp() {
         reflections = new Reflections("samples");
         beanFactory = new DefaultListableBeanFactory("samples");
-        beanFactory.initialize();
         reader = new ConfigurationClassBeanDefinitionReader(beanFactory);
         reader.loadBeanDefinitions(beanFactory.getBeanClasses().toArray(new Class[0]));
         beanFactory.refresh();
@@ -63,7 +62,6 @@ class DefaultListableBeanFactoryTest {
     public void getDuplicateBean() throws Exception {
         // given
         final DefaultListableBeanFactory beanFactory = new DefaultListableBeanFactory("wrong");
-        beanFactory.initialize();
         reader.loadBeanDefinitions(beanFactory.getBeanClasses().toArray(new Class[0]));
         beanFactory.refresh();
 
@@ -91,7 +89,6 @@ class DefaultListableBeanFactoryTest {
         // given
         final DefaultListableBeanFactory beanFactory = new DefaultListableBeanFactory("wrong");
         final ConfigurationClassBeanDefinitionReader reader = new ConfigurationClassBeanDefinitionReader(beanFactory);
-        beanFactory.initialize();
         reader.loadBeanDefinitions(beanFactory.getBeanClasses().toArray(new Class[0]));
         beanFactory.refresh();
 
@@ -109,7 +106,6 @@ class DefaultListableBeanFactoryTest {
         final String basePackage = "ill_dependent";
         final DefaultListableBeanFactory beanFactory = new DefaultListableBeanFactory(basePackage);
         final ConfigurationClassBeanDefinitionReader reader = new ConfigurationClassBeanDefinitionReader(beanFactory);
-        beanFactory.initialize();
         reader.loadBeanDefinitions(beanFactory.getBeanClasses().toArray(new Class[0]));
 
         // when then
@@ -150,7 +146,6 @@ class DefaultListableBeanFactoryTest {
         // given
         final DefaultListableBeanFactory beanFactory = new DefaultListableBeanFactory("di");
         final ConfigurationClassBeanDefinitionReader reader = new ConfigurationClassBeanDefinitionReader(beanFactory);
-        beanFactory.initialize();
         reader.loadBeanDefinitions(beanFactory.getBeanClasses().toArray(new Class[0]));
         beanFactory.refresh();
 

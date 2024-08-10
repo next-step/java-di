@@ -24,6 +24,7 @@ public class DefaultListableBeanFactory implements BeanFactory, BeanDefinitionRe
 
     public DefaultListableBeanFactory(final String... basePackages) {
         this.beanDefinitionMap = new BeanDefinitionMapping(basePackages);
+        beanDefinitionMap.scanBeanDefinitions();
     }
 
     @Override
@@ -57,10 +58,6 @@ public class DefaultListableBeanFactory implements BeanFactory, BeanDefinitionRe
     public boolean isAnnotationOnBean(final Object bean, final Class<? extends Annotation> annotationType) {
         return mapToSuperTypes(bean.getClass()).stream()
                 .anyMatch(clazz -> clazz.isAnnotationPresent(annotationType));
-    }
-
-    public void initialize() {
-        beanDefinitionMap.scanBeanDefinitions();
     }
 
     public void refresh() {

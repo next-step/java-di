@@ -20,7 +20,6 @@ public class WebApplicationContext implements ApplicationContext, BeanFactory {
     }
 
     public void initialize() {
-        beanFactory.initialize();
         reader.loadBeanDefinitions(beanFactory.getBeanClasses().toArray(new Class[]{}));
         beanFactory.refresh();
     }
