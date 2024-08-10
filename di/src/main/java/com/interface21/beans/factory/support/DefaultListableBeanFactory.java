@@ -8,7 +8,6 @@ import com.interface21.context.support.AnnotatedBeanDefinition;
 import java.lang.annotation.Annotation;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 import org.slf4j.Logger;
@@ -64,13 +63,13 @@ public class DefaultListableBeanFactory implements BeanFactory, BeanDefinitionRe
         BeanDefinition beanDefinition = beanDefinitionMap.get(beanClazz);
 
         if (beanDefinition instanceof AnnotatedBeanDefinition) {
-            return (T) createAndStoreInstance(beanClazz, beanDefinition);
+            return (T) createAndStoreBean(beanClazz, beanDefinition);
         }
 
         Class<?> concreteClazz = findConcreteClass(beanClazz);
         beanDefinition = beanDefinitionMap.get(concreteClazz);
 
-        return (T) createAndStoreInstance(concreteClazz, beanDefinition);
+        return (T) createAndStoreBean(concreteClazz, beanDefinition);
     }
 
     private Class<?> findConcreteClass(Class<?> beanClazz) {
@@ -78,7 +77,7 @@ public class DefaultListableBeanFactory implements BeanFactory, BeanDefinitionRe
             .orElseThrow(() -> new BeanInstantiationException(beanClazz, "Concrete class not found"));
     }
 
-    private Object createAndStoreInstance(Class<?> beanClazz, BeanDefinition beanDefinition) {
+    private Object createAndStoreBean(Class<?> beanClazz, BeanDefinition beanDefinition) {
         if (beanDefinition == null) {
             throw new NoSuchBeanDefinitionException(beanClazz);
         }
