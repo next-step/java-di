@@ -12,7 +12,7 @@ class InjectModeTest {
     @Nested
     class GetInjector {
 
-        @DisplayName("CONSTRUCTOR일때  ConstructorInjector injector를 반환한다")
+        @DisplayName("CONSTRUCTOR일때 ConstructorInjector injector를 반환한다")
         @Test
         void constructor() {
             // given
@@ -62,6 +62,19 @@ class InjectModeTest {
 
             // then
             assertTrue(injector instanceof DefaultInjector);
+        }
+
+        @DisplayName("COMFIGURATION은 ConfigurationInjector injector를 반환한다")
+        @Test
+        void configuration() {
+            // given
+            InjectMode injectMode = InjectMode.CONFIGURATION;
+
+            // when
+            Injector injector = injectMode.getInjector();
+
+            // then
+            assertTrue(injector instanceof ConfigurationInjector);
         }
     }
 }
