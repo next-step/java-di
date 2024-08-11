@@ -1,8 +1,10 @@
 package com.interface21.beans.factory.support;
 
 import com.interface21.beans.BeanInstantiationException;
+import com.interface21.beans.NoSuchBeanDefinitionException;
 import com.interface21.beans.factory.BeanFactory;
 import com.interface21.beans.factory.config.BeanDefinition;
+import com.interface21.context.support.AnnotatedBeanDefinition;
 import java.lang.annotation.Annotation;
 import java.util.HashMap;
 import java.util.Map;
@@ -29,7 +31,8 @@ public class DefaultListableBeanFactory implements BeanFactory, BeanDefinitionRe
         if (singletonObjects.containsKey(clazz)) {
             return (T) singletonObjects.get(clazz);
         }
-        return findAndCreateBean(clazz);
+
+        return createAndStoreBean(clazz);
     }
 
     @Override
@@ -39,34 +42,10 @@ public class DefaultListableBeanFactory implements BeanFactory, BeanDefinitionRe
             .collect(Collectors.toMap(Map.Entry::getKey, entry -> getBean(entry.getKey())));
     }
 
-    private <T> T findAndCreateBean(Class<T> clazz) {
-        return BeanFactoryUtils.findConcreteClass(clazz, getBeanClasses())
-            .map(beanClazz -> (T) createAndStoreBean(beanClazz))
-            .orElse(null);
-    }
-
-    private <T> T createAndStoreBean(Class<T> beanClazz) {
-        Object instance = inject(beanDefinitionMap.get(beanClazz));
-        singletonObjects.put(beanClazz, instance);
-        return (T) instance;
-    }
-
     public void initialize() {
         for (Map.Entry<Class<?>, BeanDefinition> entry : beanDefinitionMap.entrySet()) {
-            Class<?> concreteClazz = BeanFactoryUtils.findConcreteClass(entry.getKey(), getBeanClasses())
-                .orElseThrow(() -> new BeanInstantiationException(entry.getKey(), "Concrete class not found"));
-            Object bean = singletonObjects.get(concreteClazz);
-            if (bean == null) {
-                bean = inject(entry.getValue());
-                singletonObjects.put(concreteClazz, bean);
-            }
+            getBean(entry.getKey());
         }
-    }
-
-    private Object inject(BeanDefinition beanDefinition) {
-        InjectMode injectMode = beanDefinition.getInjectMode();
-        Injector injector = injectMode.getInjector();
-        return injector.inject(beanDefinition, this);
     }
 
     @Override
@@ -78,5 +57,39 @@ public class DefaultListableBeanFactory implements BeanFactory, BeanDefinitionRe
     @Override
     public void registerBeanDefinition(Class<?> clazz, BeanDefinition beanDefinition) {
         beanDefinitionMap.put(clazz, beanDefinition);
+    }
+
+    private <T> T createAndStoreBean(Class<T> beanClazz) {
+        BeanDefinition beanDefinition = beanDefinitionMap.get(beanClazz);
+
+        if (beanDefinition instanceof AnnotatedBeanDefinition) {
+            return (T) createAndStoreBean(beanClazz, beanDefinition);
+        }
+
+        Class<?> concreteClazz = findConcreteClass(beanClazz);
+        beanDefinition = beanDefinitionMap.get(concreteClazz);
+
+        return (T) createAndStoreBean(concreteClazz, beanDefinition);
+    }
+
+    private Class<?> findConcreteClass(Class<?> beanClazz) {
+        return BeanFactoryUtils.findConcreteClass(beanClazz, getBeanClasses())
+            .orElseThrow(() -> new BeanInstantiationException(beanClazz, "Concrete class not found"));
+    }
+
+    private Object createAndStoreBean(Class<?> beanClazz, BeanDefinition beanDefinition) {
+        if (beanDefinition == null) {
+            throw new NoSuchBeanDefinitionException(beanClazz);
+        }
+
+        Object instance = inject(beanDefinition);
+        singletonObjects.put(beanClazz, instance);
+        return instance;
+    }
+
+    private Object inject(BeanDefinition beanDefinition) {
+        InjectMode injectMode = beanDefinition.getInjectMode();
+        Injector injector = injectMode.getInjector();
+        return injector.inject(beanDefinition, this);
     }
 }

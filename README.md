@@ -40,5 +40,10 @@
 - [x] : 1. ControllerScanner를 DI 컨테이너가 있는 패키지로 옮겨서 @Controller, @Service, @Repository에 대한 지원이 가능하도록 리펙토링
 - [x] : 2. AnnotationHandlerMapping이 BeanFactory와 BeanScanner를 활용해 동작하도록 리팩터링
 
-### 🚀 1단계 - DI 컨테이너 구현하기(힌트)
+### 🚀 2단계 - DI 컨테이너 구현하기(힌트)
 - [x] : 1. AnnotationHandlerMapping이 BeanFactory와 BeanScanner를 활용해 동작하도록 리팩터링
+
+### 🚀 3단계 - @Configuration 구현하기
+- [x] : 1. @ComponentScan으로 패키지 경로를 설정할 수 있도록 변경
+- [x] : 2. @Configuration 설정 파일을 통해 등록한 빈과 BeanScanner를 통해 등록한 빈 간에도 DI가 가능하도록 리펙토링
+

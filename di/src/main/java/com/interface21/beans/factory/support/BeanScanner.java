@@ -1,5 +1,6 @@
 package com.interface21.beans.factory.support;
 
+import com.interface21.context.stereotype.Component;
 import com.interface21.context.stereotype.Controller;
 import com.interface21.context.stereotype.Repository;
 import com.interface21.context.stereotype.Service;
@@ -15,7 +16,8 @@ public class BeanScanner {
     private final List<Class<? extends Annotation>> beanClasses = List.of(
         Controller.class,
         Service.class,
-        Repository.class
+        Repository.class,
+        Component.class
     );
 
     public BeanScanner(BeanDefinitionRegistry beanDefinitionRegistry) {

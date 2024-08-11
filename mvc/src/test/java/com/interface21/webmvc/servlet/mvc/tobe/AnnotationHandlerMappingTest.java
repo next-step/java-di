@@ -3,10 +3,9 @@ package com.interface21.webmvc.servlet.mvc.tobe;
 import com.interface21.context.support.AnnotationConfigWebApplicationContext;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import static org.assertj.core.api.Assertions.assertThat;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-
-import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -16,7 +15,7 @@ class AnnotationHandlerMappingTest {
 
     @BeforeEach
     void setUp() {
-        final var applicationContext = new AnnotationConfigWebApplicationContext("samples");
+        final var applicationContext = new AnnotationConfigWebApplicationContext(SampleConfig.class);
         handlerMapping = new AnnotationHandlerMapping(applicationContext);
         handlerMapping.initialize();
     }
