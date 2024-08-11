@@ -1,5 +1,6 @@
 package com.interface21.webmvc.servlet.mvc.tobe;
 
+import com.interface21.beans.factory.support.DefaultListableBeanFactory;
 import com.interface21.context.ApplicationContext;
 import com.interface21.context.support.AnnotationConfigWebApplicationContext;
 import jakarta.servlet.http.HttpServletRequest;
@@ -17,8 +18,12 @@ class AnnotationHandlerMappingTest {
 
     @BeforeEach
     void setUp() {
-        ApplicationContext applicationContext = new AnnotationConfigWebApplicationContext("samples");
-        handlerMapping = new AnnotationHandlerMapping(applicationContext);
+        final DefaultListableBeanFactory beanFactory = new DefaultListableBeanFactory(new String[]{"samples"});
+        beanFactory.initialize();
+
+        ApplicationContext applicationContext = new AnnotationConfigWebApplicationContext(beanFactory);
+
+        handlerMapping = new AnnotationHandlerMapping(beanFactory);
         handlerMapping.initialize();
     }
 

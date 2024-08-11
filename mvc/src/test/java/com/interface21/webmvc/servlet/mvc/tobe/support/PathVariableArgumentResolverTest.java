@@ -44,7 +44,7 @@ class PathVariableArgumentResolverTest {
 
             Arguments.of(new MockHttpServletRequest("GET", "/pathVariable/user/50"),
                 new MethodParameter(mockIntPathVariableMethod, Integer.class, new Annotation[]{intAnnotation}, paramName),
-                "50")
+                    50)
         );
     }
 }
