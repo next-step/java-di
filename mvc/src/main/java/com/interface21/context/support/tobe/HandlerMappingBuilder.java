@@ -47,9 +47,12 @@ public class HandlerMappingBuilder {
 
     private void registerEachClass(final Class<?> clazz, final Object bean) {
         final Method[] methods = clazz.getMethods();
+
         Arrays.stream(methods)
               .filter(requestMappingMethod -> requestMappingMethod.isAnnotationPresent(RequestMapping.class))
-              .forEach(requestMappingMethod -> registerEachMethod(bean, requestMappingMethod));
+              .forEach(requestMappingMethod ->
+                      this.registerEachMethod(bean, requestMappingMethod)
+              );
     }
 
     private void registerEachMethod(final Object target, final Method method) {
@@ -57,13 +60,12 @@ public class HandlerMappingBuilder {
         final String requestUrl = requestMapping.value();
         final RequestMethod[] requestMethods = getTargetMethodsFromRequestMapping(requestMapping.method());
 
-        Arrays.stream(requestMethods)
-              .forEach(requestMethod ->
-                      registerEachRequestMethod(target, method, requestMethod, requestUrl)
-              );
-
         log.debug("register handlerExecution : requestUrl is {}, request method : {}, method is {}",
                 requestUrl, requestMethods, method);
+
+        Arrays.stream(requestMethods).forEach(requestMethod ->
+                this.registerEachRequestMethod(target, method, requestMethod, requestUrl)
+        );
     }
 
     private static RequestMethod[] getTargetMethodsFromRequestMapping(RequestMethod[] targetMethods) {
