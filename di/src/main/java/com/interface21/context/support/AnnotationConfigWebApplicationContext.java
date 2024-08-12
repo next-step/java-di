@@ -10,9 +10,9 @@ public class AnnotationConfigWebApplicationContext implements ApplicationContext
 
     private final DefaultListableBeanFactory beanFactory;
 
-    public AnnotationConfigWebApplicationContext(final String... basePackages) {
-        Map<Class<?>, BeanDefinition> beanDefinitionMap = new ComponentScanner(basePackages).scan();
-        this.beanFactory = new DefaultListableBeanFactory(beanDefinitionMap);
+    public AnnotationConfigWebApplicationContext(final Class<?>... configurationClasses) {
+        Map<Class<?>, BeanDefinition> componentBeanDefinitions = ComponentScanner.from(configurationClasses).scan();
+        this.beanFactory = new DefaultListableBeanFactory(componentBeanDefinitions);
         this.beanFactory.initialize();
     }
 

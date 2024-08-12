@@ -10,6 +10,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.reflections.Reflections;
 import samples.SampleController;
+import samples.TestConfig;
 
 class DefaultListableBeanFactoryTest {
 
@@ -20,7 +21,7 @@ class DefaultListableBeanFactoryTest {
     @SuppressWarnings("unchecked")
     void setUp() {
         reflections = new Reflections("samples");
-        beanFactory = new DefaultListableBeanFactory(new ComponentScanner("samples").scan());
+        beanFactory = new DefaultListableBeanFactory(ComponentScanner.from(TestConfig.class).scan());
         beanFactory.initialize();
     }
 

@@ -2,10 +2,12 @@ package com.interface21.context.support;
 
 import com.interface21.beans.factory.config.BeanDefinition;
 import com.interface21.beans.factory.config.GenericBeanDefinition;
+import com.interface21.context.annotation.ComponentScan;
 import com.interface21.context.stereotype.Controller;
 import com.interface21.context.stereotype.Repository;
 import com.interface21.context.stereotype.Service;
 import java.lang.annotation.Annotation;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -22,10 +24,26 @@ public class ComponentScanner implements BeanScanner {
     private final Reflections reflections;
     private final List<Class<? extends Annotation>> beanAnnotations;
 
-    public ComponentScanner(String... basePackages) {
+    private ComponentScanner(String... basePackages) {
         this.basePackages = basePackages;
         this.reflections = new Reflections(basePackages);
         this.beanAnnotations = List.of(Controller.class, Service.class, Repository.class);
+    }
+
+    public static ComponentScanner from(Class<?>... configurationClasses) {
+        return new ComponentScanner(getBasePackages(configurationClasses));
+    }
+
+    private static String[] getBasePackages(Class<?>[] configurationClasses) {
+        return Arrays.stream(configurationClasses)
+                     .map(ComponentScanner::getBasePackage)
+                     .flatMap(Arrays::stream)
+                     .toArray(String[]::new);
+    }
+
+    private static String[] getBasePackage(Class<?> clazz) {
+        return clazz.getAnnotation(ComponentScan.class)
+                    .basePackages();
     }
 
     @Override

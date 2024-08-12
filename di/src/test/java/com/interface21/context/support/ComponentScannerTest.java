@@ -10,6 +10,7 @@ import org.junit.jupiter.api.Test;
 import samples.JdbcSampleRepository;
 import samples.SampleController;
 import samples.SampleService;
+import samples.TestConfig;
 
 class ComponentScannerTest {
 
@@ -17,7 +18,7 @@ class ComponentScannerTest {
     @DisplayName("타겟이 되는 어노테이션이 붙은 클래스를 스캔한다.")
     void scan() {
         // given
-        ComponentScanner componentScanner = new ComponentScanner("samples");
+        ComponentScanner componentScanner = ComponentScanner.from(TestConfig.class);
 
         // when
         Map<Class<?>, BeanDefinition> result = componentScanner.scan();
