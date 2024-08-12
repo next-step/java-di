@@ -2,7 +2,6 @@ package com.interface21.beans.factory.support;
 
 import com.interface21.beans.factory.BeanFactory;
 import com.interface21.beans.factory.config.BeanDefinition;
-import com.interface21.beans.factory.config.GenericBeanDefinition;
 import com.interface21.context.stereotype.Controller;
 import java.lang.reflect.Constructor;
 import java.util.Arrays;
@@ -20,11 +19,9 @@ public class DefaultListableBeanFactory implements BeanFactory {
     private final Map<Class<?>, BeanDefinition> beanDefinitionMap = new HashMap<>();
     private final Map<Class<?>, Object> singletonObjects = new HashMap<>();
 
-    public DefaultListableBeanFactory(Set<Class<?>> beanClasses) {
-        log.info("initialize bean factory with bean classes: {}", beanClasses);
-        for (Class<?> beanClass : beanClasses) {
-            beanDefinitionMap.put(beanClass, GenericBeanDefinition.from(beanClass));
-        }
+    public DefaultListableBeanFactory(Map<Class<?>, BeanDefinition> beanDefinitionMap) {
+        log.info("create bean factory with beanDefinitionMap: {}", beanDefinitionMap);
+        this.beanDefinitionMap.putAll(beanDefinitionMap);
     }
 
     public void initialize() {

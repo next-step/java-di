@@ -2,7 +2,7 @@ package com.interface21.beans.factory.support;
 
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
-import com.interface21.context.support.BeanScanner;
+import com.interface21.context.support.ComponentScanner;
 import java.lang.annotation.Annotation;
 import java.util.HashSet;
 import java.util.Set;
@@ -20,7 +20,7 @@ class DefaultListableBeanFactoryTest {
     @SuppressWarnings("unchecked")
     void setUp() {
         reflections = new Reflections("samples");
-        beanFactory = new DefaultListableBeanFactory(new BeanScanner("samples").scan());
+        beanFactory = new DefaultListableBeanFactory(new ComponentScanner("samples").scan());
         beanFactory.initialize();
     }
 
