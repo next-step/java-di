@@ -5,13 +5,14 @@ import com.interface21.beans.BeanInstantiationException;
 import com.interface21.beans.factory.BeanFactory;
 import com.interface21.beans.factory.config.BeanDefinition;
 import com.interface21.beans.factory.config.BeanDefinitionMapping;
+import com.interface21.beans.factory.config.ConfigurationClassBeanDefinitionReader;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.lang.annotation.Annotation;
 import java.util.*;
 
-public class DefaultListableBeanFactory implements BeanFactory {
+public class DefaultListableBeanFactory implements BeanFactory, BeanDefinitionRegistry {
 
     private static final Logger log = LoggerFactory.getLogger(DefaultListableBeanFactory.class);
 
@@ -23,7 +24,7 @@ public class DefaultListableBeanFactory implements BeanFactory {
 
     public DefaultListableBeanFactory(final String... basePackages) {
         this.beanDefinitionMap = new BeanDefinitionMapping(basePackages);
-        initialize();
+        beanDefinitionMap.scanBeanDefinitions();
     }
 
     @Override
@@ -59,9 +60,7 @@ public class DefaultListableBeanFactory implements BeanFactory {
                 .anyMatch(clazz -> clazz.isAnnotationPresent(annotationType));
     }
 
-    private void initialize() {
-        beanDefinitionMap.scanBeanDefinitions();
-
+    public void refresh() {
         createBeansByClass(beanDefinitionMap.getBeanClasses());
     }
 
@@ -133,5 +132,10 @@ public class DefaultListableBeanFactory implements BeanFactory {
     public void clear() {
         beanDefinitionMap.clear();
         singletonObjects.clear();
+    }
+
+    @Override
+    public void registerBeanDefinition(final Class<?> clazz, final BeanDefinition beanDefinition) {
+        beanDefinitionMap.registerBeanDefinition(clazz, beanDefinition);
     }
 }

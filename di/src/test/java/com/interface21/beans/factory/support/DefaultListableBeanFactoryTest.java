@@ -2,6 +2,7 @@ package com.interface21.beans.factory.support;
 
 import com.interface21.beans.BeanFactoryException;
 import com.interface21.beans.BeanInstantiationException;
+import com.interface21.beans.factory.config.ConfigurationClassBeanDefinitionReader;
 import com.interface21.context.stereotype.Controller;
 import di.DiRepository;
 import di.DiService;
@@ -33,12 +34,16 @@ class DefaultListableBeanFactoryTest {
 
     private Reflections reflections;
     private DefaultListableBeanFactory beanFactory;
+    private ConfigurationClassBeanDefinitionReader reader;
 
     @BeforeEach
     @SuppressWarnings("unchecked")
     void setUp() {
         reflections = new Reflections("samples");
         beanFactory = new DefaultListableBeanFactory("samples");
+        reader = new ConfigurationClassBeanDefinitionReader(beanFactory);
+        reader.loadBeanDefinitions(beanFactory.getBeanClasses().toArray(new Class[0]));
+        beanFactory.refresh();
     }
 
     @Test
@@ -57,6 +62,8 @@ class DefaultListableBeanFactoryTest {
     public void getDuplicateBean() throws Exception {
         // given
         final DefaultListableBeanFactory beanFactory = new DefaultListableBeanFactory("wrong");
+        reader.loadBeanDefinitions(beanFactory.getBeanClasses().toArray(new Class[0]));
+        beanFactory.refresh();
 
         // when then
         assertThatThrownBy(() -> beanFactory.getBean(DuplicateBean.class))
@@ -81,6 +88,9 @@ class DefaultListableBeanFactoryTest {
     public void getBean() throws Exception {
         // given
         final DefaultListableBeanFactory beanFactory = new DefaultListableBeanFactory("wrong");
+        final ConfigurationClassBeanDefinitionReader reader = new ConfigurationClassBeanDefinitionReader(beanFactory);
+        reader.loadBeanDefinitions(beanFactory.getBeanClasses().toArray(new Class[0]));
+        beanFactory.refresh();
 
         // when
         final CorrectBean actual = beanFactory.getBean(CorrectBean.class);
@@ -94,9 +104,12 @@ class DefaultListableBeanFactoryTest {
     public void illDependentBean() throws Exception {
         // given
         final String basePackage = "ill_dependent";
+        final DefaultListableBeanFactory beanFactory = new DefaultListableBeanFactory(basePackage);
+        final ConfigurationClassBeanDefinitionReader reader = new ConfigurationClassBeanDefinitionReader(beanFactory);
+        reader.loadBeanDefinitions(beanFactory.getBeanClasses().toArray(new Class[0]));
 
         // when then
-        assertThatThrownBy(() -> new DefaultListableBeanFactory(basePackage))
+        assertThatThrownBy(beanFactory::refresh)
                 .isExactlyInstanceOf(BeanInstantiationException.class)
                 .hasMessage("Failed to instantiate [ill_dependent.NotBean]: Class not BeanType");
     }
@@ -132,6 +145,9 @@ class DefaultListableBeanFactoryTest {
     public void diComponent() throws Exception {
         // given
         final DefaultListableBeanFactory beanFactory = new DefaultListableBeanFactory("di");
+        final ConfigurationClassBeanDefinitionReader reader = new ConfigurationClassBeanDefinitionReader(beanFactory);
+        reader.loadBeanDefinitions(beanFactory.getBeanClasses().toArray(new Class[0]));
+        beanFactory.refresh();
 
         // when
         final DiRepository actual = beanFactory.getBean(DiService.class).getRepository();
