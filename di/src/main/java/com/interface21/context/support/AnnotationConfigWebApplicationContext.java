@@ -12,6 +12,8 @@ public class AnnotationConfigWebApplicationContext implements ApplicationContext
 
     public AnnotationConfigWebApplicationContext(final Class<?>... configurationClasses) {
         Map<Class<?>, BeanDefinition> componentBeanDefinitions = ComponentScanner.from(configurationClasses).scan();
+        Map<Class<?>, BeanDefinition> configurationBeanDefinitions = new ConfigurationScanner(configurationClasses).scan();
+        componentBeanDefinitions.putAll(configurationBeanDefinitions);
         this.beanFactory = new DefaultListableBeanFactory(componentBeanDefinitions);
         this.beanFactory.initialize();
     }
