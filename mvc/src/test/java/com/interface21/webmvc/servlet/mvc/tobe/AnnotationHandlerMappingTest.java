@@ -1,12 +1,12 @@
 package com.interface21.webmvc.servlet.mvc.tobe;
 
-import com.interface21.beans.factory.BeanFactory;
-import com.interface21.beans.factory.support.DefaultListableBeanFactory;
-import com.interface21.context.support.ClasspathBeanScanner;
+import com.interface21.context.ApplicationContext;
+import com.interface21.context.support.AnnotationConfigWebApplicationContext;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import samples.TestController;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
@@ -18,13 +18,10 @@ class AnnotationHandlerMappingTest {
 
     @BeforeEach
     void setUp() {
-        final BeanFactory beanFactory = new DefaultListableBeanFactory();
-        ClasspathBeanScanner scanner = new ClasspathBeanScanner(beanFactory);
-        scanner.doScan("samples");
+        ApplicationContext applicationContext = new AnnotationConfigWebApplicationContext(TestController.class);
+        applicationContext.initialize();
 
-        beanFactory.initialize();
-
-        handlerMapping = new AnnotationHandlerMapping(beanFactory);
+        handlerMapping = new AnnotationHandlerMapping(applicationContext);
         handlerMapping.initialize();
     }
 

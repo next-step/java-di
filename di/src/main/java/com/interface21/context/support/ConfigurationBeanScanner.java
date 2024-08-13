@@ -8,6 +8,7 @@ import com.interface21.context.annotation.ComponentScan;
 import com.interface21.context.annotation.Configuration;
 import com.interface21.core.util.ReflectionUtils;
 
+import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.util.Arrays;
@@ -15,8 +16,8 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Stream;
 
-public class ConfigurationBeanScanner implements BeanScanner {
-    public static final Class<Configuration> CONFIGURATION_ANNOTATION = Configuration.class;
+public class ConfigurationBeanScanner {
+    private static final Class<? extends Annotation> CONFIGURATION_ANNOTATION = Configuration.class;
 
     private final BeanFactory beanFactory;
 
@@ -46,8 +47,7 @@ public class ConfigurationBeanScanner implements BeanScanner {
         ).toArray(String[]::new);
     }
 
-    @Override
-    public void registerBeanInstantiations() {
+    private void registerBeanInstantiations() {
         scanConfigurationBeans().forEach(method ->
                 beanFactory.registerBeanInstantiation(
                         method.method().getReturnType(),
@@ -55,13 +55,11 @@ public class ConfigurationBeanScanner implements BeanScanner {
         );
     }
 
-    /* visible for testing */
-    String[] getBasePackages() {
+    public String[] getBasePackages() {
         return basePackages;
     }
 
-    /* visible for testing */
-    List<ConfigurationInstanceAndMethod> scanConfigurationBeans() {
+    private List<ConfigurationInstanceAndMethod> scanConfigurationBeans() {
         Set<Class<?>> configurations = ReflectionUtils.getTypesAnnotatedWith(basePackages, CONFIGURATION_ANNOTATION);
         return configurations
                 .stream()

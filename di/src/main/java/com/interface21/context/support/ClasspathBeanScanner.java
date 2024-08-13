@@ -10,7 +10,7 @@ import com.interface21.core.util.ReflectionUtils;
 import java.lang.annotation.Annotation;
 import java.util.Set;
 
-public class ClasspathBeanScanner implements BeanScanner{
+public class ClasspathBeanScanner {
     private static final Class<? extends Annotation>[] BEAN_CLASS_ANNOTATIONS = new Class[]{
             Repository.class,
             Service.class,
@@ -30,7 +30,6 @@ public class ClasspathBeanScanner implements BeanScanner{
         registerBeanInstantiations();
     }
 
-    @Override
     public void registerBeanInstantiations() {
         scanBeanClasses().forEach(clazz ->
                 beanFactory.registerBeanInstantiation(clazz, new ScannedBeanInstantiation(clazz))
@@ -42,8 +41,7 @@ public class ClasspathBeanScanner implements BeanScanner{
         return basePackages;
     }
 
-    /* visible for testing */
-    Set<Class<?>> scanBeanClasses() {
+    private Set<Class<?>> scanBeanClasses() {
         return ReflectionUtils.getTypesAnnotatedWith(basePackages, BEAN_CLASS_ANNOTATIONS);
     }
 }

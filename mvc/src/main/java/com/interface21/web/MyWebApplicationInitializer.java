@@ -1,10 +1,6 @@
 package com.interface21.web;
 
-import com.interface21.beans.factory.BeanFactory;
-import com.interface21.beans.factory.support.DefaultListableBeanFactory;
 import com.interface21.context.support.AnnotationConfigWebApplicationContext;
-import com.interface21.context.support.ClasspathBeanScanner;
-import com.interface21.context.support.ConfigurationBeanScanner;
 import com.interface21.webmvc.servlet.mvc.DispatcherServlet;
 import com.interface21.webmvc.servlet.mvc.asis.ControllerHandlerAdapter;
 import com.interface21.webmvc.servlet.mvc.asis.ManualHandlerMapping;
@@ -20,18 +16,11 @@ public class MyWebApplicationInitializer implements WebApplicationInitializer {
 
     @Override
     public void onStartup(final ServletContext container) {
-        final BeanFactory beanFactory = new DefaultListableBeanFactory();
-
-        final ClasspathBeanScanner beanScanner = new ClasspathBeanScanner(beanFactory);
-        beanScanner.doScan("camp.nextstep");
-
-        beanFactory.initialize();
-
-        final var applicationContext = new AnnotationConfigWebApplicationContext(beanFactory);
+        final var applicationContext = new AnnotationConfigWebApplicationContext(null);
 
         final var dispatcherServlet = new DispatcherServlet();
         dispatcherServlet.addHandlerMapping(new ManualHandlerMapping());
-        dispatcherServlet.addHandlerMapping(new AnnotationHandlerMapping(beanFactory));
+        dispatcherServlet.addHandlerMapping(new AnnotationHandlerMapping(applicationContext));
 
         dispatcherServlet.addHandlerAdapter(new ControllerHandlerAdapter());
         dispatcherServlet.addHandlerAdapter(new HandlerExecutionHandlerAdapter());
