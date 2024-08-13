@@ -6,6 +6,7 @@ import static org.mockito.Mockito.when;
 
 import com.interface21.context.ApplicationContext;
 import com.interface21.context.support.AnnotationConfigWebApplicationContext;
+import com.interface21.webmvc.servlet.mvc.tobe.support.TestConfiguration;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.junit.jupiter.api.BeforeEach;
@@ -17,7 +18,7 @@ class AnnotationHandlerMappingTest {
 
     @BeforeEach
     void setUp() {
-        ApplicationContext applicationContext = new AnnotationConfigWebApplicationContext("samples");
+        ApplicationContext applicationContext = new AnnotationConfigWebApplicationContext(TestConfiguration.class);
         handlerMapping = new AnnotationHandlerMapping(applicationContext);
         handlerMapping.initialize();
     }

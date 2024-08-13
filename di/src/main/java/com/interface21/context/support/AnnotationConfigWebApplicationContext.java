@@ -1,5 +1,6 @@
 package com.interface21.context.support;
 
+import com.interface21.beans.factory.config.BeanDefinition;
 import com.interface21.beans.factory.support.DefaultListableBeanFactory;
 import com.interface21.context.ApplicationContext;
 import java.util.Map;
@@ -9,9 +10,11 @@ public class AnnotationConfigWebApplicationContext implements ApplicationContext
 
     private final DefaultListableBeanFactory beanFactory;
 
-    public AnnotationConfigWebApplicationContext(final String... basePackages) {
-        Set<Class<?>> beanClasses = new BeanScanner(basePackages).scan();
-        this.beanFactory = new DefaultListableBeanFactory(beanClasses);
+    public AnnotationConfigWebApplicationContext(final Class<?>... configurationClasses) {
+        Map<Class<?>, BeanDefinition> componentBeanDefinitions = ComponentScanner.from(configurationClasses).scan();
+        Map<Class<?>, BeanDefinition> configurationBeanDefinitions = new ConfigurationScanner(configurationClasses).scan();
+        componentBeanDefinitions.putAll(configurationBeanDefinitions);
+        this.beanFactory = new DefaultListableBeanFactory(componentBeanDefinitions);
         this.beanFactory.initialize();
     }
 

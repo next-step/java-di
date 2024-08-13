@@ -2,14 +2,18 @@ package com.interface21.beans.factory.support;
 
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
-import com.interface21.context.support.BeanScanner;
+import com.interface21.beans.factory.config.BeanDefinition;
+import com.interface21.context.support.ComponentScanner;
+import com.interface21.context.support.ConfigurationScanner;
 import java.lang.annotation.Annotation;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.reflections.Reflections;
 import samples.SampleController;
+import samples.TestConfig;
 
 class DefaultListableBeanFactoryTest {
 
@@ -20,7 +24,10 @@ class DefaultListableBeanFactoryTest {
     @SuppressWarnings("unchecked")
     void setUp() {
         reflections = new Reflections("samples");
-        beanFactory = new DefaultListableBeanFactory(new BeanScanner("samples").scan());
+        Map<Class<?>, BeanDefinition> beanDefinitionMap = ComponentScanner.from(TestConfig.class).scan();
+        ConfigurationScanner configurationScanner = new ConfigurationScanner(TestConfig.class);
+        beanDefinitionMap.putAll(configurationScanner.scan());
+        beanFactory = new DefaultListableBeanFactory(beanDefinitionMap);
         beanFactory.initialize();
     }
 
