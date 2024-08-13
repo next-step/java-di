@@ -1,9 +1,8 @@
 package com.interface21.beans.factory.config;
 
-import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
 
-public class ConfigurationBeanDefinition implements BeanDefinition {
+public class ConfigurationBeanDefinition implements MethodBeanDefinition {
 
     private final Class<?> type;
     private final Method method;
@@ -24,10 +23,6 @@ public class ConfigurationBeanDefinition implements BeanDefinition {
     }
 
     @Override
-    public Constructor<?> getConstructor() {
-        return null;
-    }
-
     public Method getMethod() {
         return method;
     }
