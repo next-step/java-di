@@ -11,6 +11,7 @@ public class AnnotationConfigWebApplicationContext implements ApplicationContext
 
     public AnnotationConfigWebApplicationContext(final String... basePackages) {
         this.beanFactory = new DefaultListableBeanFactory(basePackages);
+        beanFactory.initialize();
     }
 
     @Override

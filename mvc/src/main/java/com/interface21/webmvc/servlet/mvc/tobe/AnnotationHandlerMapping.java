@@ -1,5 +1,6 @@
 package com.interface21.webmvc.servlet.mvc.tobe;
 
+import com.interface21.context.ApplicationContext;
 import com.interface21.web.bind.annotation.RequestMethod;
 import com.interface21.webmvc.servlet.mvc.HandlerMapping;
 import jakarta.servlet.http.HttpServletRequest;
@@ -13,17 +14,17 @@ public class AnnotationHandlerMapping implements HandlerMapping {
 
     private static final Logger log = LoggerFactory.getLogger(AnnotationHandlerMapping.class);
 
-    private final Object[] basePackage;
+    private final ApplicationContext applicationContext;
     private final Map<HandlerKey, HandlerExecution> handlerExecutions;
 
-    public AnnotationHandlerMapping(final Object... basePackage) {
-        this.basePackage = basePackage;
+    public AnnotationHandlerMapping(final ApplicationContext applicationContext) {
+        this.applicationContext = applicationContext;
         this.handlerExecutions = new HashMap<>();
     }
 
     public void initialize() {
         final var controllerScanner = new ControllerScanner();
-        handlerExecutions.putAll(controllerScanner.scan(basePackage));
+        handlerExecutions.putAll(controllerScanner.scan(applicationContext));
         log.info("Initialized AnnotationHandlerMapping!");
     }
 
