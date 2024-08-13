@@ -1,22 +1,25 @@
 package com.interface21.beans.factory.support;
 
+import com.interface21.beans.factory.BeanFactory;
 import com.interface21.context.support.BeanScanner;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import samples.MyConfiguration;
 import samples.SampleController;
 
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 class DefaultListableBeanFactoryTest {
 
-    private DefaultListableBeanFactory beanFactory;
+    private BeanFactory beanFactory;
 
     @BeforeEach
     void setUp() {
-        BeanScanner beanScanner = new BeanScanner("samples");
-        beanScanner.initialize();
+        beanFactory = new DefaultListableBeanFactory();
 
-        beanFactory = new DefaultListableBeanFactory(beanScanner);
+        BeanScanner beanScanner = new BeanScanner(beanFactory);
+        beanScanner.register(MyConfiguration.class);
+
         beanFactory.initialize();
     }
 

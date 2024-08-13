@@ -1,5 +1,6 @@
 package com.interface21.web;
 
+import com.interface21.beans.factory.BeanFactory;
 import com.interface21.beans.factory.support.DefaultListableBeanFactory;
 import com.interface21.context.support.AnnotationConfigWebApplicationContext;
 import com.interface21.context.support.BeanScanner;
@@ -18,10 +19,11 @@ public class MyWebApplicationInitializer implements WebApplicationInitializer {
 
     @Override
     public void onStartup(final ServletContext container) {
-        final BeanScanner beanScanner = new BeanScanner("camp.nextstep.config");
-        beanScanner.initialize();
+        final BeanFactory beanFactory = new DefaultListableBeanFactory();
 
-        final DefaultListableBeanFactory beanFactory = new DefaultListableBeanFactory(beanScanner);
+        final BeanScanner beanScanner = new BeanScanner(beanFactory);
+        beanScanner.register("camp.nextstep.config");
+
         beanFactory.initialize();
 
         final var applicationContext = new AnnotationConfigWebApplicationContext(beanFactory);

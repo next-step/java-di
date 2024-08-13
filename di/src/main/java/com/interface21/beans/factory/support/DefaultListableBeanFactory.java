@@ -4,10 +4,7 @@ import com.interface21.beans.BeansCache;
 import com.interface21.beans.factory.BeanFactory;
 import com.interface21.beans.factory.config.BeanDefinition;
 import com.interface21.beans.factory.exception.NoSuchBeanDefinitionException;
-import com.interface21.beans.factory.support.beancreator.ConfigurationClassBeanInstantiation;
-import com.interface21.beans.factory.support.beancreator.ScannedBeanInstantiation;
 import com.interface21.context.stereotype.Controller;
-import com.interface21.context.support.BeanScanner;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -19,29 +16,10 @@ public class DefaultListableBeanFactory implements BeanFactory, BeanDefinitionRe
     private final Map<Class<?>, BeanInstantiation> beanInstantiationsMap = new HashMap<>();
 
     private final BeansCache singletonObjects = new BeansCache();
-    private final BeanScanner beanScanner;
 
-    public DefaultListableBeanFactory(final BeanScanner beanScanner) {
-        this.beanScanner = beanScanner;
-    }
-
+    @Override
     public void initialize() {
-        registerBeanInstantiationsAndClasses();
-
         loadAllBeans();
-    }
-
-    private void registerBeanInstantiationsAndClasses() {
-        beanScanner.scanBeanClasses()
-                   .forEach(clazz -> beanInstantiationsMap.put(clazz, new ScannedBeanInstantiation(clazz)));
-
-        beanScanner.scanConfigurationBeans()
-                   .forEach(method ->
-                           beanInstantiationsMap.put(
-                                   method.method().getReturnType(),
-                                   new ConfigurationClassBeanInstantiation(method.object(), method.method())
-                           )
-                   );
     }
 
     private void loadAllBeans() {
@@ -89,6 +67,11 @@ public class DefaultListableBeanFactory implements BeanFactory, BeanDefinitionRe
     @Override
     public BeansCache getControllers() {
         return singletonObjects.filter(clazz -> clazz.isAnnotationPresent(Controller.class));
+    }
+
+    @Override
+    public void registerBeanInstantiation(Class<?> clazz, BeanInstantiation beanInstantiation) {
+        beanInstantiationsMap.put(clazz, beanInstantiation);
     }
 
     @Override
