@@ -1,8 +1,7 @@
 package com.interface21.webmvc.servlet.mvc.tobe;
 
 import com.interface21.beans.factory.support.DefaultListableBeanFactory;
-import com.interface21.context.ApplicationContext;
-import com.interface21.context.support.AnnotationConfigWebApplicationContext;
+import com.interface21.context.support.BeanScanner;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.junit.jupiter.api.BeforeEach;
@@ -18,10 +17,11 @@ class AnnotationHandlerMappingTest {
 
     @BeforeEach
     void setUp() {
-        final DefaultListableBeanFactory beanFactory = new DefaultListableBeanFactory(new String[]{"samples"});
-        beanFactory.initialize();
+        BeanScanner samples = new BeanScanner("samples");
+        samples.initialize();
 
-        ApplicationContext applicationContext = new AnnotationConfigWebApplicationContext(beanFactory);
+        final DefaultListableBeanFactory beanFactory = new DefaultListableBeanFactory(samples);
+        beanFactory.initialize();
 
         handlerMapping = new AnnotationHandlerMapping(beanFactory);
         handlerMapping.initialize();
