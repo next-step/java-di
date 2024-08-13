@@ -2,11 +2,10 @@ package com.interface21.webmvc.servlet.mvc.tobe;
 
 import com.interface21.beans.factory.BeanFactory;
 import com.interface21.beans.factory.support.DefaultListableBeanFactory;
-import com.interface21.context.support.BeanScanner;
+import com.interface21.context.support.ClasspathBeanScanner;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -20,8 +19,8 @@ class AnnotationHandlerMappingTest {
     @BeforeEach
     void setUp() {
         final BeanFactory beanFactory = new DefaultListableBeanFactory();
-        BeanScanner scanner = new BeanScanner(beanFactory);
-        scanner.register("samples");
+        ClasspathBeanScanner scanner = new ClasspathBeanScanner(beanFactory);
+        scanner.doScan("samples");
 
         beanFactory.initialize();
 

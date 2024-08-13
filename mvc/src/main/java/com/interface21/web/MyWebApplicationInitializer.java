@@ -3,7 +3,8 @@ package com.interface21.web;
 import com.interface21.beans.factory.BeanFactory;
 import com.interface21.beans.factory.support.DefaultListableBeanFactory;
 import com.interface21.context.support.AnnotationConfigWebApplicationContext;
-import com.interface21.context.support.BeanScanner;
+import com.interface21.context.support.ClasspathBeanScanner;
+import com.interface21.context.support.ConfigurationBeanScanner;
 import com.interface21.webmvc.servlet.mvc.DispatcherServlet;
 import com.interface21.webmvc.servlet.mvc.asis.ControllerHandlerAdapter;
 import com.interface21.webmvc.servlet.mvc.asis.ManualHandlerMapping;
@@ -21,8 +22,8 @@ public class MyWebApplicationInitializer implements WebApplicationInitializer {
     public void onStartup(final ServletContext container) {
         final BeanFactory beanFactory = new DefaultListableBeanFactory();
 
-        final BeanScanner beanScanner = new BeanScanner(beanFactory);
-        beanScanner.register("camp.nextstep.config");
+        final ClasspathBeanScanner beanScanner = new ClasspathBeanScanner(beanFactory);
+        beanScanner.doScan("camp.nextstep");
 
         beanFactory.initialize();
 
