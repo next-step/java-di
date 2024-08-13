@@ -1,5 +1,6 @@
 package samples;
 
+import com.interface21.beans.factory.annotation.Autowired;
 import com.interface21.context.stereotype.Repository;
 
 import javax.sql.DataSource;
