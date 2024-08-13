@@ -5,13 +5,10 @@ import org.junit.jupiter.api.Test;
 import samples.ExampleConfig;
 import samples.IntegrationConfig;
 import samples.JdbcSampleRepository;
-import samples.JdbcTemplate;
 import samples.MyConfiguration;
 import samples.SampleController;
 import samples.SampleService;
 
-import javax.sql.DataSource;
-import java.util.Collection;
 import java.util.List;
 import java.util.Set;
 
@@ -62,18 +59,5 @@ class BeanScannerTest {
                                                       String methodName) {
         assertThat(record.object().getClass()).isEqualTo(expectedClass);
         assertThat(record.method().getName()).isEqualTo(methodName);
-    }
-
-    @Test
-    void scanConfigurationBeanTypes() {
-        Collection<Class<?>> result = beanScanner.scanConfigurationBeanTypes();
-        assertThat(result).containsExactlyInAnyOrder(
-                DataSource.class,
-                DataSource.class,
-                DataSource.class,
-                JdbcTemplate.class,
-                JdbcTemplate.class
-        );
-
     }
 }

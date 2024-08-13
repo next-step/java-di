@@ -1,5 +1,6 @@
 package com.interface21.beans.factory.support;
 
+import com.interface21.beans.BeansCache;
 import com.interface21.beans.factory.BeanFactory;
 import com.interface21.beans.factory.config.BeanDefinition;
 import com.interface21.beans.factory.exception.NoSuchBeanDefinitionException;
@@ -7,12 +8,8 @@ import com.interface21.beans.factory.support.beancreator.ConfigurationClassBeanI
 import com.interface21.beans.factory.support.beancreator.ScannedBeanInstantiation;
 import com.interface21.context.stereotype.Controller;
 import com.interface21.context.support.BeanScanner;
-import com.interface21.context.support.ConfigurationInstanceAndMethod;
 
-import java.util.Collection;
 import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -21,12 +18,10 @@ public class DefaultListableBeanFactory implements BeanFactory, BeanDefinitionRe
     private final Map<String, BeanDefinition> beanDefinitionMap = new HashMap<>();
     private final Map<Class<?>, BeanInstantiation> beanInstantiationsMap = new HashMap<>();
 
-    private final Map<Class<?>, Object> singletonObjects = new HashMap<>();
-    private final Set<Class<?>> classes;
+    private final BeansCache singletonObjects = new BeansCache();
     private final BeanScanner beanScanner;
 
     public DefaultListableBeanFactory(final BeanScanner beanScanner) {
-        this.classes = new HashSet<>();
         this.beanScanner = beanScanner;
     }
 
@@ -37,28 +32,25 @@ public class DefaultListableBeanFactory implements BeanFactory, BeanDefinitionRe
     }
 
     private void registerBeanInstantiationsAndClasses() {
-        final Set<Class<?>> beanClasses = beanScanner.scanBeanClasses();
-        beanClasses.forEach(clazz -> beanInstantiationsMap.put(clazz, new ScannedBeanInstantiation(clazz)));
-        classes.addAll(beanClasses);
+        beanScanner.scanBeanClasses()
+                   .forEach(clazz -> beanInstantiationsMap.put(clazz, new ScannedBeanInstantiation(clazz)));
 
-        final List<ConfigurationInstanceAndMethod> configurationBeans = beanScanner.scanConfigurationBeans();
-        final Collection<Class<?>> configurationBeanTypes = beanScanner.scanConfigurationBeanTypes();
-        configurationBeans.forEach(method ->
-                beanInstantiationsMap.put(
-                        method.method().getReturnType(),
-                        new ConfigurationClassBeanInstantiation(method.object(), method.method())
-                )
-        );
-        classes.addAll(configurationBeanTypes);
+        beanScanner.scanConfigurationBeans()
+                   .forEach(method ->
+                           beanInstantiationsMap.put(
+                                   method.method().getReturnType(),
+                                   new ConfigurationClassBeanInstantiation(method.object(), method.method())
+                           )
+                   );
     }
 
     private void loadAllBeans() {
-        classes.forEach(this::getBean);
+        beanInstantiationsMap.keySet().forEach(this::getBean);
     }
 
     @Override
     public Set<Class<?>> getBeanClasses() {
-        return singletonObjects.keySet();
+        return singletonObjects.getAllBeanClasses();
     }
 
     @Override
@@ -76,11 +68,11 @@ public class DefaultListableBeanFactory implements BeanFactory, BeanDefinitionRe
         if (beanInstantiationsMap.containsKey(requiredType)) {
             object = beanInstantiationsMap.get(requiredType).instantiateClass(this);
         } else {
-            final Class<?> concreteClass = findConcreteClass(requiredType, classes);
+            final Class<?> concreteClass = findConcreteClass(requiredType, beanInstantiationsMap.keySet());
             object = getBean(concreteClass);
         }
 
-        singletonObjects.put(requiredType, object);
+        singletonObjects.store(requiredType, object);
         return object;
     }
 
@@ -95,16 +87,8 @@ public class DefaultListableBeanFactory implements BeanFactory, BeanDefinitionRe
     }
 
     @Override
-    public Map<Class<?>, Object> getControllers() {
-        Set<Class<?>> preInstantiateBeans = singletonObjects.keySet();
-
-        Map<Class<?>, Object> controllers = new HashMap<>();
-        for (Class<?> clazz : preInstantiateBeans) {
-            if (clazz.isAnnotationPresent(Controller.class)) {
-                controllers.put(clazz, getBean(clazz));
-            }
-        }
-        return controllers;
+    public BeansCache getControllers() {
+        return singletonObjects.filter(clazz -> clazz.isAnnotationPresent(Controller.class));
     }
 
     @Override

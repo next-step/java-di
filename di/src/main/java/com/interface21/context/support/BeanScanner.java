@@ -13,10 +13,8 @@ import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.util.Arrays;
-import java.util.Collection;
 import java.util.List;
 import java.util.Set;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 public class BeanScanner {
@@ -74,13 +72,6 @@ public class BeanScanner {
                                  .map(method -> new ConfigurationInstanceAndMethod(object, method));
                 })
                 .toList();
-    }
-
-    public Collection<Class<?>> scanConfigurationBeanTypes() {
-        return scanConfigurationBeans()
-                .stream()
-                .map((ConfigurationInstanceAndMethod t) -> t.method().getReturnType())
-                .collect(Collectors.toUnmodifiableList());
     }
 
     private static boolean isBeanMethod(final Method beanMethod) {
