@@ -32,7 +32,9 @@ public class DefaultListableBeanFactory implements BeanFactory, BeanDefinitionRe
             return (T) singletonObjects.get(clazz);
         }
 
-        return createAndStoreBean(clazz);
+        Object instance = createBean(clazz);
+        storeBean(clazz, instance);
+        return (T) instance;
     }
 
     @Override
@@ -59,17 +61,25 @@ public class DefaultListableBeanFactory implements BeanFactory, BeanDefinitionRe
         beanDefinitionMap.put(clazz, beanDefinition);
     }
 
-    private <T> T createAndStoreBean(Class<T> beanClazz) {
-        BeanDefinition beanDefinition = beanDefinitionMap.get(beanClazz);
+    private <T> T createBean(Class<T> beanClazz) {
+        BeanDefinition beanDefinition = getBeanDefinition(beanClazz);
+        return createBean(beanClazz, beanDefinition);
+    }
 
-        if (beanDefinition instanceof AnnotatedBeanDefinition) {
-            return (T) createAndStoreBean(beanClazz, beanDefinition);
+    private <T> T createBean(Class<T> beanClazz, BeanDefinition beanDefinition) {
+        if (beanDefinition == null) {
+            throw new NoSuchBeanDefinitionException(beanClazz);
         }
+        return (T) inject(beanDefinition);
+    }
 
-        Class<?> concreteClazz = findConcreteClass(beanClazz);
-        beanDefinition = beanDefinitionMap.get(concreteClazz);
-
-        return (T) createAndStoreBean(concreteClazz, beanDefinition);
+    private BeanDefinition getBeanDefinition(Class<?> beanClazz) {
+        BeanDefinition beanDefinition = beanDefinitionMap.get(beanClazz);
+        if (beanDefinition == null) {
+            Class<?> concreteClazz = findConcreteClass(beanClazz);
+            beanDefinition = beanDefinitionMap.get(concreteClazz);
+        }
+        return beanDefinition;
     }
 
     private Class<?> findConcreteClass(Class<?> beanClazz) {
@@ -77,19 +87,13 @@ public class DefaultListableBeanFactory implements BeanFactory, BeanDefinitionRe
             .orElseThrow(() -> new BeanInstantiationException(beanClazz, "Concrete class not found"));
     }
 
-    private Object createAndStoreBean(Class<?> beanClazz, BeanDefinition beanDefinition) {
-        if (beanDefinition == null) {
-            throw new NoSuchBeanDefinitionException(beanClazz);
-        }
-
-        Object instance = inject(beanDefinition);
-        singletonObjects.put(beanClazz, instance);
-        return instance;
-    }
-
     private Object inject(BeanDefinition beanDefinition) {
         InjectMode injectMode = beanDefinition.getInjectMode();
         Injector injector = injectMode.getInjector();
         return injector.inject(beanDefinition, this);
+    }
+
+    private void storeBean(Class<?> beanClazz, Object instance) {
+        singletonObjects.put(beanClazz, instance);
     }
 }

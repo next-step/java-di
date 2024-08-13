@@ -7,6 +7,7 @@ import java.lang.reflect.Method;
 public class AnnotatedBeanDefinition extends GenericBeanDefinition {
 
     private final Method method;
+
     public AnnotatedBeanDefinition(Class<?> bean, Method method) {
         super(bean);
         this.method = method;
