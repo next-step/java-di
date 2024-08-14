@@ -1,32 +1,43 @@
 package com.interface21.beans.factory.support;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.*;
 
-import java.lang.annotation.Annotation;
-import java.util.HashSet;
 import java.util.Set;
 
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import org.reflections.Reflections;
 
+import samples.JdbcSampleRepository;
 import samples.SampleController;
+import samples.SampleService;
 
 class DefaultListableBeanFactoryTest {
 
-    private Reflections reflections;
     private DefaultListableBeanFactory beanFactory;
 
     @BeforeEach
     @SuppressWarnings("unchecked")
     void setUp() {
-        reflections = new Reflections("samples");
-        beanFactory = new DefaultListableBeanFactory();
+        beanFactory = new DefaultListableBeanFactory("samples");
         beanFactory.initialize();
     }
 
     @Test
+    @DisplayName("BeanFactory가 초기화되면 Bean이 생성된다")
+    public void initTest() {
+
+        // then
+        Set<Class<?>> beanClasses = beanFactory.getBeanClasses();
+        assertThat(beanClasses)
+                .contains(SampleController.class, JdbcSampleRepository.class, SampleService.class);
+    }
+
+    @Test
     public void di() {
+
+        // when
         final var sampleController = beanFactory.getBean(SampleController.class);
 
         assertNotNull(sampleController);
@@ -34,14 +45,5 @@ class DefaultListableBeanFactoryTest {
 
         final var sampleService = sampleController.getSampleService();
         assertNotNull(sampleService.getSampleRepository());
-    }
-
-    @SuppressWarnings("unchecked")
-    private Set<Class<?>> getTypesAnnotatedWith(Class<? extends Annotation>... annotations) {
-        Set<Class<?>> beans = new HashSet<>();
-        for (Class<? extends Annotation> annotation : annotations) {
-            beans.addAll(reflections.getTypesAnnotatedWith(annotation));
-        }
-        return beans;
     }
 }

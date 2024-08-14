@@ -9,4 +9,6 @@ public interface BeanFactory {
     <T> T getBean(Class<T> clazz);
 
     void clear();
+
+    Object getBeanOrCreate(Class<?> parameterType);
 }
