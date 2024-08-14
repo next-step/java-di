@@ -4,6 +4,8 @@ import java.lang.reflect.Constructor;
 
 public final class ConstructorResolver {
 
+    public static final int FIRST_CONSTRUCTOR_INDEX = 0;
+
     private ConstructorResolver() {}
 
     public static Constructor<?> resolveConstructor(Class<?> clazz) {
@@ -13,6 +15,6 @@ public final class ConstructorResolver {
             return injectedConstructor;
         }
 
-        return clazz.getDeclaredConstructors()[0];
+        return clazz.getDeclaredConstructors()[FIRST_CONSTRUCTOR_INDEX];
     }
 }
