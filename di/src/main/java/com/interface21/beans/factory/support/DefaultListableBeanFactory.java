@@ -1,5 +1,6 @@
 package com.interface21.beans.factory.support;
 
+import java.lang.annotation.Annotation;
 import java.lang.reflect.Constructor;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
@@ -37,11 +38,6 @@ public class DefaultListableBeanFactory implements BeanFactory {
                 .collect(Collectors.toSet());
     }
 
-    @Override
-    public <T> T getBean(final Class<T> clazz) {
-        return (T) singletonObjects.get(clazz);
-    }
-
     public void initialize() {
         beanDefinitionMap.forEach(
                 (beanName, beanDefinition) -> {
@@ -50,6 +46,12 @@ public class DefaultListableBeanFactory implements BeanFactory {
                     singletonObjects.put(beanClazz, getBeanOrCreate(beanClazz));
                 });
     }
+
+    @Override
+    public <T> T getBean(final Class<T> clazz) {
+        return (T) singletonObjects.get(clazz);
+    }
+
 
     @Override
     public Object getBeanOrCreate(Class<?> clazz) {

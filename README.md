@@ -48,4 +48,4 @@
      - @Autowired가 선언된 생성자로 인스턴스를 생성한다
      - @Autowired가 선언된 생성자가 없으면 기본 생성자로 인스턴스를 생성한다
 
-- [ ] MVC 프레임워크의 AnnotationHandlerMapping이 BeanFactory와 BeanScanner를 활용해 동작하도록 리팩터링한다
+- [x] MVC 프레임워크의 AnnotationHandlerMapping이 BeanFactory와 BeanScanner를 활용해 동작하도록 리팩터링한다

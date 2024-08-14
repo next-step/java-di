@@ -7,21 +7,17 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-import org.reflections.Reflections;
-import org.reflections.scanners.Scanners;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.interface21.context.stereotype.Controller;
-import com.interface21.core.util.ReflectionUtils;
 import com.interface21.web.bind.annotation.RequestMapping;
 import com.interface21.web.bind.annotation.RequestMethod;
 import com.interface21.web.method.support.HandlerMethodArgumentResolver;
 import com.interface21.webmvc.servlet.mvc.tobe.support.*;
 
-public class ControllerScanner {
+public class HandlerExecutionProvider {
 
-    private static final Logger log = LoggerFactory.getLogger(ControllerScanner.class);
+    private static final Logger log = LoggerFactory.getLogger(HandlerExecutionProvider.class);
 
     private static final List<HandlerMethodArgumentResolver> argumentResolvers =
             List.of(
@@ -31,18 +27,10 @@ public class ControllerScanner {
                     new PathVariableArgumentResolver(),
                     new ModelArgumentResolver());
 
-    public Map<HandlerKey, HandlerExecution> scan(Object... basePackage) {
-        Reflections reflections =
-                new Reflections(
-                        basePackage,
-                        Scanners.TypesAnnotated,
-                        Scanners.SubTypes,
-                        Scanners.MethodsAnnotated);
+    public Map<HandlerKey, HandlerExecution> create(List<Object> controllers) {
         final var handlers = new HashMap<HandlerKey, HandlerExecution>();
-        final var controllers = reflections.getTypesAnnotatedWith(Controller.class);
-        for (Class<?> controller : controllers) {
-            Object target = ReflectionUtils.newInstance(controller);
-            addHandlerExecution(handlers, target, controller.getMethods());
+        for (var controller : controllers) {
+            addHandlerExecution(handlers, controller, controller.getClass().getMethods());
         }
         return handlers;
     }

@@ -16,11 +16,11 @@ public class AnnotationConfigWebApplicationContext implements ApplicationContext
 
     @Override
     public <T> T getBean(final Class<T> clazz) {
-        return null;
+        return beanFactory.getBean(clazz);
     }
 
     @Override
     public Set<Class<?>> getBeanClasses() {
-        return Set.of();
+        return beanFactory.getBeanClasses();
     }
 }
