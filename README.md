@@ -47,3 +47,5 @@
    - [x] 이 3개의 설정으로 생성된 각 인스턴스 간의 의존관계는 @Autowired를 사용한다
      - @Autowired가 선언된 생성자로 인스턴스를 생성한다
      - @Autowired가 선언된 생성자가 없으면 기본 생성자로 인스턴스를 생성한다
+
+- [ ] MVC 프레임워크의 AnnotationHandlerMapping이 BeanFactory와 BeanScanner를 활용해 동작하도록 리팩터링한다
