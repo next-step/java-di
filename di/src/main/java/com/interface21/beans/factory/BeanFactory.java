@@ -1,6 +1,7 @@
 package com.interface21.beans.factory;
 
-import java.util.Map;
+import com.interface21.beans.BeansCache;
+
 import java.util.Set;
 
 public interface BeanFactory {
@@ -11,5 +12,5 @@ public interface BeanFactory {
 
     void clear();
 
-    Map<Class<?>, Object> getControllers();
+    BeansCache getControllers();
 }

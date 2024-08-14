@@ -28,7 +28,7 @@ public class AnnotationHandlerMapping implements HandlerMapping {
     }
 
     private void registerAllHandlerMappings() {
-        handlerExecutions = new HandlerMappingBuilder(beanFactory.getControllers()).build();
+        handlerExecutions = new HandlerMappingBuilder(beanFactory).build();
     }
 
     @Nullable
