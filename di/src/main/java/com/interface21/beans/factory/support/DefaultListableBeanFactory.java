@@ -45,20 +45,20 @@ public class DefaultListableBeanFactory implements BeanFactory {
 
     @Override
     public Object getBeanOrCreate(Class<?> clazz) {
-        Class<?> cls =
+        Class<?> concreteClazz =
                 BeanFactoryUtils.findConcreteClass(clazz, getBeanClasses())
                         .orElseThrow(
                                 () ->
                                         new RuntimeException(
                                                 "No concrete class found for " + clazz.getName()));
 
-        Object o = singletonObjects.get(cls);
-        if (o != null) {
-            return o;
+        Object instance = singletonObjects.get(concreteClazz);
+        if (instance != null) {
+            return instance;
         }
-        Constructor<?> constructor = ConstructorResolver.resolveConstructor(cls);
-        Object[] arg = ConstructorArgumentResolver.resolveConstructorArguments(constructor, this);
-        return registerBean(constructor, arg);
+        Constructor<?> constructor = ConstructorResolver.resolveConstructor(concreteClazz);
+        Object[] arguments = ConstructorArgumentResolver.resolveConstructorArguments(constructor, this);
+        return registerBean(constructor, arguments);
     }
 
     private Object registerBean(Constructor<?> constructor, Object[] arg) {
