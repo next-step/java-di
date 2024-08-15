@@ -34,3 +34,16 @@
 
 ### 프로토타입 스코프
 <img src="docs/images/prototype.png" alt="prototype">
+
+## 1단계 요구사항
+- [x] 사전 요구사항 1 - 학습테스트를 진행한다.
+- [] 요구사항 1 - DefaultListableBeanFactoryTest 가 통과하게 만든다.
+    - @Controller, @Service, @Repository를 스캔해서 클래스들을 가져온다.
+      - 기능 
+      - 조건 
+    - @Autowired을 사용한 생성자를 이용해서 의존관계를 생성한다.
+      - 기능
+      - 조건
+- [] 요구사항 2 - AnnotationMapping이 동작하도록 리팩터링한다.
+    - BeanFactory와 BeanScanner를 잘 활용해서 동작하면 된다.
+      
