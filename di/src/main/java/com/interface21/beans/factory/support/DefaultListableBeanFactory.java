@@ -9,43 +9,33 @@ import org.slf4j.LoggerFactory;
 
 import java.lang.reflect.Constructor;
 import java.util.Arrays;
-import java.util.HashMap;
-import java.util.Map;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 public class DefaultListableBeanFactory implements BeanFactory {
 
     private static final Logger log = LoggerFactory.getLogger(DefaultListableBeanFactory.class);
 
     private final BeanDefinitionRegistry registry;
-    private final Map<String, Object> singletonObjects = new HashMap<>();
+    private final Beans beans;
 
     public DefaultListableBeanFactory(final String... basePackages) {
+        this.beans = new Beans();
         this.registry = new SimpleBeanDefinitionRegistry(BeanScanner.getBeansWithAnnotation(basePackages));
-    }
-
-    public void addBean(final String name, final Object bean) {
-        singletonObjects.put(name, bean);
     }
 
     @Override
     public Set<Class<?>> getBeanClasses() {
-        return singletonObjects.values()
-                .stream()
-                .map(Object::getClass)
-                .collect(Collectors.toSet());
+        return beans.getBeanClasses();
     }
 
     @Override
     public <T> T getBean(final Class<T> clazz) {
-        final Object bean = singletonObjects.get(clazz.getSimpleName());
-        return clazz.cast(bean);
+        return beans.getBeanByClass(clazz);
     }
 
     @Override
     public void clear() {
-        singletonObjects.clear();
+        beans.clear();
     }
 
     public void initialize() {
@@ -53,19 +43,25 @@ public class DefaultListableBeanFactory implements BeanFactory {
                 .forEach(this::initializeBean);
     }
 
-    private void initializeBean(final BeanDefinition beanDefinition) {
-        registerSingletonObject(beanDefinition.getType());
-        final Object bean = getBean(beanDefinition.getType());
-        addBean(beanDefinition.getBeanClassName(), bean);
+    public void addBean(final String name, final Object bean) {
+        beans.addBean(name, bean);
     }
 
-    private void registerSingletonObject(final Class<?> beanClass) {
+    private void initializeBean(final BeanDefinition beanDefinition) {
+        registerBean(beanDefinition.getType());
+    }
+
+    private void registerBean(final Class<?> clazz) {
+        final Object bean = instantiateClass(clazz);
+        addBean(clazz.getSimpleName(), bean);
+    }
+
+    private Object instantiateClass(final Class<?> beanClass) {
         try {
             final Constructor<?> constructor = findConstructor(beanClass);
             final Object[] constructorArguments = constructorArguments(constructor);
 
-            final Object instance = BeanUtils.instantiateClass(constructor, constructorArguments);
-            addBean(beanClass.getSimpleName(), instance);
+            return BeanUtils.instantiateClass(constructor, constructorArguments);
         } catch (final Exception e) {
             throw new BeanException(e.getMessage(), e);
         }
@@ -87,19 +83,19 @@ public class DefaultListableBeanFactory implements BeanFactory {
 
     private Object[] constructorArguments(final Constructor<?> constructor) {
         return Arrays.stream(constructor.getParameters())
-                .map(parameter -> createOrGetSingletonObject(parameter.getType()))
+                .map(parameter -> createOrGetBean(parameter.getType()))
                 .toArray();
     }
 
-    private Object createOrGetSingletonObject(final Class<?> clazz) {
+    private Object createOrGetBean(final Class<?> clazz) {
         if (!hasBean(clazz)) {
-            registerSingletonObject(clazz);
+            registerBean(clazz);
         }
 
         return getBean(clazz);
     }
 
     private boolean hasBean(final Class<?> clazz) {
-        return singletonObjects.containsKey(clazz.getSimpleName());
+        return beans.hasBean(clazz.getSimpleName());
     }
 }
