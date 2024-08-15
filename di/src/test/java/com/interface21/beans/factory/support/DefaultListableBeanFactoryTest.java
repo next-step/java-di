@@ -1,8 +1,5 @@
 package com.interface21.beans.factory.support;
 
-import com.interface21.beans.factory.BeanFactory;
-import com.interface21.context.support.ClasspathBeanScanner;
-import com.interface21.context.support.ConfigurationBeanScanner;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import samples.MyConfiguration;
@@ -12,7 +9,7 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 class DefaultListableBeanFactoryTest {
 
-    private BeanFactory beanFactory;
+    private DefaultListableBeanFactory beanFactory;
 
     @BeforeEach
     void setUp() {

@@ -1,6 +1,6 @@
 package com.interface21.web;
 
-import com.interface21.context.support.AnnotationConfigWebApplicationContext;
+import com.interface21.context.AnnotationConfigWebApplicationContext;
 import com.interface21.webmvc.servlet.mvc.DispatcherServlet;
 import com.interface21.webmvc.servlet.mvc.asis.ControllerHandlerAdapter;
 import com.interface21.webmvc.servlet.mvc.asis.ManualHandlerMapping;

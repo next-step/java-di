@@ -5,25 +5,27 @@ import com.interface21.beans.factory.BeanFactory;
 import com.interface21.beans.factory.config.BeanDefinition;
 import com.interface21.beans.factory.exception.NoSuchBeanDefinitionException;
 import com.interface21.context.stereotype.Controller;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 public class DefaultListableBeanFactory implements BeanFactory, BeanDefinitionRegistry {
 
+    private static final Logger log = LoggerFactory.getLogger(DefaultListableBeanFactory.class);
+
     private final Map<String, BeanDefinition> beanDefinitionMap = new HashMap<>();
-    private final Map<Class<?>, BeanInstantiation> beanInstantiationsMap = new HashMap<>();
 
     private final BeansCache singletonObjects = new BeansCache();
 
     @Override
     public void initialize() {
-        loadAllBeans();
-    }
-
-    private void loadAllBeans() {
-        beanInstantiationsMap.keySet().forEach(this::getBean);
+        beanDefinitionMap.values().stream()
+                         .map(BeanDefinition::getType)
+                         .forEach(this::getBean);
     }
 
     @Override
@@ -43,10 +45,11 @@ public class DefaultListableBeanFactory implements BeanFactory, BeanDefinitionRe
 
     private Object instantiateClass(final Class<?> requiredType) {
         Object object;
-        if (beanInstantiationsMap.containsKey(requiredType)) {
-            object = beanInstantiationsMap.get(requiredType).instantiateClass(this);
+        if (beanDefinitionMap.containsKey(requiredType.getName())) {
+            log.info("빈 생성: {}", requiredType);
+            object = beanDefinitionMap.get(requiredType.getName()).instantiateClass(this);
         } else {
-            final Class<?> concreteClass = findConcreteClass(requiredType, beanInstantiationsMap.keySet());
+            final Class<?> concreteClass = findConcreteClass(requiredType, getBeanDefinitionTypes());
             object = getBean(concreteClass);
         }
 
@@ -70,13 +73,13 @@ public class DefaultListableBeanFactory implements BeanFactory, BeanDefinitionRe
     }
 
     @Override
-    public void registerBeanInstantiation(Class<?> clazz, BeanInstantiation beanInstantiation) {
-        beanInstantiationsMap.put(clazz, beanInstantiation);
+    public void registerBeanDefinition(Class<?> clazz, BeanDefinition beanDefinition) {
+        beanDefinitionMap.put(clazz.getName(), beanDefinition);
     }
 
-    @Override
-    public void registerBeanDefinition(Class<?> clazz, BeanDefinition beanDefinition) {
-        // 아직 아무데서도 쓰지 않음
-//        beanDefinitionMap.put(clazz.getName(), beanDefinition);
+    private Set<Class<?>> getBeanDefinitionTypes() {
+        return beanDefinitionMap.values().stream()
+                                .map(BeanDefinition::getType)
+                                .collect(Collectors.toSet());
     }
 }

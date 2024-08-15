@@ -1,4 +1,4 @@
-package com.interface21.context.support;
+package com.interface21.context;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;

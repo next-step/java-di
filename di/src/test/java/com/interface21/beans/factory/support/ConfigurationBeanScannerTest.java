@@ -1,7 +1,5 @@
-package com.interface21.context.support;
+package com.interface21.beans.factory.support;
 
-import com.interface21.beans.factory.BeanFactory;
-import com.interface21.beans.factory.support.DefaultListableBeanFactory;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import samples.ExampleConfig;
@@ -18,7 +16,7 @@ class ConfigurationBeanScannerTest {
     @Test
     @DisplayName("클래스를 인자로 register 가 잘 동작한다")
     public void register_simple() {
-        BeanFactory beanFactory = new DefaultListableBeanFactory();
+        DefaultListableBeanFactory beanFactory = new DefaultListableBeanFactory();
         ConfigurationBeanScanner cbs = new ConfigurationBeanScanner(beanFactory);
         cbs.register(ExampleConfig.class);
         beanFactory.initialize();
@@ -28,7 +26,7 @@ class ConfigurationBeanScannerTest {
 
     @Test
     public void register_classpathBeanScanner_통합() {
-        BeanFactory beanFactory = new DefaultListableBeanFactory();
+        DefaultListableBeanFactory beanFactory = new DefaultListableBeanFactory();
         ConfigurationBeanScanner cbs = new ConfigurationBeanScanner(beanFactory);
         cbs.register(IntegrationConfig.class);
 
