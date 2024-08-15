@@ -1,4 +1,4 @@
-package samples;
+package com.interface21.beans.factory.config;
 
 public class NoConstructorService {
 

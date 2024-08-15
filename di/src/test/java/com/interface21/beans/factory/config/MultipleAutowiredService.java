@@ -1,4 +1,4 @@
-package samples;
+package com.interface21.beans.factory.config;
 
 import com.interface21.beans.factory.annotation.Autowired;
 import com.interface21.context.stereotype.Service;
