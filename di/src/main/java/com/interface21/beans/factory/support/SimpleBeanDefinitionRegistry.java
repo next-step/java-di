@@ -39,7 +39,7 @@ public class SimpleBeanDefinitionRegistry implements BeanDefinitionRegistry {
     @Override
     public BeanDefinition getBeanDefinition(Class<?> clazz) {
         final String className = clazz.getName();
-        final BeanDefinition beanDefinition = this.beanDefinitionMap.get(clazz.getName());
+        final BeanDefinition beanDefinition = this.beanDefinitionMap.get(className);
         if (beanDefinition == null) {
             throw new BeanException("No bean definition found for class: " + className);
         }
