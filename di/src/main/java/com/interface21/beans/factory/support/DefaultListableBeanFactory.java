@@ -1,6 +1,5 @@
 package com.interface21.beans.factory.support;
 
-import java.lang.annotation.Annotation;
 import java.lang.reflect.Constructor;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
@@ -21,7 +20,7 @@ public class DefaultListableBeanFactory implements BeanFactory {
 
     private final Map<Class<?>, Object> singletonObjects = new ConcurrentHashMap<>();
 
-    public DefaultListableBeanFactory(String... basePackages) {
+    public DefaultListableBeanFactory(String[] basePackages) {
         var beansClasses = BeanScanner.scanBeans(basePackages);
         beansClasses.stream()
                 .map(AnnotationBeanDefinition::new)
@@ -51,7 +50,6 @@ public class DefaultListableBeanFactory implements BeanFactory {
     public <T> T getBean(final Class<T> clazz) {
         return (T) singletonObjects.get(clazz);
     }
-
 
     @Override
     public Object getBeanOrCreate(Class<?> clazz) {

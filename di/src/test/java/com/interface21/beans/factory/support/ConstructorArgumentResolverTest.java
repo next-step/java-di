@@ -13,7 +13,8 @@ import samples.SampleService;
 
 class ConstructorArgumentResolverTest {
 
-    private final DefaultListableBeanFactory factory = new DefaultListableBeanFactory("samples");
+    private final DefaultListableBeanFactory factory =
+            new DefaultListableBeanFactory(new String[] {"samples"});
 
     @BeforeEach
     void setUp() {

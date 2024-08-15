@@ -20,7 +20,7 @@ class DefaultListableBeanFactoryTest {
     @BeforeEach
     @SuppressWarnings("unchecked")
     void setUp() {
-        beanFactory = new DefaultListableBeanFactory("samples");
+        beanFactory = new DefaultListableBeanFactory(new String[] {"samples"});
         beanFactory.initialize();
     }
 

@@ -17,7 +17,7 @@ class BeanScannerTest {
     @DisplayName("BeanScanner를 통해 패키지 내의 Bean을 스캔한다")
     public void scanTest() {
 
-        Set<Class<?>> beans = BeanScanner.scanBeans("samples");
+        Set<Class<?>> beans = BeanScanner.scanBeans(new String[] {"samples"});
 
         assertThat(beans)
                 .contains(SampleController.class, SampleService.class, JdbcSampleRepository.class);

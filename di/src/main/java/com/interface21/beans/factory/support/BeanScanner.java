@@ -14,7 +14,7 @@ public final class BeanScanner {
 
     private BeanScanner() {}
 
-    public static Set<Class<?>> scanBeans(String... baskPackage) {
+    public static Set<Class<?>> scanBeans(String[] baskPackage) {
         final Reflections reflections = new Reflections(STEREOTYPE_PACKAGE, baskPackage);
         return reflections.getTypesAnnotatedWith(Component.class).stream()
                 .filter(clazz -> !clazz.isAnnotation())
