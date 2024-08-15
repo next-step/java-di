@@ -48,6 +48,8 @@ public class GenericBeanDefinition implements BeanDefinition{
 
     if (constructors.length == 1) {
       return constructors[0];
+    } else if (constructors.length == 0) {
+      return null;
     }
 
     throw new BeanInstantiationException(clazz, "No default constructor found.");
@@ -63,6 +65,7 @@ public class GenericBeanDefinition implements BeanDefinition{
     return beanClassName;
   }
 
+  @Override
   public Constructor<?> getConstructor() {
     return constructor;
   }

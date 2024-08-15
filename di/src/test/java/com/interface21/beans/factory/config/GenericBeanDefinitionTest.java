@@ -8,9 +8,6 @@ import com.interface21.beans.factory.support.NoUniqueBeanDefinitionException;
 import java.lang.reflect.Constructor;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import samples.MultipleAutowiredService;
-import samples.NoAutowiredService;
-import samples.NoConstructorService;
 import samples.SampleService;
 
 class GenericBeanDefinitionTest {
