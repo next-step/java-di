@@ -4,11 +4,13 @@ import com.interface21.beans.BeanUtils;
 import com.interface21.beans.factory.BeanFactory;
 import com.interface21.beans.factory.config.BeanDefinition;
 import com.interface21.beans.factory.exception.BeanException;
+import com.interface21.context.stereotype.Controller;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.lang.reflect.Constructor;
 import java.util.Arrays;
+import java.util.Map;
 import java.util.Set;
 
 public class DefaultListableBeanFactory implements BeanFactory {
@@ -36,6 +38,11 @@ public class DefaultListableBeanFactory implements BeanFactory {
     @Override
     public void clear() {
         beans.clear();
+    }
+
+    @Override
+    public Map<Class<?>, Object> getControllers() {
+        return beans.findBeansWithAnnotation(Controller.class);
     }
 
     public void initialize() {

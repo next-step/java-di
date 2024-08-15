@@ -1,5 +1,6 @@
 package com.interface21.beans.factory.support;
 
+import java.lang.annotation.Annotation;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
@@ -30,5 +31,12 @@ public class Beans {
 
     public boolean hasBean(final String name) {
         return beans.containsKey(name);
+    }
+
+    public Map<Class<?>, Object> findBeansWithAnnotation(final Class<? extends Annotation> annotation) {
+        return beans.entrySet()
+                .stream()
+                .filter(entry -> entry.getValue().getClass().isAnnotationPresent(annotation))
+                .collect(Collectors.toMap(entry -> entry.getValue().getClass(), Map.Entry::getValue));
     }
 }
