@@ -17,11 +17,11 @@ public class DefaultListableBeanFactory implements BeanFactory {
     private static final Logger log = LoggerFactory.getLogger(DefaultListableBeanFactory.class);
 
     private final BeanDefinitionReader beanDefinitionReader;
-
-    private final Map<Class<?>, Object> singletonObjects = new ConcurrentHashMap<>();
+    private final BeanRegistry beanRegistry;
 
     public DefaultListableBeanFactory(String[] basePackages) {
         this.beanDefinitionReader = new AnnotationBeanDefinitionReader(basePackages);
+        this.beanRegistry = new DefaultBeanRegistry();
     }
 
     public void initialize() {
@@ -31,7 +31,7 @@ public class DefaultListableBeanFactory implements BeanFactory {
                 .forEach(
                         beanDefinition -> {
                             Class<?> beanClazz = beanDefinition.getType();
-                            singletonObjects.put(beanClazz, getBeanOrCreate(beanClazz));
+                            beanRegistry.registerBean(getBeanOrCreate(beanClazz));
                         });
     }
 
@@ -42,7 +42,7 @@ public class DefaultListableBeanFactory implements BeanFactory {
 
     @Override
     public <T> T getBean(final Class<T> clazz) {
-        return (T) singletonObjects.get(clazz);
+        return (T) beanRegistry.getBean(clazz);
     }
 
     @Override
@@ -51,33 +51,28 @@ public class DefaultListableBeanFactory implements BeanFactory {
                 BeanFactoryUtils.findConcreteClass(clazz, getBeanClasses())
                         .orElseThrow(() -> new BeanClassNotFoundException(clazz.getSimpleName()));
 
-        Object instance = singletonObjects.get(concreteClazz);
-        if (instance != null) {
-            return instance;
+        if (beanRegistry.registeredBean(concreteClazz)) {
+            return beanRegistry.getBean(concreteClazz);
         }
         Constructor<?> constructor = ConstructorResolver.resolveConstructor(concreteClazz);
         Object[] arguments = ConstructorArgumentResolver.resolveConstructorArguments(constructor, this);
-        return registerBean(constructor, arguments);
-    }
-
-    private Object registerBean(Constructor<?> constructor, Object[] arg) {
-        try {
-            return addBean(constructor.newInstance(arg));
-        } catch ( InstantiationException
-                  | IllegalAccessException
-                  | IllegalArgumentException
-                  | InvocationTargetException e) {
-            throw new BeanInstantiationException(constructor, "Failed to instantiate bean [%s]".formatted(constructor.getDeclaringClass().getSimpleName()), e);
-        }
-    }
-
-    private Object addBean(Object bean) {
-        log.info("Bean [{}] is being registered", bean.getClass().getSimpleName());
-
-        singletonObjects.put(bean.getClass(), bean);
-        return bean;
+        return instantiateBean(constructor, arguments);
     }
 
     @Override
-    public void clear() {}
+    public void clear() {
+
+    }
+
+    private Object instantiateBean(Constructor<?> constructor, Object[] arg) {
+        try {
+            return constructor.newInstance(arg);
+        } catch ( InstantiationException
+                  | IllegalAccessException
+                  | IllegalArgumentException
+                  | InvocationTargetException
+                  | IllegalStateException e) {
+            throw new BeanInstantiationException(constructor, "Failed to instantiate bean [%s]".formatted(constructor.getDeclaringClass().getSimpleName()), e);
+        }
+    }
 }

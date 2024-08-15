@@ -63,3 +63,5 @@
     - `@Component`가 선언된 빈의 `BeanDefinition`을 생성한다 
 - BeanDefinitionRegistry
   - `BeanDefinition`을 등록하고 조회하는 기능을 제공한다
+- BeanRegistry
+  - `Bean`을 등록하고 조회하는 기능을 제공한다
