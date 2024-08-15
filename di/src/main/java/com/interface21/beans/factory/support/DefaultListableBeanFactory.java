@@ -1,9 +1,11 @@
 package com.interface21.beans.factory.support;
 
 import java.lang.reflect.Constructor;
+import java.lang.reflect.InvocationTargetException;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
+import com.interface21.beans.BeanInstantiationException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -47,10 +49,7 @@ public class DefaultListableBeanFactory implements BeanFactory {
     public Object getBeanOrCreate(Class<?> clazz) {
         Class<?> concreteClazz =
                 BeanFactoryUtils.findConcreteClass(clazz, getBeanClasses())
-                        .orElseThrow(
-                                () ->
-                                        new RuntimeException(
-                                                "No concrete class found for " + clazz.getName()));
+                        .orElseThrow(() -> new BeanClassNotFoundException(clazz.getSimpleName()));
 
         Object instance = singletonObjects.get(concreteClazz);
         if (instance != null) {
@@ -64,8 +63,11 @@ public class DefaultListableBeanFactory implements BeanFactory {
     private Object registerBean(Constructor<?> constructor, Object[] arg) {
         try {
             return addBean(constructor.newInstance(arg));
-        } catch (Exception e) {
-            throw new RuntimeException(e);
+        } catch ( InstantiationException
+                  | IllegalAccessException
+                  | IllegalArgumentException
+                  | InvocationTargetException e) {
+            throw new BeanInstantiationException(constructor, "Failed to instantiate bean [%s]".formatted(constructor.getDeclaringClass().getSimpleName()), e);
         }
     }
 
