@@ -1,6 +1,7 @@
 package com.interface21.beans.factory.support;
 
 import com.interface21.beans.factory.BeanFactory;
+import com.interface21.beans.factory.config.BeanDefinition;
 import com.interface21.beans.factory.exception.BeanException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -48,20 +49,22 @@ public class DefaultListableBeanFactory implements BeanFactory {
 
     public void initialize() {
         registry.getBeanDefinitions()
-                .forEach(beanDefinition -> {
-                    final Object bean = registerSingletonObject(beanDefinition.getType(), registry.getBeanClasses());
-                    addBean(bean.getClass().getSimpleName(), bean);
-                });
+                .forEach(this::initializeBean);
     }
 
-    private Object registerSingletonObject(final Class<?> beanClass, final Set<Class<?>> beanClasses) {
+    private void initializeBean(final BeanDefinition beanDefinition) {
+        registerSingletonObject(beanDefinition.getType(), registry.getBeanClasses());
+        final Object bean = getBean(beanDefinition.getType());
+        addBean(bean.getClass().getSimpleName(), bean);
+    }
+
+    private void registerSingletonObject(final Class<?> beanClass, final Set<Class<?>> beanClasses) {
         try {
             final Constructor<?> constructor = findConstructor(beanClass, beanClasses);
             final Object[] constructorArguments = constructorArguments(beanClasses, constructor);
 
             final Object instance = constructor.newInstance(constructorArguments);
             singletonObjects.put(beanClass.getSimpleName(), instance);
-            return instance;
         } catch (final Exception e) {
             throw new BeanException(e.getMessage(), e);
         }
@@ -88,9 +91,15 @@ public class DefaultListableBeanFactory implements BeanFactory {
     }
 
     private Object createOrGetSingletonObject(final Class<?> clazz, final Set<Class<?>> beanClasses) {
-        if (singletonObjects.containsKey(clazz.getName())) {
-            return singletonObjects.get(clazz.getName());
+        if (hasBean(clazz)) {
+            return getBean(clazz);
         }
-        return registerSingletonObject(clazz, beanClasses);
+
+        registerSingletonObject(clazz, beanClasses);
+        return getBean(clazz);
+    }
+
+    private boolean hasBean(final Class<?> clazz) {
+        return singletonObjects.containsKey(clazz.getSimpleName());
     }
 }
