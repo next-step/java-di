@@ -1,5 +1,6 @@
 package com.interface21.beans.factory.support;
 
+import com.interface21.beans.BeanUtils;
 import com.interface21.beans.factory.BeanFactory;
 import com.interface21.beans.factory.config.BeanDefinition;
 import com.interface21.beans.factory.exception.BeanException;
@@ -53,26 +54,26 @@ public class DefaultListableBeanFactory implements BeanFactory {
     }
 
     private void initializeBean(final BeanDefinition beanDefinition) {
-        registerSingletonObject(beanDefinition.getType(), registry.getBeanClasses());
+        registerSingletonObject(beanDefinition.getType());
         final Object bean = getBean(beanDefinition.getType());
-        addBean(bean.getClass().getSimpleName(), bean);
+        addBean(beanDefinition.getBeanClassName(), bean);
     }
 
-    private void registerSingletonObject(final Class<?> beanClass, final Set<Class<?>> beanClasses) {
+    private void registerSingletonObject(final Class<?> beanClass) {
         try {
-            final Constructor<?> constructor = findConstructor(beanClass, beanClasses);
-            final Object[] constructorArguments = constructorArguments(beanClasses, constructor);
+            final Constructor<?> constructor = findConstructor(beanClass);
+            final Object[] constructorArguments = constructorArguments(constructor);
 
-            final Object instance = constructor.newInstance(constructorArguments);
-            singletonObjects.put(beanClass.getSimpleName(), instance);
+            final Object instance = BeanUtils.instantiateClass(constructor, constructorArguments);
+            addBean(beanClass.getSimpleName(), instance);
         } catch (final Exception e) {
             throw new BeanException(e.getMessage(), e);
         }
     }
 
 
-    private Constructor<?> findConstructor(final Class<?> clazz, final Set<Class<?>> beanClasses) {
-        final Class<?> concreteClass = BeanFactoryUtils.findConcreteClass(clazz, beanClasses)
+    private Constructor<?> findConstructor(final Class<?> clazz) {
+        final Class<?> concreteClass = BeanFactoryUtils.findConcreteClass(clazz, registry.getBeanClasses())
                 .orElseThrow(() -> new BeanException("No concrete class found for: " + clazz.getName()));
 
         final Constructor<?> constructor = BeanFactoryUtils.getInjectedConstructor(concreteClass);
@@ -84,18 +85,17 @@ public class DefaultListableBeanFactory implements BeanFactory {
         return constructor;
     }
 
-    private Object[] constructorArguments(final Set<Class<?>> beanClasses, final Constructor<?> constructor) {
+    private Object[] constructorArguments(final Constructor<?> constructor) {
         return Arrays.stream(constructor.getParameters())
-                .map(parameter -> createOrGetSingletonObject(parameter.getType(), beanClasses))
+                .map(parameter -> createOrGetSingletonObject(parameter.getType()))
                 .toArray();
     }
 
-    private Object createOrGetSingletonObject(final Class<?> clazz, final Set<Class<?>> beanClasses) {
-        if (hasBean(clazz)) {
-            return getBean(clazz);
+    private Object createOrGetSingletonObject(final Class<?> clazz) {
+        if (!hasBean(clazz)) {
+            registerSingletonObject(clazz);
         }
 
-        registerSingletonObject(clazz, beanClasses);
         return getBean(clazz);
     }
 
