@@ -50,3 +50,14 @@
 - [X] ControllerScanner를 BeanScanner로 변경한다.
     - [X] @Controller, @Service, @Repository에 대한 지원이 가능하도록 개선한다.
     - [X] AnnotationHandlerMapping이 BeanFactory와 BeanScanner를 활용해 동작하도록 리팩터링한다.
+
+### Mission 2
+
+- [ ] @Autowired가 설정되어 있는 생성자를 통해 빈을 생성
+    - [ ] 다른 빈과 의존관계를 가지지 않는 빈을 찾아 인스턴스를 생성할 때까지 재귀를 실행하는 방식으로 구현
+- [ ] 인스턴스 생성 기본 뼈대 구현
+    - [ ] Bean 저장소에 clazz에 해당하는 인스턴스가 이미 존재하면 해당 인스턴스 반환
+    - [ ] 생성자를 활용한 인스턴스 생성 구현
+        - [ ] clazz에 @Autowired가 설정되어 있는 생성자를 찾는다. BeanFactoryUtils 활용
+        - [ ] @Autowired로 설정한 생성자가 없으면 Default 생성자로 인스턴스 생성 후 Bean 저장소에 추가 후 반환
+        - [ ] @Autowired로 설정한 생성자가 있으면 찾은 생성자를 활용해 인스턴스 생성 후 Bean 저장소에 추가 후 반환
