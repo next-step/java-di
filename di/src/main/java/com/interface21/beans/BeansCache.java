@@ -32,10 +32,10 @@ public class BeansCache {
         beanClasses.forEach(biConsumer);
     }
 
-    public BeansCache filter(Function<Class<?>, Boolean> tester) {
+    public BeansCache filter(Function<Class<?>, Boolean> predicate) {
         return new BeansCache(
                 beanClasses.keySet().stream()
-                           .filter(tester::apply)
+                           .filter(predicate::apply)
                            .collect(toMap(identity(), beanClasses::get)));
     }
 
