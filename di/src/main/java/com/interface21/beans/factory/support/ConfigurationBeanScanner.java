@@ -25,7 +25,11 @@ public class ConfigurationBeanScanner {
     }
 
     public void register(Class<?> initialConfigurationClass) {
-        collectBasePackages(initialConfigurationClass.getPackageName());
+        this.register(initialConfigurationClass.getPackageName());
+    }
+
+    public void register(String packageName) {
+        collectBasePackages(packageName);
 
         registerBeanDefinitions();
     }
