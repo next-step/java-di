@@ -1,13 +1,11 @@
 package com.interface21.beans.factory.support;
 
-import com.interface21.context.stereotype.Component;
 import com.interface21.context.stereotype.Controller;
 import com.interface21.context.stereotype.Repository;
 import com.interface21.context.stereotype.Service;
 import java.lang.annotation.Annotation;
 import java.util.List;
 import java.util.Set;
-import java.util.stream.Collectors;
 import org.reflections.Reflections;
 
 public final class BeanScanner {
@@ -17,15 +15,16 @@ public final class BeanScanner {
 
   public BeanScanner(String... basePackages) {
     this.reflections = new Reflections(basePackages);
-    this.beanAnnotations = List.of(Repository.class, Service.class, Controller.class, Component.class);
+    this.beanAnnotations = List.of(Controller.class, Service.class, Repository.class);
   }
 
-  public Set<Class<?>> scan() {
+  public List<Class<?>> scan() {
     return beanAnnotations.stream()
         .map(reflections::getTypesAnnotatedWith)
         .flatMap(Set::stream)
-        .collect(Collectors.toSet());
+        .toList();
   }
+
 
   // TODO 로 진행하겠습니다
 //  public Set<Class<?>> scan() {

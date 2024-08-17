@@ -3,26 +3,26 @@ package com.interface21.beans.factory.support;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertAll;
 
-import java.util.Set;
+import java.util.List;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import samples.JdbcSampleRepository;
-import samples.SampleComponent;
 import samples.SampleController;
 import samples.SampleService;
 
 class BeanScannerTest {
 
   @Test
-  @DisplayName("@Repository, @Service, @Controller, @Component 어노테이션이 존재하는 모든 클래스를 스캔한다")
+  @DisplayName("@Repository, @Service, @Controller 어노테이션이 존재하는 모든 클래스를 스캔한다")
   void scanTest() {
-    final BeanScanner scanner = new BeanScanner("samples");
+    BeanScanner scanner = new BeanScanner("samples");
 
-    Set<Class<?>> result = scanner.scan();
+    List<Class<?>> result = scanner.scan();
 
     assertAll(
+        () -> assertThat(result).isNotNull(),
+        () -> assertThat(result).isNotEmpty(),
         () -> assertThat(result.contains(JdbcSampleRepository.class)).isTrue(),
-        () -> assertThat(result.contains(SampleComponent.class)).isTrue(),
         () -> assertThat(result.contains(SampleController.class)).isTrue(),
         () -> assertThat(result.contains(SampleService.class)).isTrue()
     );
