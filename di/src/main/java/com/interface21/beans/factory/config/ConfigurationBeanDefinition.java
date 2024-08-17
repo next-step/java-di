@@ -7,12 +7,10 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 
 public class ConfigurationBeanDefinition implements BeanDefinition {
-    private final Class<?> type;
     private final Method method;
     private final Class<?> configurationClass;
 
     public ConfigurationBeanDefinition(Method method) {
-        this.type = method.getReturnType();
         this.method = method;
         this.configurationClass = method.getDeclaringClass();
     }
@@ -20,11 +18,6 @@ public class ConfigurationBeanDefinition implements BeanDefinition {
     @Override
     public Class<?> getType() {
         return method.getReturnType();
-    }
-
-    @Override
-    public String getBeanClassName() {
-        return type.getName();
     }
 
     @Override

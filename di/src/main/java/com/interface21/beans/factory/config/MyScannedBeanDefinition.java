@@ -23,11 +23,6 @@ public class MyScannedBeanDefinition implements BeanDefinition {
     }
 
     @Override
-    public String getBeanClassName() {
-        return type.getName();
-    }
-
-    @Override
     public Object instantiateClass(final BeanFactory beanFactory) {
         if (constructor == null) {
             return BeanUtils.instantiate(type);
