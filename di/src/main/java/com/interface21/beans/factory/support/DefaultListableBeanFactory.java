@@ -5,16 +5,14 @@ import com.interface21.beans.BeanUtils;
 import com.interface21.beans.factory.BeanFactory;
 import com.interface21.beans.factory.config.BeanDefinition;
 import com.interface21.beans.factory.config.GenericBeanDefinition;
-import com.interface21.context.annotation.Bean;
-import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 import org.apache.commons.lang3.ObjectUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Set;
 
 public class DefaultListableBeanFactory implements BeanFactory {
 
@@ -43,29 +41,26 @@ public class DefaultListableBeanFactory implements BeanFactory {
 
     Object object = singletonObjects.get(clazz);
     if(ObjectUtils.isEmpty(object)) {
-      throw new NoSuchBeanDefinitionException("No bean of type " + clazz.getName() + " found.");
+      createBean(clazz);
+      return clazz.cast(singletonObjects.get(clazz));
     }
 
-    if(clazz.isAssignableFrom(object.getClass())) {
-      return clazz.cast(object);
-    }
-
-    throw new NoSuchBeanDefinitionException("No bean of type " + clazz.getName() + " found.");
+    return clazz.cast(object);
   }
 
   public void initialize() {
-    Set<Class<?>> beans = new BeanScanner(basePackages).scan();
+    List<Class<?>> beans = new BeanScanner(basePackages).scan();
     for (Class<?> clazz : beans) {
       final GenericBeanDefinition beanDefinition = GenericBeanDefinition.from(clazz);
       beanDefinitionMap.put(clazz, beanDefinition);
     }
 
     for(Map.Entry<Class<?>, BeanDefinition> entry : beanDefinitionMap.entrySet()) {
-      initializeSingletonBean(entry.getKey());
+      createBean(entry.getKey());
     }
   }
 
-  private void initializeSingletonBean(Class<?> beanClass) {
+  private void createBean(Class<?> beanClass) {
     Optional<Class<?>> concreteClass = BeanFactoryUtils.findConcreteClass(beanClass, getBeanClasses());
     if (concreteClass.isEmpty()) {
       throw new BeanInstantiationException(beanClass, "Could not find concrete class for bean class");
