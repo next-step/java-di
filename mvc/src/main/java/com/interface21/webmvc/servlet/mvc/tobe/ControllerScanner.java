@@ -1,22 +1,25 @@
 package com.interface21.webmvc.servlet.mvc.tobe;
 
+import com.interface21.context.ApplicationContext;
 import com.interface21.context.stereotype.Controller;
 import com.interface21.core.util.ReflectionUtils;
 import com.interface21.web.bind.annotation.RequestMapping;
 import com.interface21.web.bind.annotation.RequestMethod;
 import com.interface21.web.method.support.HandlerMethodArgumentResolver;
-import com.interface21.webmvc.servlet.mvc.tobe.support.*;
-import org.reflections.Reflections;
-import org.reflections.scanners.Scanners;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
+import com.interface21.webmvc.servlet.mvc.tobe.support.HttpRequestArgumentResolver;
+import com.interface21.webmvc.servlet.mvc.tobe.support.HttpResponseArgumentResolver;
+import com.interface21.webmvc.servlet.mvc.tobe.support.ModelArgumentResolver;
+import com.interface21.webmvc.servlet.mvc.tobe.support.PathVariableArgumentResolver;
+import com.interface21.webmvc.servlet.mvc.tobe.support.RequestParamArgumentResolver;
 import java.lang.reflect.Method;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class ControllerScanner {
 
@@ -30,10 +33,15 @@ public class ControllerScanner {
         new ModelArgumentResolver()
     );
 
-    public Map<HandlerKey, HandlerExecution> scan(Object... basePackage) {
-        Reflections reflections = new Reflections(basePackage, Scanners.TypesAnnotated, Scanners.SubTypes, Scanners.MethodsAnnotated);
+    public Map<HandlerKey, HandlerExecution> handBeansToControllers(ApplicationContext applicationContext) {
+        Set<Class<?>> beans = applicationContext.getBeanClasses();
+
+        Set<Class<?>> controllers = beans.stream()
+            .filter(clazz -> clazz.isAnnotationPresent(Controller.class))
+            .collect(Collectors.toSet());
+
         final var handlers = new HashMap<HandlerKey, HandlerExecution>();
-        final var controllers = reflections.getTypesAnnotatedWith(Controller.class);
+
         for (Class<?> controller : controllers) {
             Object target = ReflectionUtils.newInstance(controller);
             addHandlerExecution(handlers, target, controller.getMethods());
