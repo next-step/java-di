@@ -52,7 +52,7 @@
   - [x] BeanDefinitionRegistry 에서 등록된 bean을 반환 책임을 가진다. (BeanDefinitionMap에 넣어준다. beanName, beanDefinition)
   - [x] BeanDefinition은 instance 에 대한 정보를 담는다 + scope
 
-- [] 요구사항 분석
+- [x] 요구사항 분석
 - 호출 순서
     - ApplicationContext -> DefaultListableBeanFactory(Scanner)
     - scaner 호출로 registry에 bean definition 등록
@@ -65,5 +65,19 @@
   - REGISTRY 등록 
   - initialize 하면 Registry에서 BeanDefinition을 읽어서 instance 생성하는 방향이다.
     - injector를 확인해보고 다른 의존관계를 getBean으로 가져오는데 없다면 생성하면된다. 
+
+
+## 3 단계 요구사항
+
+- [x] 요구사항 1 - DataSource 설정을 관리하는 빈을 생성하기 위해 @Configuration을 추가하자.
+  - [x] @Bean 으로 명시되어있는 설정은 인스턴스로 등록한다.
+- [] 요구사항 2 - BeanScanner 에서 @ComponentScan을 패키지 경로로 설정할 수 있도록 지원하자
+- [x] 요구사항 3 - @Configuration 설정파일으로 등록한 빈과 BeanScanner를 통해 빈간 DI가 가능해야한다.
+
+- 공통 요구사항
+- [] 단위 테스트 통과
+- [] 설정 파일을 통해 등록한 Bean과 ClassPathBeanScanner 추가로 bean 통합
+- [] ConfigurationBeanScanner와 ClasspathBeanScanner 통합하는 클래스 추가
+
 
 
