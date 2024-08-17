@@ -25,7 +25,7 @@ class BeanUtilsTest {
     final Class<?> clazz = FooService.class;
     final Constructor<?> constructor = clazz.getConstructors()[0];
     final Object[] arguments = new Object[1];
-    arguments[0] = BarRepository.class;
+    arguments[0] = new BarRepository();
 
     final Object result = BeanUtils.instantiateClass(constructor, arguments);
 
