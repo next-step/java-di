@@ -6,7 +6,6 @@ import com.interface21.beans.factory.BeanFactory;
 import com.interface21.beans.factory.config.BeanDefinition;
 import com.interface21.beans.factory.config.GenericBeanDefinition;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
@@ -49,7 +48,7 @@ public class DefaultListableBeanFactory implements BeanFactory {
   }
 
   public void initialize() {
-    List<Class<?>> beans = new BeanScanner(basePackages).scan();
+    Set<Class<?>> beans = new BeanScanner(basePackages).scan();
     for (Class<?> clazz : beans) {
       final GenericBeanDefinition beanDefinition = GenericBeanDefinition.from(clazz);
       beanDefinitionMap.put(clazz, beanDefinition);

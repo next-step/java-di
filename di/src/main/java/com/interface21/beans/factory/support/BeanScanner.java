@@ -6,6 +6,7 @@ import com.interface21.context.stereotype.Service;
 import java.lang.annotation.Annotation;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 import org.reflections.Reflections;
 
 public final class BeanScanner {
@@ -18,11 +19,11 @@ public final class BeanScanner {
     this.beanAnnotations = List.of(Controller.class, Service.class, Repository.class);
   }
 
-  public List<Class<?>> scan() {
+  public Set<Class<?>> scan() {
     return beanAnnotations.stream()
         .map(reflections::getTypesAnnotatedWith)
         .flatMap(Set::stream)
-        .toList();
+        .collect(Collectors.toSet());
   }
 
 

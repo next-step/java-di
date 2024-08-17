@@ -3,7 +3,7 @@ package com.interface21.beans.factory.support;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertAll;
 
-import java.util.List;
+import java.util.Set;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import samples.JdbcSampleRepository;
@@ -17,7 +17,7 @@ class BeanScannerTest {
   void scanTest() {
     BeanScanner scanner = new BeanScanner("samples");
 
-    List<Class<?>> result = scanner.scan();
+    Set<Class<?>> result = scanner.scan();
 
     assertAll(
         () -> assertThat(result).isNotNull(),
