@@ -35,7 +35,7 @@ public class ConfigurationBeanScanner {
     }
 
     private void collectBasePackages(String... initialBasePackage) {
-        Set<Class<?>> configurations = ReflectionUtils.getTypesAnnotatedWith(initialBasePackage, CONFIGURATION_ANNOTATION);
+        Set<Class<?>> configurations = ReflectionUtils.getAllTypesAnnotatedWith(CONFIGURATION_ANNOTATION);
         Stream<String> additionalBasePackages = configurations
                 .stream()
                 .filter(configuration -> configuration.isAnnotationPresent(ComponentScan.class))

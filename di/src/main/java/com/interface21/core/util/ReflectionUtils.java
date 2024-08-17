@@ -107,7 +107,16 @@ public abstract class ReflectionUtils {
         Reflections reflections = new Reflections((Object[]) basePackages);
 
         return Arrays.stream(annotations)
-                     .flatMap(annotation -> reflections.getTypesAnnotatedWith(annotation).stream())
-                     .collect(Collectors.toSet());
+                .flatMap(annotation -> reflections.getTypesAnnotatedWith(annotation).stream())
+                .collect(Collectors.toSet());
+    }
+
+    @SafeVarargs
+    public static Set<Class<?>> getAllTypesAnnotatedWith(Class<? extends Annotation>... annotations) {
+        Reflections reflections = new Reflections();
+
+        return Arrays.stream(annotations)
+                .flatMap(annotation -> reflections.getTypesAnnotatedWith(annotation).stream())
+                .collect(Collectors.toSet());
     }
 }
