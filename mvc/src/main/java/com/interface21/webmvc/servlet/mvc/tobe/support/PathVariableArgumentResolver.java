@@ -1,14 +1,16 @@
 package com.interface21.webmvc.servlet.mvc.tobe.support;
 
+import java.lang.reflect.Method;
+
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+
+import org.apache.commons.lang3.StringUtils;
+
 import com.interface21.core.MethodParameter;
 import com.interface21.core.util.ReflectionUtils;
 import com.interface21.web.bind.annotation.PathVariable;
 import com.interface21.web.bind.annotation.RequestMapping;
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
-import org.apache.commons.lang3.StringUtils;
-
-import java.lang.reflect.Method;
 
 public class PathVariableArgumentResolver extends AbstractAnnotationArgumentResolver {
 
@@ -18,7 +20,10 @@ public class PathVariableArgumentResolver extends AbstractAnnotationArgumentReso
     }
 
     @Override
-    public Object resolveArgument(MethodParameter methodParameter, HttpServletRequest request, HttpServletResponse response) {
+    public Object resolveArgument(
+            MethodParameter methodParameter,
+            HttpServletRequest request,
+            HttpServletResponse response) {
         PathVariable pathVariable = getAnnotation(methodParameter, PathVariable.class);
         String pattern = getPattern(methodParameter);
         String key = getPathVariableKey(pathVariable, methodParameter.getParameterName());
@@ -27,9 +32,11 @@ public class PathVariableArgumentResolver extends AbstractAnnotationArgumentReso
     }
 
     private String getPathVariableKey(PathVariable pathVariable, String parameterName) {
-        return StringUtils.isNotBlank(pathVariable.name()) ? pathVariable.name()
-                : StringUtils.isNotBlank(pathVariable.value()) ? pathVariable.value()
-                : parameterName;
+        return StringUtils.isNotBlank(pathVariable.name())
+                ? pathVariable.name()
+                : StringUtils.isNotBlank(pathVariable.value())
+                        ? pathVariable.value()
+                        : parameterName;
     }
 
     private String getPattern(MethodParameter methodParameter) {
@@ -39,6 +46,7 @@ public class PathVariableArgumentResolver extends AbstractAnnotationArgumentReso
             return annotation.value();
         }
 
-        throw new IllegalStateException(method.getName() + " doesn't have RequestMapping annotation");
+        throw new IllegalStateException(
+                method.getName() + " doesn't have RequestMapping annotation");
     }
 }

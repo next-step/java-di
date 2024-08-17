@@ -1,10 +1,11 @@
 package camp.nextstep.dao;
 
-import camp.nextstep.domain.User;
-import com.interface21.context.stereotype.Repository;
-
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+
+import com.interface21.context.stereotype.Repository;
+
+import camp.nextstep.domain.User;
 
 @Repository
 public class InMemoryUserDao {
@@ -21,11 +22,10 @@ public class InMemoryUserDao {
     }
 
     public User findById(final long id) {
-        return database.values()
-            .stream()
-            .filter(user -> user.getId() == id)
-            .findFirst()
-            .orElse(null);
+        return database.values().stream()
+                .filter(user -> user.getId() == id)
+                .findFirst()
+                .orElse(null);
     }
 
     public User findByAccount(final String account) {

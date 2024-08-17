@@ -1,4 +1,3 @@
 package annotation.sample;
 
-public interface NoImplements {
-}
+public interface NoImplements {}

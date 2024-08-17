@@ -10,7 +10,11 @@ public class MethodParameter {
     private final Annotation[] annotations;
     private final String parameterName;
 
-    public MethodParameter(Method method, Class<?> parameterType, Annotation[] parameterAnnotation, String parameterName) {
+    public MethodParameter(
+            Method method,
+            Class<?> parameterType,
+            Annotation[] parameterAnnotation,
+            String parameterName) {
         this.method = method;
         this.type = parameterType;
         this.annotations = parameterAnnotation;

@@ -1,26 +1,34 @@
 package com.interface21.beans;
 
-import com.interface21.core.util.ReflectionUtils;
-
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.util.Map;
+
+import com.interface21.core.util.ReflectionUtils;
 
 public abstract class BeanUtils {
 
     private static final Map<Class<?>, Object> DEFAULT_TYPE_VALUES;
 
     static {
-        DEFAULT_TYPE_VALUES = Map.of(
-            boolean.class, false,
-            byte.class, (byte) 0,
-            short.class, (short) 0,
-            int.class, 0,
-            long.class, 0L,
-            float.class, 0F,
-            double.class, 0D,
-            char.class, '\0'
-        );
+        DEFAULT_TYPE_VALUES =
+                Map.of(
+                        boolean.class,
+                        false,
+                        byte.class,
+                        (byte) 0,
+                        short.class,
+                        (short) 0,
+                        int.class,
+                        0,
+                        long.class,
+                        0L,
+                        float.class,
+                        0F,
+                        double.class,
+                        0D,
+                        char.class,
+                        '\0');
     }
 
     public static <T> T instantiate(Class<T> clazz) throws BeanInstantiationException {
@@ -38,7 +46,8 @@ public abstract class BeanUtils {
         }
     }
 
-    public static <T> T instantiateClass(Constructor<T> ctor, Object... args) throws BeanInstantiationException {
+    public static <T> T instantiateClass(Constructor<T> ctor, Object... args)
+            throws BeanInstantiationException {
         try {
             ReflectionUtils.makeAccessible(ctor);
             Class<?>[] parameterTypes = ctor.getParameterTypes();
@@ -46,7 +55,10 @@ public abstract class BeanUtils {
             for (int i = 0; i < args.length; i++) {
                 if (args[i] == null) {
                     Class<?> parameterType = parameterTypes[i];
-                    argsWithDefaultValues[i] = (parameterType.isPrimitive() ? DEFAULT_TYPE_VALUES.get(parameterType) : null);
+                    argsWithDefaultValues[i] =
+                            (parameterType.isPrimitive()
+                                    ? DEFAULT_TYPE_VALUES.get(parameterType)
+                                    : null);
                 } else {
                     argsWithDefaultValues[i] = args[i];
                 }
@@ -59,7 +71,8 @@ public abstract class BeanUtils {
         } catch (IllegalArgumentException ex) {
             throw new BeanInstantiationException(ctor, "Illegal arguments for constructor", ex);
         } catch (InvocationTargetException ex) {
-            throw new BeanInstantiationException(ctor, "Constructor threw exception", ex.getTargetException());
+            throw new BeanInstantiationException(
+                    ctor, "Constructor threw exception", ex.getTargetException());
         }
     }
 }

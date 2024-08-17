@@ -30,5 +30,4 @@ public class MockArgumentResolverController {
     String mockUser(MockUser user) {
         return user.toString();
     }
-
 }

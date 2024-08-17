@@ -1,9 +1,10 @@
 package camp.nextstep.service;
 
-import camp.nextstep.dao.InMemoryUserDao;
-import camp.nextstep.domain.User;
 import com.interface21.beans.factory.annotation.Autowired;
 import com.interface21.context.stereotype.Service;
+
+import camp.nextstep.dao.InMemoryUserDao;
+import camp.nextstep.domain.User;
 
 @Service
 public class UserService {

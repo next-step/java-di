@@ -6,14 +6,14 @@ import com.interface21.context.stereotype.Controller;
 @Controller
 public class SampleController {
 
-  private final SampleService sampleService;
+    private final SampleService sampleService;
 
-  @Autowired
-  public SampleController(final SampleService sampleService) {
-    this.sampleService = sampleService;
-  }
+    @Autowired
+    public SampleController(final SampleService sampleService) {
+        this.sampleService = sampleService;
+    }
 
-  public SampleService getSampleService() {
-    return sampleService;
-  }
+    public SampleService getSampleService() {
+        return sampleService;
+    }
 }

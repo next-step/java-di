@@ -1,13 +1,16 @@
 package com.interface21.webmvc.servlet.mvc.tobe;
 
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
+
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+
+import com.interface21.context.support.AnnotationConfigWebApplicationContext;
 
 class AnnotationHandlerMappingTest {
 
@@ -15,7 +18,11 @@ class AnnotationHandlerMappingTest {
 
     @BeforeEach
     void setUp() {
-        handlerMapping = new AnnotationHandlerMapping("samples");
+        String scanPackage = "samples";
+
+        handlerMapping =
+                new AnnotationHandlerMapping(
+                        new AnnotationConfigWebApplicationContext(scanPackage), scanPackage);
         handlerMapping.initialize();
     }
 

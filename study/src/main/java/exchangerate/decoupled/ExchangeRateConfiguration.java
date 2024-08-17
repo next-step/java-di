@@ -3,8 +3,8 @@ package exchangerate.decoupled;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
-//@ComponentScan(basePackages = {"com.example.ioc.decoupled"})
-//@ImportResource(locations = {"classpath:app-context-xml.xml"})
+// @ComponentScan(basePackages = {"com.example.ioc.decoupled"})
+// @ImportResource(locations = {"classpath:app-context-xml.xml"})
 @Configuration
 public class ExchangeRateConfiguration {
 

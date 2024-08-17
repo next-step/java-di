@@ -8,6 +8,7 @@ public abstract class ClassUtils {
 
     /**
      * Copy the given {@code Collection} into a {@code Class} array.
+     *
      * <p>The {@code Collection} must contain {@code Class} elements only.
      *
      * @param collection the {@code Collection} to copy
@@ -16,6 +17,8 @@ public abstract class ClassUtils {
      * @since 3.1
      */
     public static Class<?>[] toClassArray(Collection<Class<?>> collection) {
-        return (!CollectionUtils.isEmpty(collection) ? collection.toArray(EMPTY_CLASS_ARRAY) : EMPTY_CLASS_ARRAY);
+        return (!CollectionUtils.isEmpty(collection)
+                ? collection.toArray(EMPTY_CLASS_ARRAY)
+                : EMPTY_CLASS_ARRAY);
     }
 }

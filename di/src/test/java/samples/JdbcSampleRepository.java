@@ -1,8 +1,8 @@
 package samples;
 
-import com.interface21.context.stereotype.Repository;
-
 import javax.sql.DataSource;
+
+import com.interface21.context.stereotype.Repository;
 
 @Repository
 public class JdbcSampleRepository implements SampleRepository {

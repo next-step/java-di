@@ -1,9 +1,9 @@
 package com.interface21.webmvc.servlet.mvc.tobe;
 
+import java.util.Objects;
+
 import com.interface21.web.bind.annotation.RequestMethod;
 import com.interface21.webmvc.servlet.mvc.tobe.support.PathPatternUtil;
-
-import java.util.Objects;
 
 public class HandlerKey {
 

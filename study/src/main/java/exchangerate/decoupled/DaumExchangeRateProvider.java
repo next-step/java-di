@@ -10,8 +10,10 @@ import java.util.regex.Pattern;
 
 public class DaumExchangeRateProvider implements ExchangeRateProvider {
 
-    private static final String DAUM_EXCHANGES_API_URL = "https://finance.daum.net/api/exchanges/FRX.KRWUSD";
-    private static final String DAUM_EXCHANGES_URL = "https://finance.daum.net/exchanges/FRX.KRWUSD";
+    private static final String DAUM_EXCHANGES_API_URL =
+            "https://finance.daum.net/api/exchanges/FRX.KRWUSD";
+    private static final String DAUM_EXCHANGES_URL =
+            "https://finance.daum.net/exchanges/FRX.KRWUSD";
 
     @Override
     public double getExchangeRate() {
@@ -27,8 +29,9 @@ public class DaumExchangeRateProvider implements ExchangeRateProvider {
 
     // 연결한 HTTP 응답의 본문을 읽어온다.
     private static String readResponseBody(final HttpURLConnection httpURLConnection) {
-        try (final var inputStreamReader = new InputStreamReader(httpURLConnection.getInputStream());
-             final var bufferedReader = new BufferedReader(inputStreamReader)) {
+        try (final var inputStreamReader =
+                        new InputStreamReader(httpURLConnection.getInputStream());
+                final var bufferedReader = new BufferedReader(inputStreamReader)) {
             final var builder = new StringBuilder();
             String line;
             while ((line = bufferedReader.readLine()) != null) {

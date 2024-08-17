@@ -34,3 +34,34 @@
 
 ### 프로토타입 스코프
 <img src="docs/images/prototype.png" alt="prototype">
+
+--- 
+
+## 요구사항
+
+- [x] 인스턴스 생성 및 의존관계 설정을 애너테이션으로 자동화한다
+  - 지원하는 애너테이션은 
+   - [x] @Controller
+   - [x] 서비스는 @Service
+   - [x] DAO는 @Repository
+   - [x] 이 3개의 설정으로 생성된 각 인스턴스 간의 의존관계는 @Autowired를 사용한다
+     - @Autowired가 선언된 생성자로 인스턴스를 생성한다
+     - @Autowired가 선언된 생성자가 없으면 기본 생성자로 인스턴스를 생성한다
+
+- [x] MVC 프레임워크의 AnnotationHandlerMapping이 BeanFactory와 BeanScanner를 활용해 동작하도록 리팩터링한다
+
+----
+
+- Bean
+  - 스프링 프레임워크에 의해 생성되고 의존성 및 라이프 사이클이 관리되는 객체를 의미한다
+- BeanDefinition
+  - 빈의 `이름`, `타입` 정보를 가지고 있다
+  - 유형으로는 `AnnotationBeanDefinition`이 있다. 어노테이션으로 선언한 빈의 정보를 관리한다
+- BeanDefinitionReader
+  - 빈을 스캔하고 빈의 정보를 관리하는 `BeanDefinition`을 생성한다
+  - 유형으로는 `AnnotationBeanDefinitionReader` 이 있다. 어노테이션으로 선언한 빈의 정보를 읽어들인다
+    - `@Component`가 선언된 빈의 `BeanDefinition`을 생성한다 
+- BeanDefinitionRegistry
+  - `BeanDefinition`을 등록하고 조회하는 기능을 제공한다
+- BeanRegistry
+  - `Bean`을 등록하고 조회하는 기능을 제공한다

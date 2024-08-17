@@ -1,19 +1,19 @@
 package com.interface21.core.util;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 public abstract class ReflectionUtils {
 
     private static final Logger log = LoggerFactory.getLogger(ReflectionUtils.class);
 
-    public static <T> Constructor<T> accessibleConstructor(Class<T> clazz, Class<?>... parameterTypes)
-            throws NoSuchMethodException {
+    public static <T> Constructor<T> accessibleConstructor(
+            Class<T> clazz, Class<?>... parameterTypes) throws NoSuchMethodException {
 
         Constructor<T> ctor = clazz.getDeclaredConstructor(parameterTypes);
         makeAccessible(ctor);
@@ -21,8 +21,9 @@ public abstract class ReflectionUtils {
     }
 
     public static void makeAccessible(Constructor<?> ctor) {
-        if ((!Modifier.isPublic(ctor.getModifiers()) ||
-                !Modifier.isPublic(ctor.getDeclaringClass().getModifiers())) && !ctor.isAccessible()) {
+        if ((!Modifier.isPublic(ctor.getModifiers())
+                        || !Modifier.isPublic(ctor.getDeclaringClass().getModifiers()))
+                && !ctor.isAccessible()) {
             ctor.setAccessible(true);
         }
     }
@@ -32,14 +33,15 @@ public abstract class ReflectionUtils {
         Constructor constructor = getConstructorByArgs(clazz, args);
 
         if (constructor == null) {
-            throw new IllegalArgumentException(clazz.getSimpleName() + " doesn't have args size constructor");
+            throw new IllegalArgumentException(
+                    clazz.getSimpleName() + " doesn't have args size constructor");
         }
 
         try {
             return clazz.cast(constructor.newInstance(args));
         } catch (IllegalAccessException e) {
             log.warn("{} constructor access failed", constructor.getName());
-        } catch(InvocationTargetException e) {
+        } catch (InvocationTargetException e) {
             log.warn("{} target invalid", clazz.getSimpleName());
         } catch (InstantiationException e) {
             log.warn("{} instantiation failed", clazz.getSimpleName());

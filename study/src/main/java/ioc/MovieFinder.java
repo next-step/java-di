@@ -1,4 +1,3 @@
 package ioc;
 
-public interface MovieFinder {
-}
+public interface MovieFinder {}
