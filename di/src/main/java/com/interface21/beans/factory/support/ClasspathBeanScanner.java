@@ -7,11 +7,11 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import org.reflections.Reflections;
 
-public class BeanScanner implements Scanner<Object> {
+public class ClasspathBeanScanner implements Scanner<Object> {
 
     private final BeanDefinitionRegistry registry;
 
-    public BeanScanner(BeanDefinitionRegistry registry) {
+    public ClasspathBeanScanner(BeanDefinitionRegistry registry) {
 
         this.registry = registry;
     }

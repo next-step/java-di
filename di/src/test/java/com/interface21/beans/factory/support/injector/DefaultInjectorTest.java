@@ -2,7 +2,7 @@ package com.interface21.beans.factory.support.injector;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import com.interface21.beans.factory.support.BeanScanner;
+import com.interface21.beans.factory.support.ClasspathBeanScanner;
 import com.interface21.beans.factory.support.DefaultListableBeanFactory;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -12,14 +12,14 @@ import samples.SampleRepository;
 
 class DefaultInjectorTest {
     private DefaultListableBeanFactory beanFactory;
-    private BeanScanner beanScanner;
+    private ClasspathBeanScanner classpathBeanScanner;
 
     @BeforeEach
     @SuppressWarnings("unchecked")
     void setUp() {
         beanFactory = new DefaultListableBeanFactory();
-        beanScanner = new BeanScanner(beanFactory);
-        beanScanner.scan("samples");
+        classpathBeanScanner = new ClasspathBeanScanner(beanFactory);
+        classpathBeanScanner.scan("samples");
     }
 
 
