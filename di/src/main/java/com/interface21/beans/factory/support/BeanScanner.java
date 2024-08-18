@@ -18,20 +18,25 @@ public class BeanScanner implements Scanner<Object> {
 
     @Override
     public void scan(Object... basePackage) {
-        Reflections reflections = new Reflections("com.interface21.context");
-        Set<Class<?>> annotatedClasses = reflections.getTypesAnnotatedWith(Component.class);
-        Set<Class<?>> annotations = annotatedClasses.stream()
-            .filter(Class::isAnnotation)
-            .collect(Collectors.toSet());
+        Set<Class<?>> componentAnnotations = scanAnnotationWithComponent();
 
         Reflections beanScanner = new Reflections(basePackage);
-        for (Class<?> subType : annotations) {
+        for (Class<?> subType : componentAnnotations) {
             beanScanner.getTypesAnnotatedWith((Class<? extends Annotation>) subType)
                 .stream()
                 .forEach(component -> registry.registerBeanDefinition(component,
                     new DefaultBeanDefintion(component)));
         }
 
+    }
+
+    private Set<Class<?>> scanAnnotationWithComponent() {
+        Reflections reflections = new Reflections("com.interface21.context");
+        Set<Class<?>> annotatedClasses = reflections.getTypesAnnotatedWith(Component.class);
+
+        return annotatedClasses.stream()
+            .filter(Class::isAnnotation)
+            .collect(Collectors.toSet());
     }
 
 }
