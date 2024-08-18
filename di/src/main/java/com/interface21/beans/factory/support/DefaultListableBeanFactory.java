@@ -5,9 +5,11 @@ import com.interface21.beans.BeanUtils;
 import com.interface21.beans.factory.BeanFactory;
 import com.interface21.beans.factory.config.BeanDefinition;
 import com.interface21.beans.factory.config.GenericBeanDefinition;
+import com.interface21.context.stereotype.Controller;
 import java.lang.reflect.Constructor;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Optional;
 import java.util.Set;
 import org.apache.commons.lang3.ObjectUtils;
@@ -31,6 +33,22 @@ public class DefaultListableBeanFactory implements BeanFactory {
   @Override
   public Set<Class<?>> getBeanClasses() {
     return beanDefinitionMap.keySet();
+  }
+
+  public Map<Class<?>, Object> getControllers() {
+    Map<Class<?>, Object> controllers = new HashMap<>();
+    for (Map.Entry<Class<?>, Object> map : singletonObjects.entrySet()) {
+      findController(map, controllers);
+    }
+
+    return controllers;
+  }
+
+  private void findController(Entry<Class<?>, Object> map, Map<Class<?>, Object> controllers) {
+    final Class<?> clazz = map.getKey();
+    if (clazz.isAnnotationPresent(Controller.class)) {
+      controllers.put(clazz, map.getValue());
+    }
   }
 
   @Override
@@ -85,9 +103,9 @@ public class DefaultListableBeanFactory implements BeanFactory {
   private Object[] findArguments(Class<?>[] parameterTypes) {
     Object[] arguments = new Object[parameterTypes.length];
 
-    for(int i = 0; i < parameterTypes.length; i++) {
+    for (int i = 0; i < parameterTypes.length; i++) {
       Optional<Class<?>> implClass = BeanFactoryUtils.findConcreteClass(parameterTypes[i], getBeanClasses());
-      if(implClass.isEmpty()) {
+      if (implClass.isEmpty()) {
         throw new NoSuchBeanDefinitionException("Could not find concrete class for bean class");
       }
       arguments[i] = this.getBean(implClass.get());
