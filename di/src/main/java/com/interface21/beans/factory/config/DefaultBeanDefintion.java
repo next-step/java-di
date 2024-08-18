@@ -18,9 +18,7 @@ public class DefaultBeanDefintion implements BeanDefinition {
         this.bean = beanClazz;
         Constructor<? extends Constructor> constructor = BeanFactoryUtils.getInjectedConstructor(
             beanClazz);
-        Set<Field> fields = BeanFactoryUtils.getInjectedFields(beanClazz);
-
-        this.injectors = InjectorConsumerConfig.injectorSuppliers(constructor, fields);
+        this.injectors = InjectorConsumerConfig.injectorSuppliers(constructor);
     }
 
     @Override

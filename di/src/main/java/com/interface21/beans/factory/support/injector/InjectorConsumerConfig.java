@@ -10,7 +10,7 @@ import java.util.Set;
 public class InjectorConsumerConfig {
 
     public static List<InjectorConsumer<?>> injectorSuppliers(
-        Constructor<? extends Constructor> constructor, Set<Field> fields) {
+        Constructor<? extends Constructor> constructor) {
 
         return List.of(new ConstructorInjector(constructor));
 
