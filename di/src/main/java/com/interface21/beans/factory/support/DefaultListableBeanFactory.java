@@ -5,6 +5,7 @@ import com.interface21.beans.BeanUtils;
 import com.interface21.beans.factory.BeanFactory;
 import com.interface21.beans.factory.config.BeanDefinition;
 import com.interface21.beans.factory.config.GenericBeanDefinition;
+import java.lang.reflect.Constructor;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
@@ -65,16 +66,20 @@ public class DefaultListableBeanFactory implements BeanFactory {
       throw new BeanInstantiationException(beanClass, "Could not find concrete class for bean class");
     }
 
-    final BeanDefinition beanDefinition = beanDefinitionMap.get(concreteClass.get());
-    final Class<?>[] parameterTypes = beanDefinition.getConstructor().getParameterTypes();
-    final Object[] arguments = findArguments(parameterTypes);
-
-    final Object instance = BeanUtils.instantiateClass(beanDefinition.getConstructor(), arguments);
-
+    final Object instance = instantiateConstructor(concreteClass.get());
     singletonObjects.put(concreteClass.get(), instance);
 
     log.info("Registered bean of type [{}] with name [{}] in the singleton context.",
         beanClass.getName(), instance.getClass().getName());
+  }
+
+  private Object instantiateConstructor(Class<?> concreteClass) {
+    final BeanDefinition beanDefinition = beanDefinitionMap.get(concreteClass);
+    Constructor<?> constructor = beanDefinition.getConstructor();
+    final Class<?>[] parameterTypes = beanDefinition.getParameterTypes();
+    final Object[] arguments = findArguments(parameterTypes);
+
+    return BeanUtils.instantiateClass(constructor, arguments);
   }
 
   private Object[] findArguments(Class<?>[] parameterTypes) {

@@ -9,4 +9,6 @@ public interface BeanDefinition {
     String getBeanClassName();
 
     Constructor<?> getConstructor();
+
+    Class<?>[] getParameterTypes();
 }
