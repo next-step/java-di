@@ -10,32 +10,15 @@ import java.util.Set;
 public class AnnotationConfigWebApplicationContext implements ApplicationContext {
 
     private final DefaultListableBeanFactory beanFactory;
-    private final Class<?> configurationClass;
-    private final String basePackage;
 
-    public AnnotationConfigWebApplicationContext(Class<?> configurationClass) {
-        this.configurationClass = configurationClass;
-        this.basePackage = null;
-
-        this.beanFactory = new DefaultListableBeanFactory();
-    }
-
-    public AnnotationConfigWebApplicationContext(String basePackage) {
-        this.configurationClass = null;
-        this.basePackage = basePackage;
-
+    public AnnotationConfigWebApplicationContext() {
         this.beanFactory = new DefaultListableBeanFactory();
     }
 
     @Override
     public void initialize() {
         ConfigurationBeanScanner configurationBeanScanner = new ConfigurationBeanScanner(beanFactory);
-        if (configurationClass != null) {
-            configurationBeanScanner.register(configurationClass);
-        }
-        if (basePackage != null) {
-            configurationBeanScanner.register(basePackage);
-        }
+        configurationBeanScanner.register();
 
         ClasspathBeanScanner cbs = new ClasspathBeanScanner(beanFactory);
         cbs.doScan(configurationBeanScanner.getBasePackages());

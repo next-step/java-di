@@ -16,7 +16,7 @@ public class MyWebApplicationInitializer implements WebApplicationInitializer {
 
     @Override
     public void onStartup(final ServletContext container) {
-        final var applicationContext = new AnnotationConfigWebApplicationContext("camp.nextstep");
+        final var applicationContext = new AnnotationConfigWebApplicationContext();
         applicationContext.initialize();
 
         final var dispatcherServlet = new DispatcherServlet();

@@ -2,8 +2,6 @@ package com.interface21.beans.factory.support;
 
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import samples.ExampleConfig;
-import samples.IntegrationConfig;
 import samples.JdbcSampleRepository;
 import samples.JdbcTemplate;
 
@@ -18,7 +16,7 @@ class ConfigurationBeanScannerTest {
     public void register_simple() {
         DefaultListableBeanFactory beanFactory = new DefaultListableBeanFactory();
         ConfigurationBeanScanner cbs = new ConfigurationBeanScanner(beanFactory);
-        cbs.register(ExampleConfig.class);
+        cbs.register();
         beanFactory.initialize();
 
         assertNotNull(beanFactory.getBean(DataSource.class));
@@ -28,7 +26,7 @@ class ConfigurationBeanScannerTest {
     public void register_classpathBeanScanner_통합() {
         DefaultListableBeanFactory beanFactory = new DefaultListableBeanFactory();
         ConfigurationBeanScanner cbs = new ConfigurationBeanScanner(beanFactory);
-        cbs.register(IntegrationConfig.class);
+        cbs.register();
 
         ClasspathBeanScanner cbds = new ClasspathBeanScanner(beanFactory);
         cbds.doScan("samples");

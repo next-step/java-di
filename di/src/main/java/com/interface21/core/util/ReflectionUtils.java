@@ -1,6 +1,7 @@
 package com.interface21.core.util;
 
 import org.reflections.Reflections;
+import org.reflections.util.ConfigurationBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -113,7 +114,9 @@ public abstract class ReflectionUtils {
 
     @SafeVarargs
     public static Set<Class<?>> getAllTypesAnnotatedWith(Class<? extends Annotation>... annotations) {
-        Reflections reflections = new Reflections();
+        Reflections reflections = new Reflections(new ConfigurationBuilder()
+                .forPackages("")
+                .setExpandSuperTypes(false));
 
         return Arrays.stream(annotations)
                 .flatMap(annotation -> reflections.getTypesAnnotatedWith(annotation).stream())

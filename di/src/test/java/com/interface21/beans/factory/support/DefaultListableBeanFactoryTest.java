@@ -2,7 +2,6 @@ package com.interface21.beans.factory.support;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import samples.MyConfiguration;
 import samples.SampleController;
 
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -16,7 +15,7 @@ class DefaultListableBeanFactoryTest {
         beanFactory = new DefaultListableBeanFactory();
 
         ConfigurationBeanScanner configurationBeanScanner = new ConfigurationBeanScanner(beanFactory);
-        configurationBeanScanner.register(MyConfiguration.class);
+        configurationBeanScanner.register();
 
         ClasspathBeanScanner classpathBeanScanner = new ClasspathBeanScanner(beanFactory);
         classpathBeanScanner.doScan("samples");

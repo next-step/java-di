@@ -2,7 +2,6 @@ package com.interface21.context;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import samples.MyConfiguration;
 import samples.SampleController;
 
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -13,7 +12,7 @@ class AnnotationConfigWebApplicationContextTest {
 
     @BeforeEach
     void setUp() {
-        applicationContext = new AnnotationConfigWebApplicationContext(MyConfiguration.class);
+        applicationContext = new AnnotationConfigWebApplicationContext();
         applicationContext.initialize();
     }
 

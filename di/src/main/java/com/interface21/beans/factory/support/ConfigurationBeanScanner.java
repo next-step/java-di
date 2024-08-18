@@ -11,6 +11,7 @@ import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.util.Arrays;
 import java.util.Set;
+import java.util.function.Function;
 import java.util.stream.Stream;
 
 public class ConfigurationBeanScanner {
@@ -18,49 +19,22 @@ public class ConfigurationBeanScanner {
 
     private final BeanDefinitionRegistry beanFactory;
 
-    private String[] basePackages;
-
     public ConfigurationBeanScanner(BeanDefinitionRegistry beanFactory) {
         this.beanFactory = beanFactory;
     }
 
-    public void register(Class<?> initialConfigurationClass) {
-        this.register(initialConfigurationClass.getPackageName());
+    public void register() {
+        getAllConfigurationClasses().forEach(this::registerBeanDefinitions);
     }
 
-    public void register(String packageName) {
-        collectBasePackages(packageName);
-
-        registerBeanDefinitions();
-    }
-
-    private void collectBasePackages(String... initialBasePackage) {
-        Set<Class<?>> configurations = ReflectionUtils.getAllTypesAnnotatedWith(CONFIGURATION_ANNOTATION);
-        Stream<String> additionalBasePackages = configurations
-                .stream()
-                .filter(configuration -> configuration.isAnnotationPresent(ComponentScan.class))
-                .flatMap(configuration -> Arrays.stream(configuration.getAnnotation(ComponentScan.class).value()))
-                .distinct();
-
-        basePackages = Stream.concat(
-                Arrays.stream(initialBasePackage),
-                additionalBasePackages
-        ).toArray(String[]::new);
-    }
-
-    private void registerBeanDefinitions() {
-        ReflectionUtils.getTypesAnnotatedWith(basePackages, CONFIGURATION_ANNOTATION)
-                       .forEach(this::registerBeanDefinitions);
+    private Set<Class<?>> getAllConfigurationClasses() {
+        return ReflectionUtils.getAllTypesAnnotatedWith(CONFIGURATION_ANNOTATION);
     }
 
     private void registerBeanDefinitions(Class<?> configurationClass) {
         Arrays.stream(configurationClass.getDeclaredMethods())
-              .filter(this::isBeanMethod)
-              .forEach(this::registerBeanDefinition);
-    }
-
-    private void registerBeanDefinition(Method method) {
-        beanFactory.registerBeanDefinition(method.getReturnType(), new ConfigurationBeanDefinition(method));
+                .filter(this::isBeanMethod)
+                .forEach(this::registerBeanDefinition);
     }
 
     private boolean isBeanMethod(final Method beanMethod) {
@@ -68,7 +42,29 @@ public class ConfigurationBeanScanner {
                 Modifier.isPublic(beanMethod.getModifiers());
     }
 
+    private void registerBeanDefinition(Method method) {
+        beanFactory.registerBeanDefinition(method.getReturnType(), new ConfigurationBeanDefinition(method));
+    }
+
     public String[] getBasePackages() {
-        return basePackages;
+        return getAllConfigurationClasses()
+                .stream()
+                .flatMap(this::extractBasePackages)
+                .distinct()
+                .toArray(String[]::new);
+    }
+
+    private Stream<String> extractBasePackages(Class<?> configuration) {
+        Stream<String> packageNameStream = Stream.of(configuration.getPackageName());
+
+        ComponentScan annotation = configuration.getAnnotation(ComponentScan.class);
+        if (annotation == null) {
+            return packageNameStream;
+        }
+
+        String[] basePackages = annotation.basePackages();
+        String[] value = annotation.value();
+        return Stream.of(packageNameStream, Arrays.stream(basePackages), Arrays.stream(value))
+                .flatMap(Function.identity());
     }
 }
