@@ -13,12 +13,14 @@ public class DefaultBeanDefintion implements BeanDefinition {
 
     private final Class<?> bean;
     private final List<InjectorConsumer<?>> injectors;
+    private final InjectorConsumer<Object> defaultInjector;
 
     public DefaultBeanDefintion(Class<?> beanClazz) {
         this.bean = beanClazz;
         Constructor<? extends Constructor> constructor = BeanFactoryUtils.getInjectedConstructor(
             beanClazz);
         this.injectors = InjectorConsumerConfig.injectorSuppliers(constructor);
+        this.defaultInjector = new DefaultInjector(bean);
     }
 
     @Override
@@ -36,7 +38,7 @@ public class DefaultBeanDefintion implements BeanDefinition {
         return injectors.stream()
             .filter(InjectorConsumer::support)
             .findFirst()
-            .orElse(new DefaultInjector(bean));
+            .orElse(defaultInjector);
     }
 
 }
