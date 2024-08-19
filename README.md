@@ -34,3 +34,42 @@
 
 ### 프로토타입 스코프
 <img src="docs/images/prototype.png" alt="prototype">
+
+## 1단계 요구사항
+- [x] 사전 요구사항 1 - 학습테스트를 진행한다.
+- [x] 요구사항 1 - DefaultListableBeanFactoryTest 가 통과하게 만든다.
+    - @Controller, @Service, @Repository를 스캔해서 클래스들을 가져온다. (BeanScanner) 
+    - @Autowired을 사용한 생성자를 이용해서 의존관계를 생성한다. (BeanFactory)
+- [x] 요구사항 2 - AnnotationMapping이 동작하도록 리팩터링한다.
+    - BeanFactory와 BeanScanner를 잘 활용해서 동작하면 된다.
+      
+- [x] 공통 요구사항
+  - [x] DefaultListableBean이 Bean 조립 즉, Injection을 책임으로 가진 구현체이다. 책임에 맞게 클래스 설계하라 
+    - doResolveDependency(Dependency-descriptor, beanName)  (의존 관계에 대한 descriptor, bean 이름을 가지고 주입해준다.)
+      - findAutowireCandidates(qualifier를 가지고 주입하게된다.)
+      - ConstructorResolver를 통해 injectionPoint를 가지고 bean 주입을 하게된다. 
+  - [x] BeanScanner 는 Bean을 scan 하고 registerBean하는 책임을 가진다.
+  - [x] BeanDefinitionRegistry 에서 등록된 bean을 반환 책임을 가진다. (BeanDefinitionMap에 넣어준다. beanName, beanDefinition)
+  - [x] BeanDefinition은 instance 에 대한 정보를 담는다 + scope
+
+- [] 요구사항 분석
+- 호출 순서
+    - ApplicationContext -> DefaultListableBeanFactory(Scanner)
+    - scaner 호출로 registry에 bean definition 등록
+    - beanfactory.initialize로 객체들 definition에 맞게 구현체 생성
+    - ApplicationContext 반환
+- DefaultListableBean (BeanDefinitionRegistry 인터페이스, )
+  - beanDefinitionMap (beanName, beanDefinition) 해쉬맵
+  - singletonObjects (clazz, 구현체들) 해쉬맵
+- 라이프사이클
+  - REGISTRY 등록 
+  - initialize 하면 Registry에서 BeanDefinition을 읽어서 instance 생성하는 방향이다.
+    - injector를 확인해보고 다른 의존관계를 getBean으로 가져오는데 없다면 생성하면된다. 
+
+
+## 피드백 사항
+- [x] @Autowired 검사
+- [x] fields 주입 안하면 삭제
+- [] DefaultInjector 생성하지 않고 전달 방법 확인
+- [x] @Component를 가진 애노테이션을 스캔하는 메서드를 분리해서 가독성 늘리기
+

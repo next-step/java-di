@@ -13,14 +13,15 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 class DefaultListableBeanFactoryTest {
 
-    private Reflections reflections;
     private DefaultListableBeanFactory beanFactory;
+    private BeanScanner beanScanner;
 
     @BeforeEach
     @SuppressWarnings("unchecked")
     void setUp() {
-        reflections = new Reflections("samples");
         beanFactory = new DefaultListableBeanFactory();
+        beanScanner = new BeanScanner(beanFactory);
+        beanScanner.scan("samples");
         beanFactory.initialize();
     }
 
@@ -35,12 +36,5 @@ class DefaultListableBeanFactoryTest {
         assertNotNull(sampleService.getSampleRepository());
     }
 
-    @SuppressWarnings("unchecked")
-    private Set<Class<?>> getTypesAnnotatedWith(Class<? extends Annotation>... annotations) {
-        Set<Class<?>> beans = new HashSet<>();
-        for (Class<? extends Annotation> annotation : annotations) {
-            beans.addAll(reflections.getTypesAnnotatedWith(annotation));
-        }
-        return beans;
-    }
+
 }
