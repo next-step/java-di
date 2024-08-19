@@ -1,8 +1,9 @@
 package com.interface21.beans.factory.config;
 
+import com.interface21.beans.factory.BeanFactory;
 import com.interface21.beans.factory.support.injector.ConfigurationInjector;
 import com.interface21.beans.factory.support.injector.InjectorConsumer;
-
+import com.interface21.beans.factory.support.injector.InjectorConsumerConfig;
 import java.lang.reflect.Method;
 
 public class ConfigurationBeanDefinition implements BeanDefinition {
@@ -12,7 +13,7 @@ public class ConfigurationBeanDefinition implements BeanDefinition {
 
     public ConfigurationBeanDefinition(Method method) {
         bean = method.getReturnType();
-        injector = new ConfigurationInjector(method);
+        injector = InjectorConsumerConfig.injectorConfigurationSuppliers(method);
     }
 
     @Override
@@ -28,5 +29,13 @@ public class ConfigurationBeanDefinition implements BeanDefinition {
     @Override
     public InjectorConsumer<?> getInjector() {
         return injector;
+    }
+
+
+    @Override
+    public Object initialize(BeanFactory beanFactory) {
+        Object bean = injector.inject(beanFactory);
+
+        return bean;
     }
 }
