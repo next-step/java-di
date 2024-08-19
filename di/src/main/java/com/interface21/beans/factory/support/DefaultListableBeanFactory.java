@@ -1,6 +1,5 @@
 package com.interface21.beans.factory.support;
 
-import com.interface21.beans.BeanInstantiationException;
 import com.interface21.beans.factory.BeanFactory;
 import com.interface21.beans.factory.CircularException;
 import com.interface21.beans.factory.config.BeanDefinition;

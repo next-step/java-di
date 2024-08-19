@@ -1,7 +1,6 @@
 package com.interface21.beans.factory.config;
 
 import com.interface21.beans.factory.BeanFactory;
-import com.interface21.beans.factory.support.injector.ConfigurationInjector;
 import com.interface21.beans.factory.support.injector.InjectorConsumer;
 import com.interface21.beans.factory.support.injector.InjectorConsumerConfig;
 import java.lang.reflect.Method;
