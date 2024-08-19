@@ -1,9 +1,7 @@
 package com.interface21.beans.factory.support;
 
-import com.interface21.beans.BeanInstantiationException;
 import com.interface21.beans.factory.BeanFactory;
 import com.interface21.beans.factory.config.BeanDefinition;
-import com.interface21.beans.factory.support.injector.InjectorConsumer;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
@@ -39,7 +37,7 @@ public class DefaultListableBeanFactory implements BeanFactory, BeanDefinitionRe
     private <T> Class<?> initializeAndRetrieve(Class<T> clazz) {
         beanInitialize(clazz, getBeanClasses());
         Class<?> concreteClass = BeanFactoryUtils.findConcreteClass(clazz, getBeanClasses())
-            .orElse(null);
+            .orElse(clazz);
         return concreteClass;
     }
 
@@ -53,8 +51,8 @@ public class DefaultListableBeanFactory implements BeanFactory, BeanDefinitionRe
 
     private Object beanInitialize(Class<?> preInitializedBean, Set<Class<?>> definitions) {
         Class<?> concreteClass = BeanFactoryUtils.findConcreteClass(preInitializedBean, definitions)
-            .orElseThrow(
-                () -> new BeanInstantiationException(preInitializedBean, "No class found"));
+            .orElseGet(
+                () -> preInitializedBean);
         Object bean = singletonObjects.get(concreteClass.getName());
 
         if (bean != null) {
@@ -63,8 +61,7 @@ public class DefaultListableBeanFactory implements BeanFactory, BeanDefinitionRe
 
         if (beanDefinitionMap.containsKey(concreteClass.getName())) {
             BeanDefinition beanDefinition = beanDefinitionMap.get(concreteClass.getName());
-            InjectorConsumer<?> injector = beanDefinition.getInjector();
-            bean = injector.inject(this);
+            bean = beanDefinition.initialize(this);
             addBeanWithClass(concreteClass, bean);
             return bean;
         }
@@ -80,11 +77,11 @@ public class DefaultListableBeanFactory implements BeanFactory, BeanDefinitionRe
 
     @Override
     public void registerBeanDefinition(Class<?> clazz, BeanDefinition beanDefinition) {
-        beanDefinitionMap.put(clazz.getName(), beanDefinition);
+        beanDefinitionMap.putIfAbsent(clazz.getName(), beanDefinition);
     }
 
     private void addBeanWithClass(Class<?> concreteClass, Object bean) {
-        singletonObjects.put(concreteClass, bean);
+        singletonObjects.putIfAbsent(concreteClass, bean);
 
     }
 }

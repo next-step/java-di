@@ -1,24 +1,20 @@
 package com.interface21.beans.factory.support.injector;
 
 import java.lang.reflect.Constructor;
-import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.util.List;
-import java.util.Set;
 
 public class InjectorConsumerConfig {
 
     public static List<InjectorConsumer<?>> injectorSuppliers(
-            Constructor<? extends Constructor> constructor) {
+        Constructor<? extends Constructor> constructor) {
 
         return List.of(new ConstructorInjector(constructor));
-
     }
 
-    public static List<InjectorConsumer<?>> injectorConfigurationSuppliers(
-            Method method, Class<?> clazz) {
+    public static InjectorConsumer<Method> injectorConfigurationSuppliers(
+        Method method) {
 
-        return List.of(new ConfigurationInjector(method));
-
+        return new ConfigurationInjector(method);
     }
 }
