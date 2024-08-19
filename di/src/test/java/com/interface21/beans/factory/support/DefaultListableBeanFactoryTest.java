@@ -2,26 +2,21 @@ package com.interface21.beans.factory.support;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.reflections.Reflections;
 import samples.SampleController;
-
-import java.lang.annotation.Annotation;
-import java.util.HashSet;
-import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 class DefaultListableBeanFactoryTest {
 
     private DefaultListableBeanFactory beanFactory;
-    private BeanScanner beanScanner;
+    private ClasspathBeanScanner classpathBeanScanner;
 
     @BeforeEach
     @SuppressWarnings("unchecked")
     void setUp() {
         beanFactory = new DefaultListableBeanFactory();
-        beanScanner = new BeanScanner(beanFactory);
-        beanScanner.scan("samples");
+        classpathBeanScanner = new ClasspathBeanScanner(beanFactory);
+        classpathBeanScanner.scan("samples");
         beanFactory.initialize();
     }
 

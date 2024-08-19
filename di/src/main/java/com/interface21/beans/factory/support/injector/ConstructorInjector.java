@@ -2,7 +2,6 @@ package com.interface21.beans.factory.support.injector;
 
 import com.interface21.beans.BeanUtils;
 import com.interface21.beans.factory.BeanFactory;
-import com.interface21.beans.factory.annotation.Autowired;
 import java.lang.reflect.Constructor;
 import java.util.Arrays;
 

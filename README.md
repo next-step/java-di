@@ -73,3 +73,17 @@
 - [x] DefaultInjector 생성하지 않고 전달 방법 확인
 - [x] @Component를 가진 애노테이션을 스캔하는 메서드를 분리해서 가독성 늘리기
 
+## 3 단계 요구사항
+
+- [x] 요구사항 1 - DataSource 설정을 관리하는 빈을 생성하기 위해 @Configuration을 추가하자.
+    - [x] @Bean 으로 명시되어있는 설정은 인스턴스로 등록한다.
+- [] 요구사항 2 - BeanScanner 에서 @ComponentScan을 패키지 경로로 설정할 수 있도록 지원하자
+- [x] 요구사항 3 - @Configuration 설정파일으로 등록한 빈과 BeanScanner를 통해 빈간 DI가 가능해야한다.
+
+- 공통 요구사항
+- [] 단위 테스트 통과
+- [] 설정 파일을 통해 등록한 Bean과 ClassPathBeanScanner 추가로 bean 통합
+- [] ConfigurationBeanScanner와 ClasspathBeanScanner 통합하는 클래스 추가
+
+
+

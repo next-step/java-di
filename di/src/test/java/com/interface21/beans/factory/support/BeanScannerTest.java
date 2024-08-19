@@ -16,14 +16,14 @@ import samples.SampleService;
 class BeanScannerTest {
 
     private DefaultListableBeanFactory beanFactory;
-    private BeanScanner beanScanner;
+    private ClasspathBeanScanner classpathBeanScanner;
 
     @BeforeEach
     @SuppressWarnings("unchecked")
     void setUp() {
         beanFactory = new DefaultListableBeanFactory();
-        beanScanner = new BeanScanner(beanFactory);
-        beanScanner.scan("samples");
+        classpathBeanScanner = new ClasspathBeanScanner(beanFactory);
+        classpathBeanScanner.scan("samples");
     }
 
     @DisplayName("@Controller, @Service, @Repository, @Component 에노테이션이 붙은 클래스를 Registry에 등록합니다.")

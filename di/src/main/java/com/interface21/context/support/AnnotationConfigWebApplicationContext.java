@@ -1,6 +1,7 @@
 package com.interface21.context.support;
 
-import com.interface21.beans.factory.support.BeanScanner;
+import com.interface21.beans.factory.support.ClasspathBeanScanner;
+import com.interface21.beans.factory.support.ConfigurationScanner;
 import com.interface21.beans.factory.support.DefaultListableBeanFactory;
 import com.interface21.beans.factory.support.Scanner;
 import com.interface21.context.ApplicationContext;
@@ -13,8 +14,11 @@ public class AnnotationConfigWebApplicationContext implements ApplicationContext
 
     public AnnotationConfigWebApplicationContext(final String... basePackages) {
         this.beanFactory = new DefaultListableBeanFactory();
-        Scanner scanner = new BeanScanner(beanFactory);
-        scanner.scan(basePackages);
+        Scanner classpathBeanScanner = new ClasspathBeanScanner(beanFactory);
+        Scanner configurationScanner = new ConfigurationScanner(beanFactory);
+
+        classpathBeanScanner.scan(basePackages);
+        configurationScanner.scan(basePackages);
 
         beanFactory.initialize();
     }
