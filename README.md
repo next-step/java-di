@@ -70,6 +70,6 @@
 ## 피드백 사항
 - [x] @Autowired 검사
 - [x] fields 주입 안하면 삭제
-- [] DefaultInjector 생성하지 않고 전달 방법 확인
+- [x] DefaultInjector 생성하지 않고 전달 방법 확인
 - [x] @Component를 가진 애노테이션을 스캔하는 메서드를 분리해서 가독성 늘리기
 
