@@ -5,6 +5,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
+import com.interface21.beans.BeanUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -77,18 +78,6 @@ public class DefaultListableBeanFactory implements BeanFactory, BeanDefinitionRe
     public void clear() {}
 
     private Object instantiateBean(Constructor<?> constructor, Object[] arg) {
-        try {
-            return constructor.newInstance(arg);
-        } catch (InstantiationException
-                | IllegalAccessException
-                | IllegalArgumentException
-                | InvocationTargetException
-                | IllegalStateException e) {
-            throw new BeanInstantiationException(
-                    constructor,
-                    "Failed to instantiate bean [%s]"
-                            .formatted(constructor.getDeclaringClass().getSimpleName()),
-                    e);
-        }
+            return BeanUtils.instantiateClass(constructor, arg);
     }
 }
