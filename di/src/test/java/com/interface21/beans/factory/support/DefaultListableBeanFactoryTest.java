@@ -1,10 +1,10 @@
 package com.interface21.beans.factory.support;
 
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import samples.SampleController;
-
-import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 class DefaultListableBeanFactoryTest {
 

@@ -26,8 +26,9 @@ class ConstructorInjectorTest {
 
     @DisplayName("Constructor을 통해서 bean 주입을 합니다.")
     @Test
-    void constructorInject(){
-        ConstructorInjector injector = new ConstructorInjector(SampleService.class.getConstructors()[0]);
+    void constructorInject() {
+        ConstructorInjector injector = new ConstructorInjector(
+            SampleService.class.getConstructors()[0]);
         SampleService service = (SampleService) injector.inject(beanFactory);
 
         assertThat(service).isInstanceOf(SampleService.class);
