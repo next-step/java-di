@@ -9,15 +9,30 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
+import com.interface21.beans.factory.config.AnnotationBeanDefinition;
+
+import samples.JdbcSampleRepository;
+import samples.SampleController;
+import samples.SampleDataSource;
 import samples.SampleService;
 
 class ConstructorArgumentResolverTest {
 
-    private final DefaultListableBeanFactory factory =
-            new DefaultListableBeanFactory(new String[] {"samples"});
+    private final DefaultListableBeanFactory factory = new DefaultListableBeanFactory();
 
     @BeforeEach
     void setUp() {
+
+        factory.registerBeanDefinition(
+                SampleController.class, new AnnotationBeanDefinition(SampleController.class));
+        factory.registerBeanDefinition(
+                SampleService.class, new AnnotationBeanDefinition(SampleService.class));
+        factory.registerBeanDefinition(
+                JdbcSampleRepository.class,
+                new AnnotationBeanDefinition(JdbcSampleRepository.class));
+        factory.registerBeanDefinition(
+                SampleDataSource.class, new AnnotationBeanDefinition(SampleDataSource.class));
+
         factory.initialize();
     }
 

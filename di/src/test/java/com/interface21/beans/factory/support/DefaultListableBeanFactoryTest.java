@@ -9,8 +9,11 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
+import com.interface21.beans.factory.config.AnnotationBeanDefinition;
+
 import samples.JdbcSampleRepository;
 import samples.SampleController;
+import samples.SampleDataSource;
 import samples.SampleService;
 
 class DefaultListableBeanFactoryTest {
@@ -20,7 +23,18 @@ class DefaultListableBeanFactoryTest {
     @BeforeEach
     @SuppressWarnings("unchecked")
     void setUp() {
-        beanFactory = new DefaultListableBeanFactory(new String[] {"samples"});
+        beanFactory = new DefaultListableBeanFactory();
+
+        beanFactory.registerBeanDefinition(
+                SampleController.class, new AnnotationBeanDefinition(SampleController.class));
+        beanFactory.registerBeanDefinition(
+                SampleService.class, new AnnotationBeanDefinition(SampleService.class));
+        beanFactory.registerBeanDefinition(
+                JdbcSampleRepository.class,
+                new AnnotationBeanDefinition(JdbcSampleRepository.class));
+        beanFactory.registerBeanDefinition(
+                SampleDataSource.class, new AnnotationBeanDefinition(SampleDataSource.class));
+
         beanFactory.initialize();
     }
 

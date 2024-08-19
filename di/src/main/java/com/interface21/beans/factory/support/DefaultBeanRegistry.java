@@ -7,14 +7,14 @@ public class DefaultBeanRegistry implements BeanRegistry {
 
     private final Map<Class<?>, Object> singletonObjects = new ConcurrentHashMap<>();
 
-    public DefaultBeanRegistry() {
-    }
+    public DefaultBeanRegistry() {}
 
     @Override
     public void registerBean(Object bean) {
 
         if (registeredBean(bean)) {
-            throw new IllegalStateException("Bean already registered [%s]".formatted(bean.getClass().getSimpleName()));
+            throw new IllegalStateException(
+                    "Bean already registered [%s]".formatted(bean.getClass().getSimpleName()));
         }
 
         singletonObjects.put(bean.getClass(), bean);
@@ -33,7 +33,8 @@ public class DefaultBeanRegistry implements BeanRegistry {
     @Override
     public Object getBean(Class<?> clazz) {
         if (!registeredBean(clazz)) {
-            throw new BeanClassNotFoundException("Bean not registered [%s]".formatted(clazz.getSimpleName()));
+            throw new BeanClassNotFoundException(
+                    "Bean not registered [%s]".formatted(clazz.getSimpleName()));
         }
         return singletonObjects.get(clazz);
     }

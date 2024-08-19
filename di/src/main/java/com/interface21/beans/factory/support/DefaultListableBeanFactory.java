@@ -5,29 +5,27 @@ import java.lang.reflect.InvocationTargetException;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
-import com.interface21.beans.BeanInstantiationException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.interface21.beans.BeanInstantiationException;
 import com.interface21.beans.factory.BeanFactory;
-import com.interface21.context.stereotype.Component;
+import com.interface21.beans.factory.config.BeanDefinition;
 
-public class DefaultListableBeanFactory implements BeanFactory {
+public class DefaultListableBeanFactory implements BeanFactory, BeanDefinitionRegistry {
 
     private static final Logger log = LoggerFactory.getLogger(DefaultListableBeanFactory.class);
 
-    private final BeanDefinitionReader beanDefinitionReader;
+    private final Map<Class<?>, BeanDefinition> beanDefinitionMap = new ConcurrentHashMap<>();
     private final BeanRegistry beanRegistry;
 
-    public DefaultListableBeanFactory(String[] basePackages) {
-        this.beanDefinitionReader = new AnnotationBeanDefinitionReader(basePackages);
+    public DefaultListableBeanFactory() {
         this.beanRegistry = new DefaultBeanRegistry();
     }
 
     public void initialize() {
-        beanDefinitionReader.loadBeanDefinitions(new Class[] {Component.class});
-        beanDefinitionReader
-                .getBeanDefinitions()
+        beanDefinitionMap
+                .values()
                 .forEach(
                         beanDefinition -> {
                             Class<?> beanClazz = beanDefinition.getType();
@@ -36,8 +34,23 @@ public class DefaultListableBeanFactory implements BeanFactory {
     }
 
     @Override
+    public void registerBeanDefinition(Class<?> clazz, BeanDefinition beanDefinition) {
+        beanDefinitionMap.put(clazz, beanDefinition);
+    }
+
+    @Override
     public Set<Class<?>> getBeanClasses() {
-        return beanDefinitionReader.getBeanClasses();
+        return beanDefinitionMap.keySet();
+    }
+
+    @Override
+    public List<BeanDefinition> getBeanDefinitions() {
+        return List.copyOf(beanDefinitionMap.values());
+    }
+
+    @Override
+    public int getBeanDefinitionCount() {
+        return getBeanDefinitions().size();
     }
 
     @Override
@@ -55,24 +68,27 @@ public class DefaultListableBeanFactory implements BeanFactory {
             return beanRegistry.getBean(concreteClazz);
         }
         Constructor<?> constructor = ConstructorResolver.resolveConstructor(concreteClazz);
-        Object[] arguments = ConstructorArgumentResolver.resolveConstructorArguments(constructor, this);
+        Object[] arguments =
+                ConstructorArgumentResolver.resolveConstructorArguments(constructor, this);
         return instantiateBean(constructor, arguments);
     }
 
     @Override
-    public void clear() {
-
-    }
+    public void clear() {}
 
     private Object instantiateBean(Constructor<?> constructor, Object[] arg) {
         try {
             return constructor.newInstance(arg);
-        } catch ( InstantiationException
-                  | IllegalAccessException
-                  | IllegalArgumentException
-                  | InvocationTargetException
-                  | IllegalStateException e) {
-            throw new BeanInstantiationException(constructor, "Failed to instantiate bean [%s]".formatted(constructor.getDeclaringClass().getSimpleName()), e);
+        } catch (InstantiationException
+                | IllegalAccessException
+                | IllegalArgumentException
+                | InvocationTargetException
+                | IllegalStateException e) {
+            throw new BeanInstantiationException(
+                    constructor,
+                    "Failed to instantiate bean [%s]"
+                            .formatted(constructor.getDeclaringClass().getSimpleName()),
+                    e);
         }
     }
 }
