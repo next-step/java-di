@@ -1,8 +1,11 @@
 package com.interface21.beans.factory.support;
 
+import com.interface21.beans.BeanInstantiationException;
 import com.interface21.beans.factory.BeanFactory;
+import com.interface21.beans.factory.CircularException;
 import com.interface21.beans.factory.config.BeanDefinition;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -15,6 +18,7 @@ public class DefaultListableBeanFactory implements BeanFactory, BeanDefinitionRe
 
     private final Map<String, BeanDefinition> beanDefinitionMap = new HashMap<>();
     private final Map<Class<?>, Object> singletonObjects = new HashMap<>();
+    private final Set<Class<?>> circularDetection = new HashSet<>();
 
     @Override
     public Set<Class<?>> getBeanClasses() {
@@ -50,6 +54,7 @@ public class DefaultListableBeanFactory implements BeanFactory, BeanDefinitionRe
     }
 
     private Object beanInitialize(Class<?> preInitializedBean, Set<Class<?>> definitions) {
+
         Class<?> concreteClass = BeanFactoryUtils.findConcreteClass(preInitializedBean, definitions)
             .orElseGet(
                 () -> preInitializedBean);
@@ -58,11 +63,16 @@ public class DefaultListableBeanFactory implements BeanFactory, BeanDefinitionRe
         if (bean != null) {
             return bean;
         }
+        if (circularDetection.contains(preInitializedBean)) {
+            throw new CircularException(circularDetection);
+        }
 
         if (beanDefinitionMap.containsKey(concreteClass.getName())) {
+            circularDetection.add(preInitializedBean);
             BeanDefinition beanDefinition = beanDefinitionMap.get(concreteClass.getName());
             bean = beanDefinition.initialize(this);
             addBeanWithClass(concreteClass, bean);
+            circularDetection.remove(preInitializedBean);
             return bean;
         }
 
