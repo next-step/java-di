@@ -1,13 +1,12 @@
 package com.interface21.beans.factory.config;
 
+import com.interface21.beans.factory.BeanFactory;
 import com.interface21.beans.factory.support.BeanFactoryUtils;
 import com.interface21.beans.factory.support.injector.DefaultInjector;
 import com.interface21.beans.factory.support.injector.InjectorConsumer;
 import com.interface21.beans.factory.support.injector.InjectorConsumerConfig;
 import java.lang.reflect.Constructor;
-import java.lang.reflect.Field;
 import java.util.List;
-import java.util.Set;
 
 public class DefaultBeanDefintion implements BeanDefinition {
 
@@ -40,5 +39,14 @@ public class DefaultBeanDefintion implements BeanDefinition {
             .findFirst()
             .orElse(defaultInjector);
     }
+
+    @Override
+    public Object initialize(BeanFactory beanFactory) {
+        InjectorConsumer<?> injector = getInjector();
+        Object bean = injector.inject(beanFactory);
+
+        return bean;
+    }
+
 
 }
