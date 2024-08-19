@@ -1,6 +1,5 @@
 package com.interface21.beans.factory.support;
 
-import com.interface21.context.support.BeanScanner;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import samples.SampleController;
@@ -13,10 +12,14 @@ class DefaultListableBeanFactoryTest {
 
     @BeforeEach
     void setUp() {
-        BeanScanner beanScanner = new BeanScanner("samples");
-        beanScanner.initialize();
+        beanFactory = new DefaultListableBeanFactory();
 
-        beanFactory = new DefaultListableBeanFactory(beanScanner);
+        ConfigurationBeanScanner configurationBeanScanner = new ConfigurationBeanScanner(beanFactory);
+        configurationBeanScanner.register();
+
+        ClasspathBeanScanner classpathBeanScanner = new ClasspathBeanScanner(beanFactory);
+        classpathBeanScanner.doScan("samples");
+
         beanFactory.initialize();
     }
 

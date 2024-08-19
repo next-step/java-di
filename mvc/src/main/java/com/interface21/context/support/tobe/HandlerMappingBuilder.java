@@ -1,6 +1,6 @@
 package com.interface21.context.support.tobe;
 
-import com.interface21.beans.factory.BeanFactory;
+import com.interface21.context.ApplicationContext;
 import com.interface21.web.bind.annotation.RequestMapping;
 import com.interface21.web.bind.annotation.RequestMethod;
 import com.interface21.web.method.support.HandlerMethodArgumentResolver;
@@ -31,16 +31,16 @@ public class HandlerMappingBuilder {
     );
 
     private final HandlerExecutionsMap handlerExecutionsMap;
-    private final BeanFactory beanFactory;
+    private final ApplicationContext applicationContext;
 
-    public HandlerMappingBuilder(BeanFactory beanFactory) {
-        this.beanFactory = beanFactory;
+    public HandlerMappingBuilder(ApplicationContext applicationContext) {
+        this.applicationContext = applicationContext;
 
         this.handlerExecutionsMap = new HandlerExecutionsMap();
     }
 
     public HandlerExecutionsMap build() {
-        beanFactory.getControllers().forEach(this::registerEachClass);
+        applicationContext.getControllers().forEach(this::registerEachClass);
 
         return handlerExecutionsMap;
     }

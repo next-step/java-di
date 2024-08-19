@@ -6,6 +6,8 @@ import java.util.Set;
 
 public interface BeanFactory {
 
+    void initialize();
+
     Set<Class<?>> getBeanClasses();
 
     <T> T getBean(Class<T> clazz);

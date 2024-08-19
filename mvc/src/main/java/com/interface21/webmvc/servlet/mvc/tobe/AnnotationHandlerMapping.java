@@ -1,6 +1,6 @@
 package com.interface21.webmvc.servlet.mvc.tobe;
 
-import com.interface21.beans.factory.BeanFactory;
+import com.interface21.context.ApplicationContext;
 import com.interface21.context.support.tobe.HandlerExecutionsMap;
 import com.interface21.context.support.tobe.HandlerMappingBuilder;
 import com.interface21.web.bind.annotation.RequestMethod;
@@ -14,11 +14,11 @@ public class AnnotationHandlerMapping implements HandlerMapping {
 
     private static final Logger log = LoggerFactory.getLogger(AnnotationHandlerMapping.class);
 
-    private final BeanFactory beanFactory;
+    private final ApplicationContext applicationContext;
     private HandlerExecutionsMap handlerExecutions;
 
-    public AnnotationHandlerMapping(BeanFactory beanFactory) {
-        this.beanFactory = beanFactory;
+    public AnnotationHandlerMapping(ApplicationContext applicationContext) {
+        this.applicationContext = applicationContext;
     }
 
     public void initialize() {
@@ -28,7 +28,7 @@ public class AnnotationHandlerMapping implements HandlerMapping {
     }
 
     private void registerAllHandlerMappings() {
-        handlerExecutions = new HandlerMappingBuilder(beanFactory).build();
+        handlerExecutions = new HandlerMappingBuilder(applicationContext).build();
     }
 
     @Nullable
