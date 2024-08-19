@@ -15,7 +15,6 @@ import samples.SampleService;
 
 class ConstructorResolverTest {
 
-
     @Test
     @DisplayName("@Autowired가 선언된 생성자를 반환한다")
     public void resolveTest() {

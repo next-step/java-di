@@ -1,15 +1,15 @@
 package com.interface21.beans.factory.support;
 
 import java.lang.reflect.Constructor;
-import java.lang.reflect.InvocationTargetException;
-import java.util.*;
+import java.util.List;
+import java.util.Set;
+import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
-import com.interface21.beans.BeanUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.interface21.beans.BeanInstantiationException;
+import com.interface21.beans.BeanUtils;
 import com.interface21.beans.factory.BeanFactory;
 import com.interface21.beans.factory.config.BeanDefinition;
 
@@ -30,7 +30,7 @@ public class DefaultListableBeanFactory implements BeanFactory, BeanDefinitionRe
                 .forEach(
                         beanDefinition -> {
                             Class<?> beanClazz = beanDefinition.getType();
-                            beanRegistry.registerBean(getBeanOrCreate(beanClazz));
+                            beanRegistry.registeredBean(getBeanOrCreate(beanClazz));
                         });
     }
 
@@ -78,6 +78,6 @@ public class DefaultListableBeanFactory implements BeanFactory, BeanDefinitionRe
     public void clear() {}
 
     private Object instantiateBean(Constructor<?> constructor, Object[] arg) {
-            return BeanUtils.instantiateClass(constructor, arg);
+        return BeanUtils.instantiateClass(constructor, arg);
     }
 }

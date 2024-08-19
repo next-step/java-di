@@ -10,23 +10,14 @@ public class DefaultBeanRegistry implements BeanRegistry {
     public DefaultBeanRegistry() {}
 
     @Override
-    public void registerBean(Object bean) {
+    public boolean registeredBean(Object bean) {
+        var clazz = bean instanceof Class<?> ? bean : bean.getClass();
 
-        if (registeredBean(bean)) {
-            throw new IllegalStateException(
-                    "Bean already registered [%s]".formatted(bean.getClass().getSimpleName()));
+        if (bean instanceof Class<?>) {
+            return singletonObjects.containsKey(bean);
         }
 
-        singletonObjects.put(bean.getClass(), bean);
-    }
-
-    @Override
-    public boolean registeredBean(Object bean) {
-        return singletonObjects.containsKey(bean.getClass());
-    }
-
-    @Override
-    public boolean registeredBean(Class<?> clazz) {
+        singletonObjects.putIfAbsent(bean.getClass(), bean);
         return singletonObjects.containsKey(clazz);
     }
 
