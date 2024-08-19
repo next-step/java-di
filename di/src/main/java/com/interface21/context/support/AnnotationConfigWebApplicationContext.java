@@ -5,8 +5,10 @@ import com.interface21.beans.factory.support.ConfigurationScanner;
 import com.interface21.beans.factory.support.DefaultListableBeanFactory;
 import com.interface21.beans.factory.support.Scanner;
 import com.interface21.context.ApplicationContext;
-
+import com.interface21.context.annotation.ComponentScan;
+import java.util.Arrays;
 import java.util.Set;
+import org.reflections.Reflections;
 
 public class AnnotationConfigWebApplicationContext implements ApplicationContext {
 
@@ -16,11 +18,22 @@ public class AnnotationConfigWebApplicationContext implements ApplicationContext
         this.beanFactory = new DefaultListableBeanFactory();
         Scanner classpathBeanScanner = new ClasspathBeanScanner(beanFactory);
         Scanner configurationScanner = new ConfigurationScanner(beanFactory);
+        Object[] scanPackages = getScanPackages();
 
+        configurationScanner.scan(scanPackages);
+        classpathBeanScanner.scan(scanPackages);
         classpathBeanScanner.scan(basePackages);
-        configurationScanner.scan(basePackages);
 
         beanFactory.initialize();
+    }
+
+    public static Object[] getScanPackages(final String... basePackages) {
+        Reflections reflections = new Reflections(basePackages);
+
+        return reflections.getTypesAnnotatedWith(ComponentScan.class).stream()
+            .map(config -> config.getAnnotation(ComponentScan.class).value())
+            .flatMap(Arrays::stream)
+            .toArray();
     }
 
     @Override

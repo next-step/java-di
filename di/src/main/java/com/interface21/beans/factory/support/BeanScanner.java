@@ -7,7 +7,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import org.reflections.Reflections;
 
-public class BeanScanner implements Scanner<Object> {
+public class BeanScanner implements Scanner {
 
     private final BeanDefinitionRegistry registry;
 
