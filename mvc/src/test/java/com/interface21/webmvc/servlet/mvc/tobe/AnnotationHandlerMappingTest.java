@@ -1,5 +1,6 @@
 package com.interface21.webmvc.servlet.mvc.tobe;
 
+import com.interface21.beans.factory.support.DefaultListableBeanFactory;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.junit.jupiter.api.BeforeEach;
@@ -12,10 +13,13 @@ import static org.mockito.Mockito.when;
 class AnnotationHandlerMappingTest {
 
     private AnnotationHandlerMapping handlerMapping;
+    private DefaultListableBeanFactory beanFactory;
 
     @BeforeEach
     void setUp() {
-        handlerMapping = new AnnotationHandlerMapping("samples");
+        beanFactory = new DefaultListableBeanFactory("samples");
+        beanFactory.initialize();
+        handlerMapping = new AnnotationHandlerMapping(beanFactory.getControllers());
         handlerMapping.initialize();
     }
 

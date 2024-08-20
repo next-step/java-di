@@ -69,4 +69,9 @@ public class GenericBeanDefinition implements BeanDefinition{
   public Constructor<?> getConstructor() {
     return constructor;
   }
+
+  @Override
+  public Class<?>[] getParameterTypes() {
+    return this.constructor.getParameterTypes();
+  }
 }
