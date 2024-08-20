@@ -58,10 +58,10 @@ public class DefaultListableBeanFactory implements BeanFactory, BeanDefinitionRe
     public <T> T getBean(final Class<T> clazz) {
         Object bean = beanRegistry.getBean(clazz);
         if (bean != null) {
-            return (T) bean;
+            return clazz.cast(bean);
         }
 
-        return (T) instantiateClass(clazz);
+        return clazz.cast(instantiateClass(clazz));
     }
 
     @Override
