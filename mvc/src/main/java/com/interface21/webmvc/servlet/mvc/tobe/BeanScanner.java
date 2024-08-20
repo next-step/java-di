@@ -18,9 +18,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-public class ControllerScanner {
+public class BeanScanner {
 
-    private static final Logger log = LoggerFactory.getLogger(ControllerScanner.class);
+    private static final Logger log = LoggerFactory.getLogger(BeanScanner.class);
 
     private static final List<HandlerMethodArgumentResolver> argumentResolvers = List.of(
         new HttpRequestArgumentResolver(),

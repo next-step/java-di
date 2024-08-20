@@ -2,7 +2,6 @@ package com.interface21.beans.factory.support;
 
 import com.interface21.beans.BeanInstantiationException;
 import com.interface21.beans.factory.BeanFactory;
-import com.interface21.beans.factory.config.BeanDefinition;
 import com.interface21.context.stereotype.Component;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
@@ -17,13 +16,13 @@ import java.util.*;
 public class DefaultListableBeanFactory implements BeanFactory {
 
   private static final Logger log = LoggerFactory.getLogger(DefaultListableBeanFactory.class);
+  private static final String STEREOTYPE_PACKAGE = "com.interface21.context.stereotype";
 
-  private final Map<String, BeanDefinition> beanDefinitionMap = new HashMap<>();
   private final Map<Class<?>, Object> singletonObjects = new HashMap<>();
   private final String[] basePackages;
 
   public DefaultListableBeanFactory(String... basePackages) {
-    this.basePackages = basePackages;
+    this.basePackages =  basePackages;
   }
 
   @Override
@@ -38,7 +37,7 @@ public class DefaultListableBeanFactory implements BeanFactory {
   }
 
   public void initialize() {
-    Reflections reflections = new Reflections("com.interface21.context.stereotype",
+    Reflections reflections = new Reflections(STEREOTYPE_PACKAGE,
         basePackages);
     Set<Class<?>> components = reflections.getTypesAnnotatedWith(Component.class).stream()
         .filter(Predicate.not(Class::isAnnotation))
@@ -95,6 +94,5 @@ public class DefaultListableBeanFactory implements BeanFactory {
   @Override
   public void clear() {
     singletonObjects.clear();
-    beanDefinitionMap.clear();
   }
 }
