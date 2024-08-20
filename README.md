@@ -38,10 +38,10 @@
 ## 요구사항 정리
 ### 🚀 1단계 - DI 컨테이너 구현하기
 
-- [ ] 클래스에 대한 인스턴스 생성 및 의존관계 설정을 애너테이션으로 자동화한다.
-    - [ ] @Controller, @Service, @Repository 애너테이션을 활용한다.
-    - [ ] @Autowired 애너테이션을 활용해 의존관계를 자동으로 설정한다.
-    - [ ] DefaultListableBeanFactoryTest 테스트를 통과한다.
+- [x] 클래스에 대한 인스턴스 생성 및 의존관계 설정을 애너테이션으로 자동화한다.
+    - [x] @Controller, @Service, @Repository 애너테이션을 활용한다.
+    - [x] @Autowired 애너테이션을 활용해 의존관계를 자동으로 설정한다.
+    - [x] DefaultListableBeanFactoryTest 테스트를 통과한다.
 
 - [ ] MVC 프레임워크 통합
     - [ ] @Controller, @Service, @Repository에 대해 지원이 가능하도록 개선한다
