@@ -68,10 +68,12 @@ public class DefaultListableBeanFactory implements BeanFactory, BeanDefinitionRe
         if (beanRegistry.registeredBean(concreteClazz)) {
             return beanRegistry.getBean(concreteClazz);
         }
-        Constructor<?> constructor = ConstructorResolver.resolveConstructor(concreteClazz);
-        Object[] arguments =
-                ConstructorArgumentResolver.resolveConstructorArguments(constructor, this);
-        return instantiateBean(constructor, arguments);
+
+        var constructorResolver = new ConstructorResolver(this);
+        Constructor<?> constructor = constructorResolver.resolveConstructor(concreteClazz);
+        ArgumentResolver argumentResolver = constructorResolver.resolveArguments(constructor);
+
+        return instantiateBean(constructor, argumentResolver.resolve());
     }
 
     @Override

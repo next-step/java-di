@@ -1,7 +1,6 @@
 package com.interface21.beans.factory.support;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.*;
 
 import java.lang.reflect.Constructor;
 
@@ -40,11 +39,9 @@ class ConstructorArgumentResolverTest {
     @DisplayName("생성자의 인자를 반환한다")
     public void resolveTest() {
 
-        Constructor<?> constructor = ConstructorResolver.resolveConstructor(SampleService.class);
+        Constructor<?> constructor = BeanFactoryUtils.getInjectedConstructor(SampleService.class);
+        var ar = new AutowiredConstructorArgumentResolver(constructor, factory);
 
-        Object[] args =
-                ConstructorArgumentResolver.resolveConstructorArguments(constructor, factory);
-
-        assertThat(args).contains(factory.getBean(SampleService.class).getSampleRepository());
+        assertThat(ar.resolve()).contains(factory.getBean(SampleService.class).getSampleRepository());
     }
 }
