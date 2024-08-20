@@ -10,5 +10,4 @@ public interface BeanFactory {
 
     void clear();
 
-    Object getBeanOrCreate(Class<?> parameterType);
 }

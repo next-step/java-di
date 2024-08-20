@@ -30,7 +30,7 @@ public class DefaultListableBeanFactory implements BeanFactory, BeanDefinitionRe
                 .forEach(
                         beanDefinition -> {
                             Class<?> beanClazz = beanDefinition.getType();
-                            beanRegistry.registeredBean(getBeanOrCreate(beanClazz));
+                            beanRegistry.registeredBean(getBean(beanClazz));
                         });
     }
 
@@ -56,18 +56,22 @@ public class DefaultListableBeanFactory implements BeanFactory, BeanDefinitionRe
 
     @Override
     public <T> T getBean(final Class<T> clazz) {
-        return (T) beanRegistry.getBean(clazz);
+        Object bean = beanRegistry.getBean(clazz);
+        if (bean != null) {
+            return (T) bean;
+        }
+
+        return (T) instantiateClass(clazz);
     }
 
     @Override
-    public Object getBeanOrCreate(Class<?> clazz) {
+    public void clear() {}
+
+
+    private Object instantiateClass(Class<?> clazz) {
         Class<?> concreteClazz =
                 BeanFactoryUtils.findConcreteClass(clazz, getBeanClasses())
                         .orElseThrow(() -> new BeanClassNotFoundException(clazz.getSimpleName()));
-
-        if (beanRegistry.registeredBean(concreteClazz)) {
-            return beanRegistry.getBean(concreteClazz);
-        }
 
         var constructorResolver = new ConstructorResolver(this);
         Constructor<?> constructor = constructorResolver.resolveConstructor(concreteClazz);
@@ -76,8 +80,6 @@ public class DefaultListableBeanFactory implements BeanFactory, BeanDefinitionRe
         return instantiateBean(constructor, argumentResolver.resolve());
     }
 
-    @Override
-    public void clear() {}
 
     private Object instantiateBean(Constructor<?> constructor, Object[] arg) {
         return BeanUtils.instantiateClass(constructor, arg);

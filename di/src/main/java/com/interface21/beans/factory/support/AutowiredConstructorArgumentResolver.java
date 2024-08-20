@@ -20,7 +20,7 @@ public class AutowiredConstructorArgumentResolver implements ArgumentResolver {
     public Object[] resolve() {
         return Arrays.stream(executable.getParameters())
                 .map(Parameter::getType)
-                .map(beanFactory::getBeanOrCreate)
+                .map(beanFactory::getBean)
                 .toArray();
     }
 }

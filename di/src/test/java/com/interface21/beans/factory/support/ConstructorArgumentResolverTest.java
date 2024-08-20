@@ -1,38 +1,27 @@
 package com.interface21.beans.factory.support;
 
-import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.lang.reflect.Constructor;
+import java.util.Arrays;
 
+import com.interface21.MockBeanFactory;
+import com.interface21.beans.factory.BeanFactory;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
-import com.interface21.beans.factory.config.AnnotationBeanDefinition;
 
 import samples.JdbcSampleRepository;
-import samples.SampleController;
-import samples.SampleDataSource;
 import samples.SampleService;
 
 class ConstructorArgumentResolverTest {
 
-    private final DefaultListableBeanFactory factory = new DefaultListableBeanFactory();
+    private BeanFactory factory;
 
     @BeforeEach
     void setUp() {
-
-        factory.registerBeanDefinition(
-                SampleController.class, new AnnotationBeanDefinition(SampleController.class));
-        factory.registerBeanDefinition(
-                SampleService.class, new AnnotationBeanDefinition(SampleService.class));
-        factory.registerBeanDefinition(
-                JdbcSampleRepository.class,
-                new AnnotationBeanDefinition(JdbcSampleRepository.class));
-        factory.registerBeanDefinition(
-                SampleDataSource.class, new AnnotationBeanDefinition(SampleDataSource.class));
-
-        factory.initialize();
+        factory = MockBeanFactory.createBeanFactory();
     }
 
     @Test
@@ -42,6 +31,9 @@ class ConstructorArgumentResolverTest {
         Constructor<?> constructor = BeanFactoryUtils.getInjectedConstructor(SampleService.class);
         var ar = new AutowiredConstructorArgumentResolver(constructor, factory);
 
-        assertThat(ar.resolve()).contains(factory.getBean(SampleService.class).getSampleRepository());
+        var typeMatched = Arrays.stream(ar.resolve())
+                .anyMatch(instance -> instance instanceof JdbcSampleRepository);
+
+        assertTrue(typeMatched);
     }
 }

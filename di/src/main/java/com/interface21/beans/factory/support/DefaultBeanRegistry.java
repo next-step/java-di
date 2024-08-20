@@ -24,8 +24,7 @@ public class DefaultBeanRegistry implements BeanRegistry {
     @Override
     public Object getBean(Class<?> clazz) {
         if (!registeredBean(clazz)) {
-            throw new BeanClassNotFoundException(
-                    "Bean not registered [%s]".formatted(clazz.getSimpleName()));
+            return null;
         }
         return singletonObjects.get(clazz);
     }

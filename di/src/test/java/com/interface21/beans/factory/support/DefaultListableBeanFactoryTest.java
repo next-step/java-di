@@ -5,12 +5,15 @@ import static org.junit.jupiter.api.Assertions.*;
 
 import java.util.Set;
 
+import com.interface21.MockBeanFactory;
+import com.interface21.beans.factory.BeanFactory;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 import com.interface21.beans.factory.config.AnnotationBeanDefinition;
 
+import org.mockito.Mock;
 import samples.JdbcSampleRepository;
 import samples.SampleController;
 import samples.SampleDataSource;
@@ -18,24 +21,12 @@ import samples.SampleService;
 
 class DefaultListableBeanFactoryTest {
 
-    private DefaultListableBeanFactory beanFactory;
+    private BeanFactory beanFactory;
 
     @BeforeEach
     @SuppressWarnings("unchecked")
     void setUp() {
-        beanFactory = new DefaultListableBeanFactory();
-
-        beanFactory.registerBeanDefinition(
-                SampleController.class, new AnnotationBeanDefinition(SampleController.class));
-        beanFactory.registerBeanDefinition(
-                SampleService.class, new AnnotationBeanDefinition(SampleService.class));
-        beanFactory.registerBeanDefinition(
-                JdbcSampleRepository.class,
-                new AnnotationBeanDefinition(JdbcSampleRepository.class));
-        beanFactory.registerBeanDefinition(
-                SampleDataSource.class, new AnnotationBeanDefinition(SampleDataSource.class));
-
-        beanFactory.initialize();
+        this.beanFactory = MockBeanFactory.createBeanFactory();
     }
 
     @Test
@@ -59,5 +50,17 @@ class DefaultListableBeanFactoryTest {
 
         final var sampleService = sampleController.getSampleService();
         assertNotNull(sampleService.getSampleRepository());
+    }
+
+
+    @Test
+    @DisplayName("조회한 빈이 없으면 생성해서 반환한다")
+    public void getBeanTest() {
+
+        beanFactory = MockBeanFactory.createBeanFactory();
+
+        SampleController bean = beanFactory.getBean(SampleController.class);
+
+        assertNotNull(bean);
     }
 }

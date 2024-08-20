@@ -6,7 +6,8 @@ import static org.junit.jupiter.api.Assertions.*;
 import java.lang.reflect.Constructor;
 import javax.sql.DataSource;
 
-import com.interface21.beans.factory.config.AnnotationBeanDefinition;
+import com.interface21.MockBeanFactory;
+import com.interface21.beans.factory.BeanFactory;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -15,22 +16,11 @@ import samples.*;
 
 class ConstructorResolverTest {
 
-    private final DefaultListableBeanFactory factory = new DefaultListableBeanFactory();
+    private BeanFactory factory;
 
     @BeforeEach
     void setUp() {
-
-        factory.registerBeanDefinition(
-                SampleController.class, new AnnotationBeanDefinition(SampleController.class));
-        factory.registerBeanDefinition(
-                SampleService.class, new AnnotationBeanDefinition(SampleService.class));
-        factory.registerBeanDefinition(
-                JdbcSampleRepository.class,
-                new AnnotationBeanDefinition(JdbcSampleRepository.class));
-        factory.registerBeanDefinition(
-                SampleDataSource.class, new AnnotationBeanDefinition(SampleDataSource.class));
-
-        factory.initialize();
+        factory = MockBeanFactory.createBeanFactory();
     }
 
     @Test

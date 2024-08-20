@@ -12,7 +12,7 @@ public final class ConstructorResolver {
     private final BeanFactory beanFactory;
 
 
-    public ConstructorResolver(DefaultListableBeanFactory beanFactory) {
+    public ConstructorResolver(BeanFactory beanFactory) {
         this.beanFactory = beanFactory;
     }
 
