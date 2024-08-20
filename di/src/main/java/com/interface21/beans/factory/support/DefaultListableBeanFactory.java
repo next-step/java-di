@@ -2,9 +2,10 @@ package com.interface21.beans.factory.support;
 
 import com.interface21.beans.BeanInstantiationException;
 import com.interface21.beans.factory.BeanFactory;
-import com.interface21.beans.factory.annotation.Autowired;
 import com.interface21.beans.factory.config.BeanDefinition;
 import com.interface21.context.stereotype.Component;
+import java.util.function.Predicate;
+import java.util.stream.Collectors;
 import org.reflections.Reflections;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -15,74 +16,85 @@ import java.util.*;
 
 public class DefaultListableBeanFactory implements BeanFactory {
 
-    private static final Logger log = LoggerFactory.getLogger(DefaultListableBeanFactory.class);
+  private static final Logger log = LoggerFactory.getLogger(DefaultListableBeanFactory.class);
 
-    private final Map<String, BeanDefinition> beanDefinitionMap = new HashMap<>();
-    private final Map<Class<?>, Object> singletonObjects = new HashMap<>();
-    private final String[] basePackages;
+  private final Map<String, BeanDefinition> beanDefinitionMap = new HashMap<>();
+  private final Map<Class<?>, Object> singletonObjects = new HashMap<>();
+  private final String[] basePackages;
 
-    public DefaultListableBeanFactory(String... basePackages) {
-        this.basePackages = basePackages;
+  public DefaultListableBeanFactory(String... basePackages) {
+    this.basePackages = basePackages;
+  }
+
+  @Override
+  public Set<Class<?>> getBeanClasses() {
+    return singletonObjects.keySet();
+  }
+
+  @Override
+  @SuppressWarnings("unchecked")
+  public <T> T getBean(final Class<T> clazz) {
+    return (T) singletonObjects.get(clazz);
+  }
+
+  public void initialize() {
+    Reflections reflections = new Reflections("com.interface21.context.stereotype",
+        basePackages);
+    Set<Class<?>> components = reflections.getTypesAnnotatedWith(Component.class).stream()
+        .filter(Predicate.not(Class::isAnnotation))
+        .collect(Collectors.toSet());
+
+    for (Class<?> componentClass : components) {
+      var bean = createBean(componentClass, components);
+      singletonObjects.put(componentClass, bean);
     }
+  }
 
-    @Override
-    public Set<Class<?>> getBeanClasses() {
-        return singletonObjects.keySet();
+  private Object createBean(Class<?> beanClass, Set<Class<?>> beanClasses) {
+    Constructor<?> constructor = findAutoWiredConstructor(beanClass, beanClasses);
+    Object[] params = resolveConstructorArguments(constructor, beanClasses);
+
+    try {
+      return constructor.newInstance(params);
+    } catch (InstantiationException | IllegalAccessException | InvocationTargetException e) {
+      log.info(e.getMessage());
+      throw new BeanInstantiationException(constructor, "bean생성을 실패했습니다 : +", e.getCause());
     }
+  }
 
-    @Override
-    @SuppressWarnings("unchecked")
-    public <T> T getBean(final Class<T> clazz) {
-        return (T) singletonObjects.get(clazz);
+  /*@Autowired  붙은 생성자를 찾고, 없으면 기본 생성자를 반환한다. */
+
+  private Constructor<?> findAutoWiredConstructor(Class<?> clazz, Set<Class<?>> beanClasses) {
+    Class<?> concreteClass = BeanFactoryUtils.findConcreteClass(clazz, beanClasses)
+        .orElseThrow(() -> new IllegalArgumentException("클래스를 찾을 수 없습니다." + clazz.getName()));
+
+    Constructor<?> autowiredConstructor = BeanFactoryUtils.getInjectedConstructor(concreteClass);
+    if (autowiredConstructor == null) {
+      return concreteClass.getDeclaredConstructors()[0];
     }
+    return autowiredConstructor;
+  }
 
-    public void initialize() {
-        Reflections reflections = new Reflections((Object[]) basePackages);
-        Set<Class<?>> components = reflections.getTypesAnnotatedWith(Component.class);
+  private Object[] resolveConstructorArguments(Constructor<?> constructor,
+      Set<Class<?>> beanClasses) {
 
-        for (Class<?> componentClass : components) {
-            var bean = createBean(componentClass);
-            singletonObjects.put(componentClass, bean);
-        }
-    }
+    // singletonObjects 에 등록이 안되어 있으면 하위 빈 등록 재귀 호출
+    return Arrays.stream(constructor.getParameterTypes())
+        .map(paramType -> {
+          if (singletonObjects.containsKey(paramType)) {
+            return singletonObjects.get(paramType);
+          } else {
+            Object bean = createBean(paramType, beanClasses);
+            singletonObjects.put(paramType, bean);
+            return bean;
+          }
+        })
+        .toArray();
+  }
 
-    private Object createBean(Class<?> beanClass) {
-        Constructor<?> constructor = findAutowiredConstructor(beanClass);
-        Object[] params = resolveConstructorArguments(constructor);
-
-        try {
-            return constructor.newInstance(params);
-        } catch (InstantiationException | IllegalAccessException | InvocationTargetException e) {
-            log.info(e.getMessage());
-            throw new BeanInstantiationException(constructor, "bean생성을 실패했습니다 : +",e.getCause());
-        }
-    }
-
-    /*@Autowired  붙은 생성자를 찾고, 없으면 기본 생성자를 반환한다. */
-    private Constructor<?> findAutowiredConstructor(Class<?> beanClass) {
-        return Arrays.stream(beanClass.getDeclaredConstructors())
-            .filter(constructor -> constructor.isAnnotationPresent(Autowired.class))
-            .findFirst()
-            .orElse(beanClass.getDeclaredConstructors()[0]);
-    }
-
-    private Object[] resolveConstructorArguments(Constructor<?> constructor) {
-        return Arrays.stream(constructor.getParameterTypes())
-            .map(paramType -> {
-                if (singletonObjects.containsKey(paramType)) {
-                    return singletonObjects.get(paramType);
-                } else {
-                    Object bean = createBean(paramType);
-                    singletonObjects.put(paramType, bean);
-                    return bean;
-                }
-            })
-            .toArray();
-    }
-
-    @Override
-    public void clear() {
-        singletonObjects.clear();
-        beanDefinitionMap.clear();
-    }
+  @Override
+  public void clear() {
+    singletonObjects.clear();
+    beanDefinitionMap.clear();
+  }
 }
