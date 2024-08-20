@@ -9,6 +9,7 @@ public final class ConstructorResolver {
 
     private static final Object[] EMPTY_ARGS = new Object[0];
     public static final int FIRST_CONSTRUCTOR_INDEX = 0;
+
     private final BeanFactory beanFactory;
 
 
