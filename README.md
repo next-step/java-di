@@ -43,7 +43,7 @@
     - [x] @Autowired 애너테이션을 활용해 의존관계를 자동으로 설정한다.
     - [x] DefaultListableBeanFactoryTest 테스트를 통과한다.
 
-- [ ] MVC 프레임워크 통합
-    - [ ] @Controller, @Service, @Repository에 대해 지원이 가능하도록 개선한다
-    - [ ] ControllerScanner의 역할을 BeanScanner로 확장한다.
-    - [ ] AnnotationHandlerMapping이 BeanFactory와 BeanScanner를 활용해 동작하도록 변경한다
+- [x] MVC 프레임워크 통합
+    - [x] @Controller, @Service, @Repository에 대해 지원이 가능하도록 개선한다
+    - [x] ControllerScanner의 역할을 BeanScanner로 확장한다.
+    - [x] AnnotationHandlerMapping이 BeanFactory와 BeanScanner를 활용해 동작하도록 변경한다
