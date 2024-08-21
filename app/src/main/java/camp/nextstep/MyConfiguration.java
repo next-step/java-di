@@ -1,15 +1,15 @@
-package samples;
+package camp.nextstep;
 
 import com.interface21.context.annotation.Bean;
 import com.interface21.context.annotation.ComponentScan;
 import com.interface21.context.annotation.Configuration;
 import org.h2.jdbcx.JdbcDataSource;
-
+import org.springframework.jdbc.core.JdbcTemplate;
 import javax.sql.DataSource;
 
 @Configuration
-@ComponentScan({ "samples" })
-public class ExampleConfig {
+@ComponentScan({ "camp.nextstep", "com.interface21" })
+public class MyConfiguration {
 
     @Bean
     public DataSource dataSource() {
@@ -18,5 +18,10 @@ public class ExampleConfig {
         jdbcDataSource.setUser("");
         jdbcDataSource.setPassword("");
         return jdbcDataSource;
+    }
+
+    @Bean
+    public JdbcTemplate jdbcTemplate(final DataSource dataSource) {
+        return new JdbcTemplate(dataSource);
     }
 }

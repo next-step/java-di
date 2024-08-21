@@ -1,10 +1,10 @@
 package com.interface21.beans.factory.support;
 
-import com.interface21.beans.BeanInstantiationException;
 import com.interface21.beans.factory.BeanFactory;
+import com.interface21.beans.factory.CircularException;
 import com.interface21.beans.factory.config.BeanDefinition;
-import com.interface21.beans.factory.support.injector.InjectorConsumer;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -17,6 +17,7 @@ public class DefaultListableBeanFactory implements BeanFactory, BeanDefinitionRe
 
     private final Map<String, BeanDefinition> beanDefinitionMap = new HashMap<>();
     private final Map<Class<?>, Object> singletonObjects = new HashMap<>();
+    private final Set<Class<?>> circularDetection = new HashSet<>();
 
     @Override
     public Set<Class<?>> getBeanClasses() {
@@ -39,7 +40,7 @@ public class DefaultListableBeanFactory implements BeanFactory, BeanDefinitionRe
     private <T> Class<?> initializeAndRetrieve(Class<T> clazz) {
         beanInitialize(clazz, getBeanClasses());
         Class<?> concreteClass = BeanFactoryUtils.findConcreteClass(clazz, getBeanClasses())
-            .orElse(null);
+            .orElse(clazz);
         return concreteClass;
     }
 
@@ -52,20 +53,25 @@ public class DefaultListableBeanFactory implements BeanFactory, BeanDefinitionRe
     }
 
     private Object beanInitialize(Class<?> preInitializedBean, Set<Class<?>> definitions) {
+
         Class<?> concreteClass = BeanFactoryUtils.findConcreteClass(preInitializedBean, definitions)
-            .orElseThrow(
-                () -> new BeanInstantiationException(preInitializedBean, "No class found"));
+            .orElseGet(
+                () -> preInitializedBean);
         Object bean = singletonObjects.get(concreteClass.getName());
 
         if (bean != null) {
             return bean;
         }
+        if (circularDetection.contains(preInitializedBean)) {
+            throw new CircularException(circularDetection);
+        }
 
         if (beanDefinitionMap.containsKey(concreteClass.getName())) {
+            circularDetection.add(preInitializedBean);
             BeanDefinition beanDefinition = beanDefinitionMap.get(concreteClass.getName());
-            InjectorConsumer<?> injector = beanDefinition.getInjector();
-            bean = injector.inject(this);
+            bean = beanDefinition.initialize(this);
             addBeanWithClass(concreteClass, bean);
+            circularDetection.remove(preInitializedBean);
             return bean;
         }
 
@@ -80,11 +86,11 @@ public class DefaultListableBeanFactory implements BeanFactory, BeanDefinitionRe
 
     @Override
     public void registerBeanDefinition(Class<?> clazz, BeanDefinition beanDefinition) {
-        beanDefinitionMap.put(clazz.getName(), beanDefinition);
+        beanDefinitionMap.putIfAbsent(clazz.getName(), beanDefinition);
     }
 
     private void addBeanWithClass(Class<?> concreteClass, Object bean) {
-        singletonObjects.put(concreteClass, bean);
+        singletonObjects.putIfAbsent(concreteClass, bean);
 
     }
 }
