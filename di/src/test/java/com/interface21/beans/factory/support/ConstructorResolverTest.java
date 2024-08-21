@@ -24,28 +24,27 @@ class ConstructorResolverTest {
     }
 
     @Test
-    @DisplayName("@Autowired가 선언된 생성자를 반환한다")
+    @DisplayName("ConstructorResolver는 @Autowired 셍성자 정보를 제공한다")
     public void resolveTest() {
 
-        ConstructorResolver constructorResolver = new ConstructorResolver(factory);
-        Constructor<?> constructor = constructorResolver.resolveConstructor(SampleService.class);
+        ConstructorHolder constructorHolder = ConstructorResolver.resolve(SampleService.class);
 
+        Constructor<?> constructor = constructorHolder.constructor();
         assertNotNull(constructor);
         assertThat(constructor.getParameterCount()).isEqualTo(1);
         assertThat(constructor.getParameters()[0].getType()).isEqualTo(SampleRepository.class);
     }
 
     @Test
-    @DisplayName("@Autowired가 선언된 생성자가 없으면 첫 번째 생성자를 반환한다")
+    @DisplayName("ConstructorResolver는 @Autowired 셍성자가 없으면 선언된 생성자 리스트 중 첫번째 생성자의 정보를 제공한다")
     public void resolveTest2() {
 
-        ConstructorResolver constructorResolver = new ConstructorResolver(factory);
+        ConstructorHolder constructorHolder = ConstructorResolver.resolve(JdbcSampleRepository.class);
 
-        Constructor<?> constructor =
-                constructorResolver.resolveConstructor(JdbcSampleRepository.class);
+        Constructor<?> constructor = constructorHolder.constructor();
 
         assertNotNull(constructor);
-        assertThat(constructor.getParameterCount()).isEqualTo(1);
-        assertThat(constructor.getParameters()[0].getType()).isEqualTo(DataSource.class);
+        assertThat(constructor.getParameterCount()).isEqualTo(0);
+//        assertThat(constructor.getParameters()[0].getType()).isEqualTo(DataSource.class);
     }
 }

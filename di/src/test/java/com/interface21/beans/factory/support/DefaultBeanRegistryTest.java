@@ -8,14 +8,13 @@ import org.junit.jupiter.api.Test;
 
 import samples.JdbcSampleRepository;
 import samples.SampleController;
-import samples.SampleDataSource;
 import samples.SampleService;
 
 class DefaultBeanRegistryTest {
 
     private SampleController controller =
             new SampleController(
-                    new SampleService(new JdbcSampleRepository(new SampleDataSource())));
+                    new SampleService(new JdbcSampleRepository()));
 
     @Test
     @DisplayName("빈을 등록한다")
@@ -35,7 +34,7 @@ class DefaultBeanRegistryTest {
         defaultBeanRegistry.registeredBean(controller);
         defaultBeanRegistry.registeredBean(
                 new SampleController(
-                        new SampleService(new JdbcSampleRepository(new SampleDataSource()))));
+                        new SampleService(new JdbcSampleRepository())));
 
         assertThat(defaultBeanRegistry.getBean(SampleController.class)).isEqualTo(controller);
     }

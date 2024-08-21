@@ -1,9 +1,9 @@
 package com.interface21.beans.factory.support;
 
 import com.interface21.beans.factory.BeanFactory;
+import com.interface21.beans.factory.config.AnnotationBeanDefinition;
 
 import java.lang.reflect.Constructor;
-import java.lang.reflect.Executable;
 
 public final class ConstructorResolver {
 
@@ -17,21 +17,26 @@ public final class ConstructorResolver {
         this.beanFactory = beanFactory;
     }
 
-    public Constructor<?> resolveConstructor(Class<?> clazz) {
 
+    public static ConstructorHolder resolve(Class<?> clazz) {
         Constructor<?> injectedConstructor = BeanFactoryUtils.getInjectedConstructor(clazz);
         if (injectedConstructor != null) {
-            return injectedConstructor;
+            return new ConstructorHolder(injectedConstructor, true);
         }
 
-        return clazz.getDeclaredConstructors()[FIRST_CONSTRUCTOR_INDEX];
+        return new ConstructorHolder(clazz.getDeclaredConstructors()[FIRST_CONSTRUCTOR_INDEX], false);
     }
 
-    public ArgumentResolver resolveArguments(Executable executable) {
-        if (executable.getParameterCount() == 0) {
-            return () -> EMPTY_ARGS;
+
+    public Object autowireConstructor(AnnotationBeanDefinition beanDefinition) {
+
+        Class<?>[] parameterTypes = beanDefinition.getParameterTypes();
+        var args = this.beanFactory.registerArgumentValues(beanDefinition.getType(), parameterTypes);
+
+        if (parameterTypes.length != args.length) {
+            throw new IllegalStateException("Failed to resolve arguments for constructor");
         }
 
-        return new AutowiredConstructorArgumentResolver(executable, beanFactory);
+        return beanFactory.getBean(beanDefinition.getType());
     }
 }

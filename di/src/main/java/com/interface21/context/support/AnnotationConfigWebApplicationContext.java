@@ -18,7 +18,7 @@ public class AnnotationConfigWebApplicationContext
     private final Logger log = LoggerFactory.getLogger(AnnotationConfigWebApplicationContext.class);
 
     private final List<String> basePackages = new ArrayList<>();
-    private DefaultListableBeanFactory beanFactory;
+    private final DefaultListableBeanFactory beanFactory;
 
     public AnnotationConfigWebApplicationContext(String basePackage) {
         Collections.addAll(this.basePackages, basePackage);
