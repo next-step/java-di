@@ -6,6 +6,7 @@ import static org.junit.jupiter.api.Assertions.*;
 import java.util.Set;
 
 import com.interface21.MockBeanFactory;
+import com.interface21.beans.BeanInstantiationException;
 import com.interface21.beans.factory.BeanFactory;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -13,11 +14,11 @@ import org.junit.jupiter.api.Test;
 
 import com.interface21.beans.factory.config.AnnotationBeanDefinition;
 
-import org.mockito.Mock;
 import samples.JdbcSampleRepository;
 import samples.SampleController;
-import samples.SampleDataSource;
 import samples.SampleService;
+import samples.MockCircularComponentA;
+import samples.MockCircularComponentB;
 
 class DefaultListableBeanFactoryTest {
 
@@ -63,4 +64,29 @@ class DefaultListableBeanFactoryTest {
 
         assertNotNull(bean);
     }
+
+    @Test
+    @DisplayName("빈 생성시 의존성은 참조 방향의 종단부터 역순으로 생성되므로 주입할 빈의 생성이 먼저 완료되지 않으면 예외가 발생한다")
+    public void recursiveInstantiationFailTest() {
+
+        DefaultListableBeanFactory factory = new DefaultListableBeanFactory();
+        factory.registerBeanDefinition(SampleController.class, new AnnotationBeanDefinition(SampleController.class));
+
+        assertThrows(BeanInstantiationException.class,
+                () -> factory.getBean(SampleController.class),
+                " No BeanDefinition found for SampleService");
+    }
+
+    @Test
+    @DisplayName("순환 참조가 있는 빈을 생성하면 예외가 발생한다")
+    // TODO: 아직 구현 못했습니다!!
+    public void circularDependencyTest() {
+        DefaultListableBeanFactory factory = new DefaultListableBeanFactory();
+        factory.registerBeanDefinition(MockCircularComponentA.class, new AnnotationBeanDefinition(MockCircularComponentA.class));
+        factory.registerBeanDefinition(MockCircularComponentB.class, new AnnotationBeanDefinition(MockCircularComponentB.class));
+
+        factory.initialize();
+    }
+
+
 }
