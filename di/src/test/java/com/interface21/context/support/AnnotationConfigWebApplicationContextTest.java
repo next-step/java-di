@@ -18,10 +18,8 @@ class AnnotationConfigWebApplicationContextTest {
     }
 
     @Test
-    @DisplayName("AnnotationConfigWebApplicationContext#refresh()를 호출하면 스프링 컨테이너가 초기화된다")
+    @DisplayName("AnnotationConfigWebApplicationContext 스프링 컨테이너가 초기화되면 빈 인스턴스가 컨테이너에 등록된다")
     public void refreshTest() {
-
-        sut.refresh();
 
         assertThat(sut.getBeanClasses()).contains(SampleController.class);
         assertThat(sut.getBean(SampleController.class)).isNotNull();

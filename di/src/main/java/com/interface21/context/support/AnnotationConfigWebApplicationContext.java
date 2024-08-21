@@ -22,12 +22,9 @@ public class AnnotationConfigWebApplicationContext
 
     public AnnotationConfigWebApplicationContext(String basePackage) {
         Collections.addAll(this.basePackages, basePackage);
-    }
-
-    public void refresh() {
         this.beanFactory = new DefaultListableBeanFactory();
         scan(basePackages.toArray(String[]::new));
-        initializeBeans();
+        initializeBeanFactory();
     }
 
     @Override
@@ -48,7 +45,7 @@ public class AnnotationConfigWebApplicationContext
         return beanFactory.getBeanClasses();
     }
 
-    private void initializeBeans() {
+    private void initializeBeanFactory() {
         this.beanFactory.initialize();
     }
 
