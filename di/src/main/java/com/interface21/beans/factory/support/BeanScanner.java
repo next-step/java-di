@@ -1,26 +1,23 @@
 package com.interface21.beans.factory.support;
 
-import com.interface21.context.stereotype.Component;
-import org.reflections.Reflections;
+import com.interface21.beans.factory.config.BeanDefinitions;
 
-import java.util.Set;
-import java.util.function.Predicate;
-import java.util.stream.Collectors;
+import java.util.List;
 
-public class BeanScanner {
-    private static final String STEREOTYPE_PACKAGE = "com.interface21.context.stereotype";
+public class BeanScanner implements BeanDefinitionScanner {
+    private final List<BeanDefinitionScanner> beanDefinitionScanners;
 
-    private final String[] basePackages;
-
-    public BeanScanner(String... basePackages) {
-        this.basePackages = basePackages;
+    public BeanScanner(final Class<?> applicationClass) {
+        final ConfigurationBeanScanner configurationBeanScanner = new ConfigurationBeanScanner(List.of(applicationClass));
+        ClassPathBeanScanner classPathBeanScanner = new ClassPathBeanScanner(configurationBeanScanner.getBasePackages());
+        this.beanDefinitionScanners = List.of(configurationBeanScanner, classPathBeanScanner);
     }
 
-    public Set<Class<?>> scan() {
-        Reflections reflections = new Reflections(STEREOTYPE_PACKAGE, basePackages);
-        return reflections.getTypesAnnotatedWith(Component.class)
-                .stream()
-                .filter(Predicate.not(Class::isAnnotation))
-                .collect(Collectors.toSet());
+    public BeanDefinitions scan() {
+        final BeanDefinitions beanDefinitions = new BeanDefinitions();
+        beanDefinitionScanners.stream()
+                .map(BeanDefinitionScanner::scan)
+                .forEach(beanDefinitions::mergeBeanDefinitions);
+        return beanDefinitions;
     }
 }

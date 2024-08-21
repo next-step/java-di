@@ -41,3 +41,10 @@
 
 ### 2단계 미션 요구사항
 - [x] AnnotationHandlerMapping이 BeanFactory와 BeanScanner를 활용해 동작하도록 리팩터링한다.
+
+### 3단계 미션 요구사항
+- 추후에 데이터베이스에 연결할 수 있도록 `javax.sql.DataSource`로 데이터베이스 설정 정보를 관리
+- `@Configuration` 기능을 추가하여 빈 인스턴스로 관리할 수 있도록 한다.
+    - 각 메소드에서 생성하는 인스턴스가 `BeanFactory`에 빈으로 등록하라는 설정은 `@Bean`으로 한다.
+    - `BeanScanner`에서 사용할 기본 패키지에 대한 설정을 하드코딩했는데 `@ComponentScan`으로 패키지 경로를 설정할 수 있도록 지원한다
+    - `@Configuration` 설정 파일을 통해 등록한 빈과 `BeanScanner`를 통해 등록한 빈 간에도 DI가 가능해야 한다.

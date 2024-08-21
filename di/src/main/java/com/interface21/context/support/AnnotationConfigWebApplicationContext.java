@@ -1,8 +1,9 @@
 package com.interface21.context.support;
 
+import com.interface21.beans.factory.config.BeanDefinitions;
+import com.interface21.beans.factory.support.BeanScanner;
 import com.interface21.beans.factory.support.DefaultListableBeanFactory;
 import com.interface21.context.ApplicationContext;
-import org.reflections.Reflections;
 
 import java.util.Set;
 
@@ -10,17 +11,19 @@ public class AnnotationConfigWebApplicationContext implements ApplicationContext
 
     private final DefaultListableBeanFactory beanFactory;
 
-    public AnnotationConfigWebApplicationContext(final String... basePackages) {
-        this.beanFactory = new DefaultListableBeanFactory(basePackages);
+    public AnnotationConfigWebApplicationContext(final Class<?> applicationClass) {
+        BeanScanner beanScanner = new BeanScanner(applicationClass);
+        BeanDefinitions beanDefinitions = beanScanner.scan();
+        this.beanFactory = new DefaultListableBeanFactory(beanDefinitions);
     }
 
     @Override
     public <T> T getBean(final Class<T> clazz) {
-        return null;
+        return beanFactory.getBean(clazz);
     }
 
     @Override
     public Set<Class<?>> getBeanClasses() {
-        return Set.of();
+        return beanFactory.getBeanClasses();
     }
 }

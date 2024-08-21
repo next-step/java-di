@@ -4,7 +4,10 @@ import com.interface21.beans.BeanInstantiationException;
 import com.interface21.beans.factory.support.BeanFactoryUtils;
 
 import java.lang.reflect.Constructor;
+import java.lang.reflect.InvocationTargetException;
 import java.util.Set;
+import java.util.function.Function;
+import java.util.stream.Stream;
 
 public class SimpleBeanDefinition implements BeanDefinition {
 
@@ -13,12 +16,16 @@ public class SimpleBeanDefinition implements BeanDefinition {
     private final Class<?> beanClass;
     private final Constructor<?> constructor;
 
-    public SimpleBeanDefinition(final Class<?> beanClass) {
+    public SimpleBeanDefinition(final Class<?> beanClass, final Constructor<?> constructor) {
         this.beanClass = beanClass;
-        this.constructor = findBeanConstructor(beanClass);
+        this.constructor = constructor;
     }
 
-    private Constructor<?> findBeanConstructor(Class<?> concreteClass) {
+    public static SimpleBeanDefinition from(final Class<?> beanClass) {
+        return new SimpleBeanDefinition(beanClass, findBeanConstructor(beanClass));
+    }
+
+    private static Constructor<?> findBeanConstructor(Class<?> concreteClass) {
         Set<Constructor> injectedConstructors = BeanFactoryUtils.getInjectedConstructors(concreteClass);
 
         if (injectedConstructors.size() > BEAN_CONSTRUCTOR_COUNT) {
@@ -48,6 +55,16 @@ public class SimpleBeanDefinition implements BeanDefinition {
     }
 
     @Override
+    public Object createBean(final Function<Class<?>, Object> beanSupplier) throws InvocationTargetException, IllegalAccessException, InstantiationException {
+        return constructor.newInstance(createParameterArgs(beanSupplier));
+    }
+
+    private Object[] createParameterArgs(final Function<Class<?>, Object> beanSupplier) {
+        return Stream.of(constructor.getParameterTypes())
+                .map(beanSupplier)
+                .toArray();
+    }
+
     public Constructor<?> getConstructor() {
         return constructor;
     }
