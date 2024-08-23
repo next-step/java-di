@@ -47,3 +47,11 @@
     - [x] @Controller, @Service, @Repository에 대해 지원이 가능하도록 개선한다
     - [x] ControllerScanner의 역할을 BeanScanner로 확장한다.
     - [x] AnnotationHandlerMapping이 BeanFactory와 BeanScanner를 활용해 동작하도록 변경한다
+## 요구사항 정리
+### 🚀 2단계 - DI 컨테이너 구현하기(힌트) 
+
+ - [ ] 재귀호출 활용하여 빈 생성
+    - [ ] 순환 참조 문제 고민해보기
+ - [ ] Bean 빈 생성 로직 구현
+    - [ ] BeanFactory 
+ - [ ] BeanScanner 패키지 구조 변경
