@@ -22,7 +22,7 @@ public class DefaultListableBeanFactory implements BeanFactory {
   private final String[] basePackages;
 
   public DefaultListableBeanFactory(String... basePackages) {
-    this.basePackages =  basePackages;
+    this.basePackages = basePackages;
   }
 
   @Override
@@ -79,16 +79,8 @@ public class DefaultListableBeanFactory implements BeanFactory {
 
     // singletonObjects 에 등록이 안되어 있으면 하위 빈 등록 재귀 호출
     return Arrays.stream(constructor.getParameterTypes())
-        .map(paramType -> {
-          if (singletonObjects.containsKey(paramType)) {
-            return singletonObjects.get(paramType);
-          } else {
-            Object bean = createBean(paramType, beanClasses);
-            singletonObjects.put(paramType, bean);
-            return bean;
-          }
-        })
-        .toArray();
+        .map(paramType -> singletonObjects.computeIfAbsent(paramType,
+            type -> createBean(type, beanClasses))).toArray();
   }
 
   @Override
