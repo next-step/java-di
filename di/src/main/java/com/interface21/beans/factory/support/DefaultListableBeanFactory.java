@@ -4,6 +4,7 @@ import com.interface21.beans.BeanCircularException;
 import com.interface21.beans.BeanInstantiationException;
 import com.interface21.beans.factory.BeanFactory;
 import com.interface21.context.stereotype.Component;
+import com.interface21.context.stereotype.Controller;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import org.reflections.Reflections;
@@ -90,6 +91,16 @@ public class DefaultListableBeanFactory implements BeanFactory {
     return Arrays.stream(constructor.getParameterTypes())
         .map(paramType -> singletonObjects.computeIfAbsent(paramType,
             type -> createBean(type, beanClasses))).toArray();
+  }
+
+  public Map<Class<?>, Object> getControllers() {
+    Map<Class<?>, Object> controllers = new HashMap();
+    for (Class<?> clazz : singletonObjects.keySet()) {
+      if (clazz.isAnnotationPresent(Controller.class)) {
+        controllers.put(clazz, getBean(clazz));
+      }
+    }
+    return controllers;
   }
 
   @Override
