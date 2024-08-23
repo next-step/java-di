@@ -31,9 +31,9 @@ public class DefaultListableBeanFactory implements BeanFactory {
   }
 
   @Override
-  @SuppressWarnings("unchecked")
   public <T> T getBean(final Class<T> clazz) {
-    return (T) singletonObjects.get(clazz);
+    Object bean = singletonObjects.get(clazz);
+    return clazz.cast(bean);
   }
 
   public void initialize() {
