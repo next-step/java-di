@@ -1,11 +1,8 @@
 package com.interface21.beans.factory.support;
 
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 import com.interface21.beans.factory.CircularException;
-import com.interface21.context.support.AnnotationConfigWebApplicationContext;
-import javax.sql.DataSource;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -22,12 +19,14 @@ public class CircularExceptionTest {
         classpathBeanScanner = new ClasspathBeanScanner(beanFactory);
         classpathBeanScanner.scan("circular");
     }
+
     @Test
     @DisplayName("Bean의 Circular Exception을 예외 처리합니다.")
     public void circularException() {
         assertThatThrownBy(() -> beanFactory.initialize())
             .isInstanceOf(CircularException.class)
-            .hasMessageContaining("[[class circular.SampleService1, class circular.SampleService2]]");
+            .hasMessageContaining(
+                "[[class circular.SampleService1, class circular.SampleService2]]");
 
     }
 }

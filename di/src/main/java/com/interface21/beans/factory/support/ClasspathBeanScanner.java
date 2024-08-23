@@ -9,6 +9,7 @@ import org.reflections.Reflections;
 
 public class ClasspathBeanScanner implements Scanner {
 
+    public static final String LIB = "com.interface21";
     private final BeanDefinitionRegistry registry;
 
     public ClasspathBeanScanner(BeanDefinitionRegistry registry) {
@@ -18,7 +19,7 @@ public class ClasspathBeanScanner implements Scanner {
 
     @Override
     public void scan(Object... basePackage) {
-        Reflections reflections = new Reflections("com.interface21.context");
+        Reflections reflections = new Reflections(LIB, basePackage);
         Set<Class<?>> annotatedClasses = reflections.getTypesAnnotatedWith(Component.class);
         Set<Class<?>> annotations = annotatedClasses.stream()
             .filter(Class::isAnnotation)

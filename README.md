@@ -85,5 +85,9 @@
 - [x] 설정 파일을 통해 등록한 Bean과 ClassPathBeanScanner 추가로 bean 통합
 - [x] ConfigurationBeanScanner와 ClasspathBeanScanner 통합하는 클래스 추가
 
+## 4 단계 요구사항
+- [x] 모든 요구사항 3단계에서 구현 확인
+- [x] ConfigurationBeanScanner와 ClasspathBeanScanner 통합하는 클래스 추가 -> Application Context 구현되어 있습니다.
+
 
 
