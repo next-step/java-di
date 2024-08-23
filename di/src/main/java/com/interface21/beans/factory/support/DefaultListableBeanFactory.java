@@ -1,5 +1,6 @@
 package com.interface21.beans.factory.support;
 
+import com.interface21.beans.BeanCircularException;
 import com.interface21.beans.BeanInstantiationException;
 import com.interface21.beans.factory.BeanFactory;
 import com.interface21.context.stereotype.Component;
@@ -20,6 +21,7 @@ public class DefaultListableBeanFactory implements BeanFactory {
 
   private final Map<Class<?>, Object> singletonObjects = new HashMap<>();
   private final String[] basePackages;
+  private final Set<Class<?>> beansCircularTracker = new HashSet<>();
 
   public DefaultListableBeanFactory(String... basePackages) {
     this.basePackages = basePackages;
@@ -50,6 +52,11 @@ public class DefaultListableBeanFactory implements BeanFactory {
   }
 
   private Object createBean(Class<?> beanClass, Set<Class<?>> beanClasses) {
+
+    if (!beansCircularTracker.add(beanClass)) {
+      throw new BeanCircularException(beanClass.getName());
+    }
+
     Constructor<?> constructor = findAutoWiredConstructor(beanClass, beanClasses);
     Object[] params = resolveConstructorArguments(constructor, beanClasses);
 
@@ -58,6 +65,8 @@ public class DefaultListableBeanFactory implements BeanFactory {
     } catch (InstantiationException | IllegalAccessException | InvocationTargetException e) {
       log.info(e.getMessage());
       throw new BeanInstantiationException(constructor, "bean생성을 실패했습니다 : +", e.getCause());
+    } finally {
+      beansCircularTracker.remove(beanClass);
     }
   }
 
