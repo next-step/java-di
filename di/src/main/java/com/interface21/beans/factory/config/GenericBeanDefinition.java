@@ -3,34 +3,39 @@ package com.interface21.beans.factory.config;
 import com.interface21.beans.factory.support.BeanFactoryUtils;
 import com.interface21.beans.factory.support.BeanInstantiationException;
 import com.interface21.beans.factory.support.NoUniqueBeanDefinitionException;
+import com.interface21.core.util.StringUtils;
 import java.lang.reflect.Constructor;
+import java.lang.reflect.InvocationTargetException;
 import java.util.Optional;
 import java.util.Set;
+import java.util.function.Function;
+import java.util.stream.Stream;
 
 public class GenericBeanDefinition implements BeanDefinition{
 
   private final Class<?> type;
-  private final String beanClassName;
+  private final String beanName;
   private final Constructor<?> constructor;
 
-  private GenericBeanDefinition(Class<?> type, String beanClassName, Constructor<?> constructor) {
+  private GenericBeanDefinition(Class<?> type, String beanNamae, Constructor<?> constructor) {
     this.type = type;
-    this.beanClassName = beanClassName;
+    this.beanName = beanNamae;
     this.constructor = constructor;
   }
 
   public static GenericBeanDefinition from(Class<?> beanClass) {
-    return new GenericBeanDefinition(beanClass, getBeanName(beanClass.getSimpleName()), getConstructor(beanClass));
+    final String beanName = StringUtils.makeBeanName(beanClass.getSimpleName());
+
+    return new GenericBeanDefinition(beanClass, beanName, getConstructor(beanClass));
   }
 
-  private static String getBeanName(String beanClassName) {
-    // make camelCase
-    return beanClassName.substring(0, 1).toLowerCase() + beanClassName.substring(1);
-  }
-
-  private static Constructor<?> getConstructor(Class<?> clazz) {
+  public static Constructor<?> getConstructor(Class<?> clazz) {
     return getAutowiredConstructor(clazz)
         .orElseGet(() -> getDefaultConstructor(clazz));
+  }
+
+  public Constructor<?> getConstructor() {
+    return this.constructor;
   }
 
   private static Optional<Constructor> getAutowiredConstructor(Class<?> clazz) {
@@ -61,17 +66,19 @@ public class GenericBeanDefinition implements BeanDefinition{
   }
 
   @Override
-  public String getBeanClassName() {
-    return beanClassName;
+  public String getBeanName() {
+    return beanName;
   }
 
   @Override
-  public Constructor<?> getConstructor() {
-    return constructor;
+  public Object createBean(final Function<Class<?>, Object> beanSupplier)
+      throws InvocationTargetException, IllegalAccessException, InstantiationException {
+    return constructor.newInstance(createParameterArgs(beanSupplier));
   }
 
-  @Override
-  public Class<?>[] getParameterTypes() {
-    return this.constructor.getParameterTypes();
+  private Object[] createParameterArgs(final Function<Class<?>, Object> beanSupplier) {
+    return Stream.of(constructor.getParameterTypes())
+        .map(beanSupplier)
+        .toArray();
   }
 }

@@ -5,4 +5,8 @@ public class BeanInstantiationException extends IllegalArgumentException{
   public BeanInstantiationException(final Class<?> beanClass, String message) {
     super("Failed to instantiate %s: %s".formatted(beanClass.getSimpleName(), message));
   }
+
+  public BeanInstantiationException(final Class<?> beanClass, String message, Throwable throwable) {
+    super("Failed to instantiate %s: %s".formatted(beanClass.getSimpleName(), message), throwable);
+  }
 }
