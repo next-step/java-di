@@ -1,16 +1,14 @@
 package com.interface21.beans.factory.support;
 
-import com.interface21.beans.BeanInstantiationException;
-import com.interface21.beans.BeanUtils;
+import com.interface21.beans.BeanCurrentlyInCreationException;
 import com.interface21.beans.factory.BeanFactory;
 import com.interface21.beans.factory.config.BeanDefinition;
-import com.interface21.beans.factory.config.GenericBeanDefinition;
 import com.interface21.context.stereotype.Controller;
-import java.lang.reflect.Constructor;
+import java.lang.reflect.InvocationTargetException;
+import java.util.AbstractMap;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
-import java.util.Map.Entry;
-import java.util.Optional;
 import java.util.Set;
 import org.apache.commons.lang3.ObjectUtils;
 import org.slf4j.Logger;
@@ -20,103 +18,106 @@ public class DefaultListableBeanFactory implements BeanFactory {
 
   private static final Logger log = LoggerFactory.getLogger(DefaultListableBeanFactory.class);
 
-  private final String[] basePackages;
+  private final SimpleBeanDefinitionRegistry beanRegistry;
 
-  private final Map<Class<?>, BeanDefinition> beanDefinitionMap = new HashMap<>();
+  private final Map<String, Object> singletonObjects = new HashMap<>();
+  private final Set<BeanDefinition> earlySingletonObjects = new HashSet<>();
 
-  private final Map<Class<?>, Object> singletonObjects = new HashMap<>();
-
-  public DefaultListableBeanFactory(String... basePackages) {
-    this.basePackages = basePackages;
+  public DefaultListableBeanFactory(final SimpleBeanDefinitionRegistry beanRegistry) {
+    this.beanRegistry = beanRegistry;
   }
 
   @Override
   public Set<Class<?>> getBeanClasses() {
-    return beanDefinitionMap.keySet();
+    return beanRegistry.getBeanClasses();
   }
 
   public Map<Class<?>, Object> getControllers() {
     Map<Class<?>, Object> controllers = new HashMap<>();
-    for (Map.Entry<Class<?>, Object> map : singletonObjects.entrySet()) {
-      findController(map, controllers);
-    }
+    beanRegistry.getBeanDefinitions()
+        .forEach((clazz, beanDefinition) -> findController(clazz, beanDefinition.getBeanName(), controllers));
 
     return controllers;
   }
 
-  private void findController(Entry<Class<?>, Object> map, Map<Class<?>, Object> controllers) {
-    final Class<?> clazz = map.getKey();
+  private void findController(Class<?> clazz, String beanName, Map<Class<?>, Object> controllers) {
     if (clazz.isAnnotationPresent(Controller.class)) {
-      controllers.put(clazz, map.getValue());
+      controllers.put(clazz, singletonObjects.get(beanName));
     }
   }
 
   @Override
+  @SuppressWarnings("unchecked")
   public <T> T getBean(final Class<T> clazz) {
-    if (clazz == null) {
-      throw new IllegalArgumentException("Class must not be null");
-    }
+    return (T) singletonObjects.entrySet()
+        .stream()
+        .filter(entry -> clazz.isAssignableFrom(entry.getValue().getClass()))
+        .findFirst()
+        .map(Map.Entry::getValue)
+        .orElseThrow(() -> new NoSuchBeanDefinitionException(clazz.getName()));
+  }
 
-    Object object = singletonObjects.get(clazz);
-    if(ObjectUtils.isEmpty(object)) {
-      createBean(clazz);
-      return clazz.cast(singletonObjects.get(clazz));
-    }
-
-    return clazz.cast(object);
+  @SuppressWarnings("unchecked")
+  public <T> T getBean(final String beanName) {
+    return (T) singletonObjects.get(beanName);
   }
 
   public void initialize() {
-    Set<Class<?>> beans = new BeanScanner(basePackages).scan();
-    for (Class<?> clazz : beans) {
-      final GenericBeanDefinition beanDefinition = GenericBeanDefinition.from(clazz);
-      beanDefinitionMap.put(clazz, beanDefinition);
+    beanRegistry.getBeanDefinitions()
+        .forEach((clazz, beanDefinition) -> {
+          initBean(new AbstractMap.SimpleEntry<>(clazz, beanDefinition));
+        });
+  }
+
+  private Object initBean(Map.Entry<Class<?>, BeanDefinition> beanDefinitionMap) {
+    final BeanDefinition beanDefinition = beanDefinitionMap.getValue();
+
+    validateBeanCurrentlyInCreation(beanDefinitionMap.getValue());
+
+    final String beanClassName = beanDefinition.getBeanName();
+    if (ObjectUtils.isNotEmpty(singletonObjects.get(beanClassName))) {
+      return singletonObjects.get(beanClassName);
     }
 
-    for(Map.Entry<Class<?>, BeanDefinition> entry : beanDefinitionMap.entrySet()) {
-      createBean(entry.getKey());
+    earlySingletonObjects.add(beanDefinition);
+
+    final Object object = this.instantiateBean(beanDefinition);
+    singletonObjects.put(beanClassName, object);
+    earlySingletonObjects.remove(beanDefinition);
+
+    log.info("Registered bean of type [{}] with name [{}] in the singleton context.", beanClassName, object.getClass().getName());
+
+    return object;
+  }
+
+  private void validateBeanCurrentlyInCreation(BeanDefinition beanDefinition) {
+    if(earlySingletonObjects.contains(beanDefinition)) {
+      throw new BeanCurrentlyInCreationException(beanDefinition.getBeanName());
     }
   }
 
-  private void createBean(Class<?> beanClass) {
-    Optional<Class<?>> concreteClass = BeanFactoryUtils.findConcreteClass(beanClass, getBeanClasses());
-    if (concreteClass.isEmpty()) {
-      throw new BeanInstantiationException(beanClass, "Could not find concrete class for bean class");
+  private Object instantiateBean(final BeanDefinition beanDefinition) {
+    try {
+      return beanDefinition.createBean(this::getOrCreateBean);
+    } catch (final InvocationTargetException | IllegalAccessException | InstantiationException e) {
+      throw new BeanInstantiationException(beanDefinition.getType(), e.getMessage(), e);
     }
-
-    final Object instance = instantiateConstructor(concreteClass.get());
-    singletonObjects.put(concreteClass.get(), instance);
-
-    log.info("Registered bean of type [{}] with name [{}] in the singleton context.",
-        beanClass.getName(), instance.getClass().getName());
   }
 
-  private Object instantiateConstructor(Class<?> concreteClass) {
-    final BeanDefinition beanDefinition = beanDefinitionMap.get(concreteClass);
-    Constructor<?> constructor = beanDefinition.getConstructor();
-    final Class<?>[] parameterTypes = beanDefinition.getParameterTypes();
-    final Object[] arguments = findArguments(parameterTypes);
+  private Object getOrCreateBean(final Class<?> parameterType) {
+    final BeanDefinition beanDefinition = beanRegistry.get(parameterType);
+    final String beanClassName = beanDefinition.getBeanName();
 
-    return BeanUtils.instantiateClass(constructor, arguments);
-  }
-
-  private Object[] findArguments(Class<?>[] parameterTypes) {
-    Object[] arguments = new Object[parameterTypes.length];
-
-    for (int i = 0; i < parameterTypes.length; i++) {
-      Optional<Class<?>> implClass = BeanFactoryUtils.findConcreteClass(parameterTypes[i], getBeanClasses());
-      if (implClass.isEmpty()) {
-        throw new NoSuchBeanDefinitionException("Could not find concrete class for bean class");
-      }
-      arguments[i] = this.getBean(implClass.get());
+    if (singletonObjects.containsKey(beanClassName)) {
+      return singletonObjects.get(beanClassName);
     }
 
-    return arguments;
+    return initBean(new AbstractMap.SimpleEntry<>(parameterType, beanDefinition));
   }
 
   @Override
   public void clear() {
-    beanDefinitionMap.clear();
+    beanRegistry.clear();
     singletonObjects.clear();
   }
 }
