@@ -79,13 +79,14 @@ class DefaultListableBeanFactoryTest {
 
     @Test
     @DisplayName("순환 참조가 있는 빈을 생성하면 예외가 발생한다")
-    // TODO: 아직 구현 못했습니다!!
     public void circularDependencyTest() {
         DefaultListableBeanFactory factory = new DefaultListableBeanFactory();
         factory.registerBeanDefinition(MockCircularComponentA.class, new AnnotationBeanDefinition(MockCircularComponentA.class));
         factory.registerBeanDefinition(MockCircularComponentB.class, new AnnotationBeanDefinition(MockCircularComponentB.class));
 
-        factory.initialize();
+        assertThrows(BeanInstantiationException.class,
+                factory::initialize,
+                "Circular reference detected");
     }
 
 

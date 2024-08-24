@@ -94,6 +94,12 @@ public class DefaultListableBeanFactory implements BeanFactory, BeanDefinitionRe
                 BeanFactoryUtils.findConcreteClass(clazz, getBeanClasses())
                         .orElseThrow(() -> new BeanClassNotFoundException(clazz.getSimpleName()));
 
+
+        if (initializingBeans.contains(clazz)) {
+            throw new BeanInstantiationException(clazz, "Circular reference detected");
+        }
+        initializingBeans.add(clazz);
+
         AnnotationBeanDefinition beanDefinition = (AnnotationBeanDefinition) beanDefinitionMap.get(concreteClazz);
         if (beanDefinition == null) {
             throw new BeanInstantiationException(clazz, "No BeanDefinition found for " + clazz.getSimpleName());
@@ -102,13 +108,13 @@ public class DefaultListableBeanFactory implements BeanFactory, BeanDefinitionRe
         Constructor<?> constructor = beanDefinition.getConstructor();
         Object[] args = registerArgumentValues(concreteClazz, constructor.getParameterTypes());
 
-        return instantiateBean(constructor, args);
+        Object instance = instantiateBean(constructor, args);
+        initializingBeans.remove(clazz);
+        return instance;
     }
 
 
     private Object instantiateBean(Constructor<?> constructor, Object[] args) {
-        Object instance = BeanUtils.instantiateClass(constructor, args);
-        initializingBeans.remove(constructor.getDeclaringClass());
-        return instance;
+        return BeanUtils.instantiateClass(constructor, args);
     }
 }
