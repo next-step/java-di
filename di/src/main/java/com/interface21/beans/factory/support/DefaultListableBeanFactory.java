@@ -75,12 +75,10 @@ public class DefaultListableBeanFactory implements BeanFactory, BeanDefinitionRe
 
     private void initializeBeans() {
         beanDefinitionMap
-                .values()
-                .forEach(
-                        beanDefinition -> {
-                            Object instance = createBean((AnnotationBeanDefinition) beanDefinition);
-                            beanRegistry.registeredBean(instance);
-                        });
+            .values()
+            .stream()
+            .map(beanDefinition -> createBean((AnnotationBeanDefinition) beanDefinition))
+            .forEach(beanRegistry::registeredBean);
     }
 
     private Object createBean(AnnotationBeanDefinition beanDefinition) {
