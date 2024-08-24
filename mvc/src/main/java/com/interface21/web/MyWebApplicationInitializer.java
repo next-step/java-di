@@ -1,5 +1,6 @@
 package com.interface21.web;
 
+import com.interface21.MyConfiguration;
 import com.interface21.context.support.AnnotationConfigWebApplicationContext;
 import com.interface21.webmvc.servlet.mvc.DispatcherServlet;
 import com.interface21.webmvc.servlet.mvc.asis.ControllerHandlerAdapter;
@@ -16,8 +17,7 @@ public class MyWebApplicationInitializer implements WebApplicationInitializer {
 
     @Override
     public void onStartup(final ServletContext container) {
-        final var applicationContext = new AnnotationConfigWebApplicationContext("camp.nextstep");
-
+        final var applicationContext = new AnnotationConfigWebApplicationContext(MyConfiguration.class);
 
         final var dispatcherServlet = new DispatcherServlet();
         dispatcherServlet.addHandlerMapping(new ManualHandlerMapping());
