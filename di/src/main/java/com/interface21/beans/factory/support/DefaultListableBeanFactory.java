@@ -1,8 +1,10 @@
 package com.interface21.beans.factory.support;
 
+import com.interface21.beans.BeanCircularException;
 import com.interface21.beans.BeanInstantiationException;
 import com.interface21.beans.factory.BeanFactory;
 import com.interface21.context.stereotype.Component;
+import com.interface21.context.stereotype.Controller;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import org.reflections.Reflections;
@@ -20,9 +22,10 @@ public class DefaultListableBeanFactory implements BeanFactory {
 
   private final Map<Class<?>, Object> singletonObjects = new HashMap<>();
   private final String[] basePackages;
+  private final Set<Class<?>> beansCircularTracker = new HashSet<>();
 
   public DefaultListableBeanFactory(String... basePackages) {
-    this.basePackages =  basePackages;
+    this.basePackages = basePackages;
   }
 
   @Override
@@ -31,9 +34,9 @@ public class DefaultListableBeanFactory implements BeanFactory {
   }
 
   @Override
-  @SuppressWarnings("unchecked")
   public <T> T getBean(final Class<T> clazz) {
-    return (T) singletonObjects.get(clazz);
+    Object bean = singletonObjects.get(clazz);
+    return clazz.cast(bean);
   }
 
   public void initialize() {
@@ -50,6 +53,11 @@ public class DefaultListableBeanFactory implements BeanFactory {
   }
 
   private Object createBean(Class<?> beanClass, Set<Class<?>> beanClasses) {
+
+    if (!beansCircularTracker.add(beanClass)) {
+      throw new BeanCircularException(beanClass.getName());
+    }
+
     Constructor<?> constructor = findAutoWiredConstructor(beanClass, beanClasses);
     Object[] params = resolveConstructorArguments(constructor, beanClasses);
 
@@ -58,6 +66,8 @@ public class DefaultListableBeanFactory implements BeanFactory {
     } catch (InstantiationException | IllegalAccessException | InvocationTargetException e) {
       log.info(e.getMessage());
       throw new BeanInstantiationException(constructor, "bean생성을 실패했습니다 : +", e.getCause());
+    } finally {
+      beansCircularTracker.remove(beanClass);
     }
   }
 
@@ -79,16 +89,18 @@ public class DefaultListableBeanFactory implements BeanFactory {
 
     // singletonObjects 에 등록이 안되어 있으면 하위 빈 등록 재귀 호출
     return Arrays.stream(constructor.getParameterTypes())
-        .map(paramType -> {
-          if (singletonObjects.containsKey(paramType)) {
-            return singletonObjects.get(paramType);
-          } else {
-            Object bean = createBean(paramType, beanClasses);
-            singletonObjects.put(paramType, bean);
-            return bean;
-          }
-        })
-        .toArray();
+        .map(paramType -> singletonObjects.computeIfAbsent(paramType,
+            type -> createBean(type, beanClasses))).toArray();
+  }
+
+  public Map<Class<?>, Object> getControllers() {
+    Map<Class<?>, Object> controllers = new HashMap();
+    for (Class<?> clazz : singletonObjects.keySet()) {
+      if (clazz.isAnnotationPresent(Controller.class)) {
+        controllers.put(clazz, getBean(clazz));
+      }
+    }
+    return controllers;
   }
 
   @Override
