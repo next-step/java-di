@@ -1,0 +1,84 @@
+package com.interface21.beans.factory.support;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.*;
+
+import com.interface21.beans.factory.config.BeanDefinition;
+import com.interface21.beans.factory.config.ConfigurationBeanDefinition;
+import com.interface21.beans.factory.config.GenericBeanDefinition;
+import java.lang.reflect.Method;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Set;
+import javax.sql.DataSource;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Test;
+import samples.JdbcSampleRepository;
+import samples.MyConfiguration;
+import samples.SampleController;
+
+class SimpleBeanDefinitionRegistryTest {
+
+  private SimpleBeanDefinitionRegistry beanDefinitionRegistry;
+
+  @BeforeEach
+  void setUp() throws Exception {
+    beanDefinitionRegistry = new SimpleBeanDefinitionRegistry();
+  }
+
+  @Test
+  @DisplayName("BeanDefinition 객체를 등록한다")
+  void register() {
+    final GenericBeanDefinition beanDefinition = GenericBeanDefinition.from(SampleController.class);
+    beanDefinitionRegistry.register(SampleController.class, beanDefinition);
+
+    Map<Class<?>, BeanDefinition> result = beanDefinitionRegistry.getBeanDefinitions();
+
+    assertAll(
+        () -> assertThat(result).containsKey(SampleController.class),
+        () -> assertThat(result).hasSize(1)
+    );
+  }
+
+  @Test
+  @DisplayName("등록한 BeanDefinition 객체를 조회한다")
+  void success_get() {
+    final GenericBeanDefinition beanDefinition = GenericBeanDefinition.from(SampleController.class);
+    beanDefinitionRegistry.register(SampleController.class, beanDefinition);
+
+    BeanDefinition result = beanDefinitionRegistry.get(SampleController.class);
+
+    assertAll(
+        () -> assertThat(result.getBeanName()).isEqualTo("sampleController"),
+        () -> assertThat(result.getType()).isEqualTo(SampleController.class)
+    );
+  }
+
+  @Test
+  @DisplayName("등록한 BeanDefinition 객체가 없다면 에러를 던진다.")
+  void fail_get() {
+    assertThrows(BeanInstantiationException.class,
+        () -> beanDefinitionRegistry.get(SampleController.class));
+  }
+
+  @Test
+  @DisplayName("BeanDefinition 객체 map 들을 하나로 합쳐 내부 map 에 저장한다")
+  void registerAll() throws NoSuchMethodException {
+    Map<Class<?>, BeanDefinition> map1 = new HashMap<>();
+    Method method = MyConfiguration.class.getMethod("dataSource");
+    map1.put(DataSource.class, new ConfigurationBeanDefinition(DataSource.class, method));
+
+    Map<Class<?>, BeanDefinition> map2 = new HashMap<>();
+    map2.put(SampleController.class, GenericBeanDefinition.from(SampleController.class));
+
+    beanDefinitionRegistry.registerAll(map1, map2);
+    Map<Class<?>, BeanDefinition> result = beanDefinitionRegistry.getBeanDefinitions();
+
+    assertAll(
+        () -> assertThat(result).hasSize(2),
+        () -> assertThat(result).containsKey(SampleController.class),
+        () -> assertThat(result).containsKey(DataSource.class)
+    );
+  }
+}
