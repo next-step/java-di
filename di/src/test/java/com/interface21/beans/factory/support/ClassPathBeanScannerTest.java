@@ -12,15 +12,14 @@ import samples.JdbcSampleRepository;
 import samples.SampleController;
 import samples.SampleService;
 
-class BeanScannerTest {
+class ClassPathBeanScannerTest {
 
   @Test
   @DisplayName("@Repository, @Service, @Controller 어노테이션이 존재하는 모든 클래스를 스캔한다")
   void scanTest() {
     List<String> basePackages = List.of("samples");
-    BeanScanner scanner = new BeanScanner(basePackages);
 
-    Map<Class<?>, BeanDefinition> result = scanner.scan();
+    Map<Class<?>, BeanDefinition> result = ClassPathBeanScanner.scan(basePackages);
 
     assertAll(
         () -> assertThat(result).isNotNull(),

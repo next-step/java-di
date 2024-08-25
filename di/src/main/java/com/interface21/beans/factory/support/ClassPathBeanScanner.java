@@ -13,17 +13,17 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import org.reflections.Reflections;
 
-public final class BeanScanner {
+public final class ClassPathBeanScanner {
 
-  private final Reflections reflections;
-  private final List<Class<? extends Annotation>> beanAnnotations;
+  private static final List<Class<? extends Annotation>> beanAnnotations =
+      List.of(Controller.class, Service.class, Repository.class, Configuration.class);
 
-  public BeanScanner(List<String> basePackages) {
-    this.reflections = new Reflections(basePackages);
-    this.beanAnnotations = List.of(Controller.class, Service.class, Repository.class, Configuration.class);
+  private ClassPathBeanScanner() {
   }
 
-  public Map<Class<?>, BeanDefinition> scan() {
+  public static Map<Class<?>, BeanDefinition> scan(List<String> basePackages) {
+    Reflections reflections = new Reflections(basePackages);
+
     return beanAnnotations.stream()
         .map(reflections::getTypesAnnotatedWith)
         .flatMap(Set::stream)

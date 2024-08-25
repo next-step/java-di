@@ -17,28 +17,15 @@ import org.reflections.Reflections;
 
 public final class ConfigurationBeanScanner {
 
-  private final Set<Class<?>> configurationClasses;
-  private final List<String> basePackages;
-
-  public ConfigurationBeanScanner(Class<?>... configurationClasses) {
-    this.configurationClasses = Arrays.stream(configurationClasses).collect(Collectors.toSet());
-    this.basePackages = this.findBasePackages();
+  private ConfigurationBeanScanner() {
   }
 
-  private List<String> findBasePackages() {
-    return this.configurationClasses.stream()
-        .filter(clazz -> clazz.isAnnotationPresent(ComponentScan.class))
-        .map(clazz -> clazz.getAnnotation(ComponentScan.class).basePackages())
-        .flatMap(Stream::of)
-        .toList();
+  public static Map<Class<?>, BeanDefinition> scan(List<String> basePackages) {
+    return getBeanMethodReturnTypes(basePackages);
   }
 
-  public Map<Class<?>, BeanDefinition> scan() {
-    return this.getBeanMethodReturnTypes(basePackages);
-  }
-
-  private Map<Class<?>, BeanDefinition> getBeanMethodReturnTypes(final List<String> basePackages) {
-    final Set<Class<?>> classes = this.getConfigurationClasses(basePackages);
+  private static Map<Class<?>, BeanDefinition> getBeanMethodReturnTypes(final List<String> basePackages) {
+    final Set<Class<?>> classes = getConfigurationClasses(basePackages);
 
     Map<Class<?>, BeanDefinition> map = new HashMap<>();
     for (Class<?> clazz : classes) {
@@ -52,13 +39,13 @@ public final class ConfigurationBeanScanner {
     return map;
   }
 
-  private Set<Class<?>> getConfigurationClasses(final List<String> basePackages) {
+  private static Set<Class<?>> getConfigurationClasses(final List<String> basePackages) {
     Reflections reflections = new Reflections(basePackages);
 
     return reflections.getTypesAnnotatedWith(Configuration.class);
   }
 
-  private Class<?> getReturnType(final Class<?> clazz, final Method method) {
+  private static Class<?> getReturnType(final Class<?> clazz, final Method method) {
     Class<?> returnType = method.getReturnType();
 
     if (returnType.equals(void.class)) {
@@ -66,9 +53,5 @@ public final class ConfigurationBeanScanner {
     }
 
     return returnType;
-  }
-
-  public List<String> getBasePackages() {
-    return basePackages;
   }
 }

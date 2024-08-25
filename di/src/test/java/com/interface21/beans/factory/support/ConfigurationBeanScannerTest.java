@@ -6,21 +6,20 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import com.interface21.beans.factory.config.BeanDefinition;
 import com.interface21.context.annotation.Bean;
-import com.interface21.context.annotation.ComponentScan;
 import com.interface21.context.annotation.Configuration;
+import java.util.List;
 import java.util.Map;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import samples.MyConfiguration;
 
 class ConfigurationBeanScannerTest {
 
   @Test
   @DisplayName("@Configuration 클래스의 빈 메서드들을 스캔한 뒤 반환한다")
   void beanMethodScanTest() {
-    ConfigurationBeanScanner configurationBeanScanner = new ConfigurationBeanScanner(MyConfiguration.class);
+    final List<String> basePackages = List.of("samples");
 
-    Map<Class<?>, BeanDefinition> result = configurationBeanScanner.scan();
+    Map<Class<?>, BeanDefinition> result = ConfigurationBeanScanner.scan(basePackages);
 
     assertAll(
         () -> assertThat(result).isNotNull(),
@@ -31,13 +30,13 @@ class ConfigurationBeanScannerTest {
   @Test
   @DisplayName("빈 메서드의 리턴타입이 void 라면 에러를 던진다")
   void beanCreationExceptionTest() {
-    ConfigurationBeanScanner configurationBeanScanner = new ConfigurationBeanScanner(ReturnVoidMethodConfiguration.class);
+    final List<String> basePackages = List.of("com.interface21.beans.factory.support");
 
-    assertThrows(BeanCreationException.class, configurationBeanScanner::scan);
+    assertThrows(BeanCreationException.class,
+        () -> ConfigurationBeanScanner.scan(basePackages));
   }
 
   @Configuration
-  @ComponentScan(basePackages = "com.interface21.beans.factory.support")
   static class ReturnVoidMethodConfiguration {
 
     @Bean
