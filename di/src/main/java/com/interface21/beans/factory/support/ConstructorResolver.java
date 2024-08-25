@@ -1,20 +1,32 @@
 package com.interface21.beans.factory.support;
 
+import com.interface21.beans.BeanUtils;
+import com.interface21.beans.factory.BeanFactory;
+import com.interface21.beans.factory.config.BeanDefinition;
+
 import java.lang.reflect.Constructor;
 
 public final class ConstructorResolver {
 
     public static final int FIRST_CONSTRUCTOR_INDEX = 0;
 
-    private ConstructorResolver() {}
+    private final BeanFactory beanFactory;
 
-    public static Constructor<?> resolveConstructor(Class<?> clazz) {
+    public ConstructorResolver(BeanFactory beanFactory) {
+        this.beanFactory = beanFactory;
+    }
 
+
+    public static ConstructorHolder resolve(Class<?> clazz) {
         Constructor<?> injectedConstructor = BeanFactoryUtils.getInjectedConstructor(clazz);
         if (injectedConstructor != null) {
-            return injectedConstructor;
+            return new ConstructorHolder(injectedConstructor, true);
         }
 
-        return clazz.getDeclaredConstructors()[FIRST_CONSTRUCTOR_INDEX];
+        return new ConstructorHolder(clazz.getDeclaredConstructors()[FIRST_CONSTRUCTOR_INDEX], false);
+    }
+
+    public Object autowireConstructor(BeanDefinition beanDefinition) {
+        return BeanUtils.instantiateClass(beanDefinition.getConstructor(), beanDefinition.resolveArguments(beanFactory));
     }
 }

@@ -39,6 +39,7 @@
 
 ## 요구사항
 
+### 1단계
 - [x] 인스턴스 생성 및 의존관계 설정을 애너테이션으로 자동화한다
   - 지원하는 애너테이션은 
    - [x] @Controller
@@ -50,6 +51,13 @@
 
 - [x] MVC 프레임워크의 AnnotationHandlerMapping이 BeanFactory와 BeanScanner를 활용해 동작하도록 리팩터링한다
 
+### 2단계
+- BeanFactory
+  - [x] `BeanFactory#getBean()`은 초기화된 싱글톤 빈을 반환한다
+  - [x] `BeanFactory#getBean()`은 초기화된 싱글톤 빈이 없으면 생성해서 반환한다
+    - [x] `BeanFactory`은 빈을 생성할 때 `@Autowired`로 선언한 생성자가 있으면 빈을 검색해서 의존성을 주입해준다
+    - [x] `BeanFactory`은 `@Autowired`로 선언한 생성자가 없는 경우 기본 생성자로 인스턴스를 생성한다
+
 ----
 
 - Bean
@@ -57,10 +65,6 @@
 - BeanDefinition
   - 빈의 `이름`, `타입` 정보를 가지고 있다
   - 유형으로는 `AnnotationBeanDefinition`이 있다. 어노테이션으로 선언한 빈의 정보를 관리한다
-- BeanDefinitionReader
-  - 빈을 스캔하고 빈의 정보를 관리하는 `BeanDefinition`을 생성한다
-  - 유형으로는 `AnnotationBeanDefinitionReader` 이 있다. 어노테이션으로 선언한 빈의 정보를 읽어들인다
-    - `@Component`가 선언된 빈의 `BeanDefinition`을 생성한다 
 - BeanDefinitionRegistry
   - `BeanDefinition`을 등록하고 조회하는 기능을 제공한다
 - BeanRegistry

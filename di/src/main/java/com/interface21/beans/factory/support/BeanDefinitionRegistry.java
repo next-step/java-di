@@ -11,4 +11,6 @@ public interface BeanDefinitionRegistry {
     Set<Class<?>> getBeanClasses();
 
     List<BeanDefinition> getBeanDefinitions();
+
+    int getBeanDefinitionCount();
 }
