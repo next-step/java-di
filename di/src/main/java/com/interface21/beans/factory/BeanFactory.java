@@ -10,5 +10,4 @@ public interface BeanFactory {
 
     void clear();
 
-    Object[] registerArgumentValues(Class<?> type, Class<?>[] parameterTypes);
 }

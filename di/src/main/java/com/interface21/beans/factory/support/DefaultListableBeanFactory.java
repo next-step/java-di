@@ -1,33 +1,31 @@
 package com.interface21.beans.factory.support;
 
-import java.lang.reflect.Constructor;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 import com.interface21.beans.BeanInstantiationException;
-import com.interface21.beans.factory.config.AnnotationBeanDefinition;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.interface21.beans.BeanUtils;
 import com.interface21.beans.factory.BeanFactory;
 import com.interface21.beans.factory.config.BeanDefinition;
 
-public class DefaultListableBeanFactory implements BeanFactory, BeanDefinitionRegistry {
+public class DefaultListableBeanFactory implements BeanFactory, BeanDefinitionRegistry, AutowireCapableBeanFactory{
 
     private static final Logger log = LoggerFactory.getLogger(DefaultListableBeanFactory.class);
 
     private final Map<Class<?>, BeanDefinition> beanDefinitionMap = new ConcurrentHashMap<>();
     private final BeanRegistry beanRegistry;
-    private final Set<Class<?>> initializingBeans = ConcurrentHashMap.newKeySet();
-    private final ConstructorArgumentValueHolder constructorArgumentValueHolder;
+    private final BeanInstantiationCache beanInstantiationCache;
+    private final List<BeanInitializer> beanInitializers;
+
 
     public DefaultListableBeanFactory() {
         this.beanRegistry = new DefaultBeanRegistry();
-        this.constructorArgumentValueHolder = new ConstructorArgumentValueHolder();
+        this.beanInstantiationCache = new BeanInstantiationCache();
+        this.beanInitializers = List.of(new AutowireAnnotationBeanInitializer(this), new DefaultBeanInitializer(this));
     }
 
     public void initialize() {
@@ -57,64 +55,53 @@ public class DefaultListableBeanFactory implements BeanFactory, BeanDefinitionRe
 
     @Override
     public <T> T getBean(final Class<T> clazz) {
-        Object bean = beanRegistry.getBean(clazz);
-        if (bean != null) {
-            return clazz.cast(bean);
-        }
-        return clazz.cast(instantiateClass(clazz));
+        return clazz.cast(doGetBean(clazz));
     }
 
     @Override
     public void clear() {}
 
-    @Override
-    public Object[] registerArgumentValues(Class<?> type, Class<?>[] parameterTypes) {
-        Object[] args = Arrays.stream(parameterTypes).map(this::getBean).toArray(Object[]::new);
-        return constructorArgumentValueHolder.addValueHolder(type, args);
-    }
 
     private void initializeBeans() {
         beanDefinitionMap
             .values()
-            .stream()
-            .map(beanDefinition -> createBean((AnnotationBeanDefinition) beanDefinition))
-            .forEach(beanRegistry::registeredBean);
+            .forEach(beanDefinition -> getBean(beanDefinition.getType()));
     }
 
-    private Object createBean(AnnotationBeanDefinition beanDefinition) {
-        if (!beanDefinition.isAutowireMode()) {
-            return BeanUtils.instantiate(beanDefinition.getType());
+
+    private Object doGetBean(Class<?> clazz) {
+
+        Class<?> concreteClazz = resolveBeanClass(clazz);
+
+        Object bean = beanRegistry.getBean(concreteClazz);
+        if (bean != null) {
+            return concreteClazz.cast(bean);
         }
 
-        return new ConstructorResolver(this).autowireConstructor(beanDefinition);
-    }
-
-    private Object instantiateClass(Class<?> clazz) {
-        Class<?> concreteClazz =
-                BeanFactoryUtils.findConcreteClass(clazz, getBeanClasses())
-                        .orElseThrow(() -> new BeanClassNotFoundException(clazz.getSimpleName()));
-
-
-        if (initializingBeans.contains(clazz)) {
-            throw new BeanInstantiationException(clazz, "Circular reference detected");
-        }
-        initializingBeans.add(clazz);
-
-        AnnotationBeanDefinition beanDefinition = (AnnotationBeanDefinition) beanDefinitionMap.get(concreteClazz);
+        var beanDefinition = beanDefinitionMap.get(concreteClazz);
         if (beanDefinition == null) {
-            throw new BeanInstantiationException(clazz, "No BeanDefinition found for " + clazz.getSimpleName());
+            throw new BeanInstantiationException(concreteClazz, "No BeanDefinition found for ");
         }
-
-        Constructor<?> constructor = beanDefinition.getConstructor();
-        Object[] args = registerArgumentValues(concreteClazz, constructor.getParameterTypes());
-
-        Object instance = instantiateBean(constructor, args);
-        initializingBeans.remove(clazz);
-        return instance;
+        return createBean(beanDefinition);
     }
 
+    private Object createBean(BeanDefinition beanDefinition) {
 
-    private Object instantiateBean(Constructor<?> constructor, Object[] args) {
-        return BeanUtils.instantiateClass(constructor, args);
+        for (BeanInitializer beanInitializer : beanInitializers) {
+            if (beanInitializer.support(beanDefinition)) {
+                return beanInitializer.initializeBean(beanDefinition);
+            }
+        }
+        return null;
+    }
+
+    private Class<?> resolveBeanClass(Class<?> clazz) {
+        return BeanFactoryUtils.findConcreteClass(clazz, getBeanClasses())
+                .orElseThrow(() -> new BeanClassNotFoundException(clazz.getSimpleName()));
+    }
+
+    @Override
+    public BeanInstantiationCache getBeanInstantiationCache() {
+        return beanInstantiationCache;
     }
 }
