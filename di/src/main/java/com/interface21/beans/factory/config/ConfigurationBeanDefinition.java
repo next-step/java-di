@@ -28,9 +28,13 @@ public class ConfigurationBeanDefinition implements BeanDefinition{
 
   @Override
   public Object createBean(Function<Class<?>, Object> beanSupplier) throws InvocationTargetException, IllegalAccessException {
-
     Object[] args = createParameterArgs(beanSupplier);
     return beanMethod.invoke(beanSupplier.apply(beanMethod.getDeclaringClass()), args);
+  }
+
+  @Override
+  public boolean isSameBeanClassName(final String BeanClassName) {
+    return this.beanClassName.equals(BeanClassName);
   }
 
   private Object[] createParameterArgs(final Function<Class<?>, Object> beanSupplier) {

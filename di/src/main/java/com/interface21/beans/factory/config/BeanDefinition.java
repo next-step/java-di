@@ -11,4 +11,6 @@ public interface BeanDefinition {
 
     Object createBean(Function<Class<?>, Object> beanSupplier)
         throws InvocationTargetException, IllegalAccessException, InstantiationException;
+
+    boolean isSameBeanClassName(String BeanClassName);
 }

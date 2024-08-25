@@ -35,7 +35,7 @@ public class DefaultListableBeanFactory implements BeanFactory {
   public Map<Class<?>, Object> getControllers() {
     Map<Class<?>, Object> controllers = new HashMap<>();
     beanRegistry.getBeanDefinitions()
-        .forEach((clazz, beanDefinition) -> findController(clazz, beanDefinition.getBeanName(), controllers));
+        .forEach((clazz, beanDefinition) -> findController(clazz, beanDefinition.getBeanClassName(), controllers));
 
     return controllers;
   }
@@ -74,7 +74,7 @@ public class DefaultListableBeanFactory implements BeanFactory {
 
     validateBeanCurrentlyInCreation(beanDefinitionMap.getValue());
 
-    final String beanClassName = beanDefinition.getBeanName();
+    final String beanClassName = beanDefinition.getBeanClassName();
     if (ObjectUtils.isNotEmpty(singletonObjects.get(beanClassName))) {
       return singletonObjects.get(beanClassName);
     }
@@ -92,7 +92,7 @@ public class DefaultListableBeanFactory implements BeanFactory {
 
   private void validateBeanCurrentlyInCreation(BeanDefinition beanDefinition) {
     if(earlySingletonObjects.contains(beanDefinition)) {
-      throw new BeanCurrentlyInCreationException(beanDefinition.getBeanName());
+      throw new BeanCurrentlyInCreationException(beanDefinition.getBeanClassName());
     }
   }
 
@@ -106,7 +106,7 @@ public class DefaultListableBeanFactory implements BeanFactory {
 
   private Object getOrCreateBean(final Class<?> parameterType) {
     final BeanDefinition beanDefinition = beanRegistry.get(parameterType);
-    final String beanClassName = beanDefinition.getBeanName();
+    final String beanClassName = beanDefinition.getBeanClassName();
 
     if (singletonObjects.containsKey(beanClassName)) {
       return singletonObjects.get(beanClassName);

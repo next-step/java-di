@@ -48,7 +48,21 @@ public class SimpleBeanDefinitionRegistry implements BeanDefinitionRegistry {
 
   @SafeVarargs
   public final void registerAll(Map<Class<?>, BeanDefinition>... maps) {
-    Arrays.stream(maps).forEach(beanDefinitionMap::putAll);
+    Arrays.stream(maps)
+        .flatMap(map -> map.entrySet().stream())
+        .forEach(entry -> {
+          Class<?> beanClass = entry.getKey();
+          BeanDefinition beanDefinition = entry.getValue();
+          validateExistBeanName(beanDefinition);
+          beanDefinitionMap.put(beanClass, beanDefinition);
+        });
+  }
+
+  private void validateExistBeanName(final BeanDefinition newBeanDefinition) {
+    final String newBeanClassName = newBeanDefinition.getBeanClassName();
+    if (beanDefinitionMap.values().stream().anyMatch(exist -> exist.isSameBeanClassName(newBeanClassName))) {
+      throw new BeanCreationException(newBeanClassName);
+    }
   }
 
   public void clear() {

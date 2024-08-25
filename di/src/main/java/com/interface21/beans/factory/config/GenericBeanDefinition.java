@@ -45,6 +45,11 @@ public class GenericBeanDefinition implements BeanDefinition{
     return constructor.newInstance(createParameterArgs(beanSupplier));
   }
 
+  @Override
+  public boolean isSameBeanClassName(final String BeanClassName) {
+    return this.beanClassName.equals(BeanClassName);
+  }
+
   private Object[] createParameterArgs(final Function<Class<?>, Object> beanSupplier) {
     return Stream.of(constructor.getParameterTypes())
         .map(beanSupplier)

@@ -4,11 +4,11 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertAll;
 
 import com.interface21.beans.factory.config.BeanDefinition;
+import java.util.List;
 import java.util.Map;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import samples.MyConfiguration;
 import samples.SampleController;
 
 class DefaultListableBeanFactoryTest {
@@ -18,10 +18,9 @@ class DefaultListableBeanFactoryTest {
     @BeforeEach
     @SuppressWarnings("unchecked")
     void setUp() {
-        final Class<MyConfiguration> myConfigurationClass = MyConfiguration.class;
-        ConfigurationBeanScanner configurationBeanScanner = new ConfigurationBeanScanner(myConfigurationClass);
-        final Map<Class<?>, BeanDefinition> configurationBeanDefinitionMap = new ConfigurationBeanScanner(myConfigurationClass).scan();
-        final Map<Class<?>, BeanDefinition> genericBeanDefinitionMap = new BeanScanner(configurationBeanScanner.getBasePackages()).scan();
+        final List<String> basePackages = List.of("samples");
+        final Map<Class<?>, BeanDefinition> configurationBeanDefinitionMap = ConfigurationBeanScanner.scan(basePackages);
+        final Map<Class<?>, BeanDefinition> genericBeanDefinitionMap = ClassPathBeanScanner.scan(basePackages);
 
         final SimpleBeanDefinitionRegistry simpleBeanDefinitionRegistry = new SimpleBeanDefinitionRegistry();
         simpleBeanDefinitionRegistry.registerAll(configurationBeanDefinitionMap, genericBeanDefinitionMap);
