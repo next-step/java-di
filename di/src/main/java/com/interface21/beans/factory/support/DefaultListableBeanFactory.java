@@ -1,9 +1,8 @@
 package com.interface21.beans.factory.support;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
 
 import com.interface21.beans.BeanInstantiationException;
 import org.slf4j.Logger;
@@ -16,16 +15,14 @@ public class DefaultListableBeanFactory implements BeanFactory, BeanDefinitionRe
 
     private static final Logger log = LoggerFactory.getLogger(DefaultListableBeanFactory.class);
 
-    private final Map<Class<?>, BeanDefinition> beanDefinitionMap = new ConcurrentHashMap<>();
+    private final BeanDefinitions beanDefinitions = new BeanDefinitions();
     private final BeanRegistry beanRegistry;
     private final BeanInstantiationCache beanInstantiationCache;
-    private final List<BeanInitializer> beanInitializers;
 
 
     public DefaultListableBeanFactory() {
         this.beanRegistry = new DefaultBeanRegistry();
         this.beanInstantiationCache = new BeanInstantiationCache();
-        this.beanInitializers = List.of(new AutowireAnnotationBeanInitializer(this), new DefaultBeanInitializer(this));
     }
 
     public void initialize() {
@@ -34,23 +31,22 @@ public class DefaultListableBeanFactory implements BeanFactory, BeanDefinitionRe
 
     @Override
     public void registerBeanDefinition(Class<?> clazz, BeanDefinition beanDefinition) {
-        beanDefinitionMap.put(clazz, beanDefinition);
-        log.info("BeanDefinition registered for {}", clazz.getSimpleName());
+        beanDefinitions.registerBeanDefinition(clazz, beanDefinition);
     }
 
     @Override
     public Set<Class<?>> getBeanClasses() {
-        return beanDefinitionMap.keySet();
+        return beanDefinitions.getBeanClasses();
     }
 
     @Override
     public List<BeanDefinition> getBeanDefinitions() {
-        return List.copyOf(beanDefinitionMap.values());
+        return beanDefinitions.getBeanDefinitions();
     }
 
     @Override
     public int getBeanDefinitionCount() {
-        return getBeanDefinitions().size();
+        return beanDefinitions.size();
     }
 
     @Override
@@ -63,8 +59,7 @@ public class DefaultListableBeanFactory implements BeanFactory, BeanDefinitionRe
 
 
     private void initializeBeans() {
-        beanDefinitionMap
-            .values()
+       beanDefinitions.getBeanDefinitions()
             .forEach(beanDefinition -> getBean(beanDefinition.getType()));
     }
 
@@ -73,26 +68,27 @@ public class DefaultListableBeanFactory implements BeanFactory, BeanDefinitionRe
 
         Class<?> concreteClazz = resolveBeanClass(clazz);
 
-        Object bean = beanRegistry.getBean(concreteClazz);
-        if (bean != null) {
-            return concreteClazz.cast(bean);
-        }
+        Object instance = Optional.ofNullable(beanRegistry.getBean(concreteClazz))
+                .orElseGet(() -> createBean(beanDefinitions.getBeanDefinition(concreteClazz)));
 
-        var beanDefinition = beanDefinitionMap.get(concreteClazz);
-        if (beanDefinition == null) {
-            throw new BeanInstantiationException(concreteClazz, "No BeanDefinition found for ");
-        }
-        return createBean(beanDefinition);
+        return concreteClazz.cast(instance);
     }
 
     private Object createBean(BeanDefinition beanDefinition) {
 
-        for (BeanInitializer beanInitializer : beanInitializers) {
-            if (beanInitializer.support(beanDefinition)) {
-                return beanInitializer.initializeBean(beanDefinition);
-            }
+        Class<?> beanClass = beanDefinition.getType();
+        if (beanInstantiationCache.isCircularDependency(beanClass)) {
+            throw new BeanInstantiationException(beanClass, "Circular dependency detected");
         }
-        return null;
+
+        try {
+            beanInstantiationCache.addInitializingBean(beanClass);
+            return new ConstructorResolver(this).autowireConstructor(beanDefinition);
+        } catch (IllegalArgumentException e) {
+            throw new BeanInstantiationException(beanClass, e.getMessage());
+        } finally {
+            beanInstantiationCache.removeInitializingBean(beanClass);
+        }
     }
 
     private Class<?> resolveBeanClass(Class<?> clazz) {

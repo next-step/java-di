@@ -8,6 +8,7 @@ import javax.sql.DataSource;
 
 import com.interface21.MockBeanFactory;
 import com.interface21.beans.factory.BeanFactory;
+import com.interface21.beans.factory.config.AnnotationBeanDefinition;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
