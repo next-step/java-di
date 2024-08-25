@@ -14,12 +14,12 @@ import java.util.stream.Stream;
 public class GenericBeanDefinition implements BeanDefinition{
 
   private final Class<?> type;
-  private final String beanName;
+  private final String beanClassName;
   private final Constructor<?> constructor;
 
   private GenericBeanDefinition(Class<?> type, String beanNamae, Constructor<?> constructor) {
     this.type = type;
-    this.beanName = beanNamae;
+    this.beanClassName = beanNamae;
     this.constructor = constructor;
   }
 
@@ -27,6 +27,28 @@ public class GenericBeanDefinition implements BeanDefinition{
     final String beanName = StringUtils.makeBeanName(beanClass.getSimpleName());
 
     return new GenericBeanDefinition(beanClass, beanName, getConstructor(beanClass));
+  }
+
+  @Override
+  public Class<?> getType() {
+    return type;
+  }
+
+  @Override
+  public String getBeanClassName() {
+    return beanClassName;
+  }
+
+  @Override
+  public Object createBean(final Function<Class<?>, Object> beanSupplier)
+      throws InvocationTargetException, IllegalAccessException, InstantiationException {
+    return constructor.newInstance(createParameterArgs(beanSupplier));
+  }
+
+  private Object[] createParameterArgs(final Function<Class<?>, Object> beanSupplier) {
+    return Stream.of(constructor.getParameterTypes())
+        .map(beanSupplier)
+        .toArray();
   }
 
   public static Constructor<?> getConstructor(Class<?> clazz) {
@@ -58,27 +80,5 @@ public class GenericBeanDefinition implements BeanDefinition{
     }
 
     throw new BeanInstantiationException(clazz, "No default constructor found.");
-  }
-
-  @Override
-  public Class<?> getType() {
-    return type;
-  }
-
-  @Override
-  public String getBeanName() {
-    return beanName;
-  }
-
-  @Override
-  public Object createBean(final Function<Class<?>, Object> beanSupplier)
-      throws InvocationTargetException, IllegalAccessException, InstantiationException {
-    return constructor.newInstance(createParameterArgs(beanSupplier));
-  }
-
-  private Object[] createParameterArgs(final Function<Class<?>, Object> beanSupplier) {
-    return Stream.of(constructor.getParameterTypes())
-        .map(beanSupplier)
-        .toArray();
   }
 }

@@ -7,7 +7,7 @@ public interface BeanDefinition {
 
     Class<?> getType();
 
-    String getBeanName();
+    String getBeanClassName();
 
     Object createBean(Function<Class<?>, Object> beanSupplier)
         throws InvocationTargetException, IllegalAccessException, InstantiationException;

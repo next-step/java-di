@@ -22,7 +22,7 @@ public class ConfigurationBeanDefinition implements BeanDefinition{
   }
 
   @Override
-  public String getBeanName() {
+  public String getBeanClassName() {
     return beanClassName;
   }
 
