@@ -1,7 +1,8 @@
 package com.interface21.beans.factory.support;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertAll;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import com.interface21.beans.factory.config.BeanDefinition;
 import com.interface21.beans.factory.config.ConfigurationBeanDefinition;
@@ -9,12 +10,10 @@ import com.interface21.beans.factory.config.GenericBeanDefinition;
 import java.lang.reflect.Method;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Set;
 import javax.sql.DataSource;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import samples.JdbcSampleRepository;
 import samples.MyConfiguration;
 import samples.SampleController;
 
