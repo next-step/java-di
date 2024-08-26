@@ -4,6 +4,7 @@ import java.lang.annotation.Annotation;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import com.interface21.context.annotation.Configuration;
 import org.reflections.Reflections;
 
 import com.interface21.context.stereotype.Component;
@@ -15,16 +16,19 @@ public final class BeanScanner {
     private BeanScanner() {}
 
     public static Set<Class<?>> scanBeans(String[] baskPackage) {
-        final Reflections reflections = new Reflections(STEREOTYPE_PACKAGE, baskPackage);
-        return reflections.getTypesAnnotatedWith(Component.class).stream()
-                .filter(clazz -> !clazz.isAnnotation())
-                .collect(Collectors.toUnmodifiableSet());
+        return scanBeans(Component.class, baskPackage);
     }
 
     public static Set<Class<?>> scanBeans(
             Class<? extends Annotation> annotationType, String... basePackages) {
-        return scanBeans(basePackages).stream()
-                .filter(it -> it.isAnnotationPresent(annotationType))
+        final Reflections reflections = new Reflections(STEREOTYPE_PACKAGE, basePackages);
+        return reflections.getTypesAnnotatedWith(annotationType).stream()
+                .filter(clazz -> !clazz.isAnnotation())
                 .collect(Collectors.toUnmodifiableSet());
     }
+
+    public static Set<Class<?>> scanConfiguration(String[] basePackages) {
+        return scanBeans(Configuration.class, basePackages);
+    }
+
 }

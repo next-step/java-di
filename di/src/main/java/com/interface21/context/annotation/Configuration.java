@@ -1,5 +1,7 @@
 package com.interface21.context.annotation;
 
+import com.interface21.context.stereotype.Component;
+
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;

@@ -2,13 +2,10 @@ package com.interface21.context.support;
 
 import java.util.*;
 
+import com.interface21.beans.factory.support.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.interface21.beans.factory.support.AnnotationBeanDefinitionScanner;
-import com.interface21.beans.factory.support.BeanDefinitionRegistry;
-import com.interface21.beans.factory.support.BeanDefinitionScanner;
-import com.interface21.beans.factory.support.DefaultListableBeanFactory;
 import com.interface21.context.ApplicationContext;
 import com.interface21.context.annotation.AnnotationConfigRegistry;
 
@@ -27,12 +24,11 @@ public class AnnotationConfigWebApplicationContext
         initializeBeanFactory();
     }
 
+
     @Override
     public void scan(String[] basePackages) {
-        BeanDefinitionScanner scanner = getBeanScanner(beanFactory);
-        int count = scanner.scan(basePackages);
-
-        log.info("{} beans found in {}", count, Arrays.toString(basePackages));
+        var scanners = getBeanScanner(beanFactory);
+        scanners.forEach(scanner -> scanner.scan(basePackages));
     }
 
     @Override
@@ -49,7 +45,9 @@ public class AnnotationConfigWebApplicationContext
         this.beanFactory.initialize();
     }
 
-    private BeanDefinitionScanner getBeanScanner(BeanDefinitionRegistry beanFactory) {
-        return new AnnotationBeanDefinitionScanner(beanFactory);
+    private List<BeanDefinitionScanner> getBeanScanner(BeanDefinitionRegistry beanFactory) {
+        return List.of(
+                new AnnotationBeanDefinitionScanner(beanFactory),
+                new ConfigurationBeanDefinitionScanner(beanFactory));
     }
 }

@@ -1,13 +1,16 @@
-package samples;
+package samples.config;
 
 import javax.sql.DataSource;
 
+import com.interface21.context.annotation.ComponentScan;
 import org.h2.jdbcx.JdbcDataSource;
 
 import com.interface21.context.annotation.Bean;
 import com.interface21.context.annotation.Configuration;
+import samples.JdbcTemplate;
 
 @Configuration
+@ComponentScan({ "camp.nextstep", "com.interface21" })
 public class IntegrationConfig {
 
     @Bean

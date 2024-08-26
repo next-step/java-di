@@ -26,7 +26,7 @@ public class DefaultListableBeanFactory implements BeanFactory, BeanDefinitionRe
     }
 
     public void initialize() {
-        initializeBeans();
+        instantiateBeans();
     }
 
     @Override
@@ -50,6 +50,11 @@ public class DefaultListableBeanFactory implements BeanFactory, BeanDefinitionRe
     }
 
     @Override
+    public BeanDefinition getBeanDefinition(Class<?> clazz) {
+        return beanDefinitions.getBeanDefinition(clazz);
+    }
+
+    @Override
     public <T> T getBean(final Class<T> clazz) {
         return clazz.cast(doGetBean(clazz));
     }
@@ -58,7 +63,7 @@ public class DefaultListableBeanFactory implements BeanFactory, BeanDefinitionRe
     public void clear() {}
 
 
-    private void initializeBeans() {
+    private void instantiateBeans() {
        beanDefinitions.getBeanDefinitions()
             .forEach(beanDefinition -> getBean(beanDefinition.getType()));
     }
@@ -69,12 +74,12 @@ public class DefaultListableBeanFactory implements BeanFactory, BeanDefinitionRe
         Class<?> concreteClazz = resolveBeanClass(clazz);
 
         Object instance = Optional.ofNullable(beanRegistry.getBean(concreteClazz))
-                .orElseGet(() -> createBean(beanDefinitions.getBeanDefinition(concreteClazz)));
+                .orElseGet(() -> createBeanInstance(beanDefinitions.getBeanDefinition(concreteClazz)));
 
         return concreteClazz.cast(instance);
     }
 
-    private Object createBean(BeanDefinition beanDefinition) {
+    private Object createBeanInstance(BeanDefinition beanDefinition) {
 
         Class<?> beanClass = beanDefinition.getType();
         if (beanInstantiationCache.isCircularDependency(beanClass)) {

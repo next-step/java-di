@@ -17,8 +17,8 @@ import com.interface21.beans.factory.config.AnnotationBeanDefinition;
 import samples.JdbcSampleRepository;
 import samples.SampleController;
 import samples.SampleService;
-import samples.MockCircularComponentA;
-import samples.MockCircularComponentB;
+import circular.MockCircularComponentA;
+import circular.MockCircularComponentB;
 
 class DefaultListableBeanFactoryTest {
 
