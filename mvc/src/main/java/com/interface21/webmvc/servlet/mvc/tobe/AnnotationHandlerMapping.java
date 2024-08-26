@@ -2,6 +2,8 @@ package com.interface21.webmvc.servlet.mvc.tobe;
 
 import com.interface21.beans.factory.BeanFactory;
 import com.interface21.beans.factory.support.DefaultListableBeanFactory;
+import com.interface21.context.ApplicationContext;
+import com.interface21.context.support.WebApplicationContext;
 import com.interface21.web.bind.annotation.RequestMethod;
 import com.interface21.webmvc.servlet.mvc.HandlerMapping;
 import jakarta.servlet.http.HttpServletRequest;
@@ -16,20 +18,16 @@ public class AnnotationHandlerMapping implements HandlerMapping {
 
     private static final Logger log = LoggerFactory.getLogger(AnnotationHandlerMapping.class);
 
-    private final Object[] basePackage;
     private final Map<HandlerKey, HandlerExecution> handlerExecutions;
-    private final DefaultListableBeanFactory beanFactory;
-
-    public AnnotationHandlerMapping(final String... basePackage) {
-        this.basePackage = basePackage;
+    private final ApplicationContext applicationContext;
+    public AnnotationHandlerMapping(ApplicationContext applicationContext) {
         this.handlerExecutions = new HashMap<>();
-        this.beanFactory = new DefaultListableBeanFactory(basePackage);
+        this.applicationContext = applicationContext;
     }
 
     public void initialize() {
         final var beanScanner = new BeanScanner();
-        beanFactory.initialize();
-        handlerExecutions.putAll(beanScanner.scan(beanFactory));
+        handlerExecutions.putAll(beanScanner.scan(applicationContext.getBeanFactory()));
         log.info("Initialized AnnotationHandlerMapping!");
     }
 

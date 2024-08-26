@@ -1,5 +1,6 @@
 package com.interface21.webmvc.servlet.mvc.tobe;
 
+import com.interface21.beans.factory.BeanFactory;
 import com.interface21.beans.factory.support.DefaultListableBeanFactory;
 import com.interface21.core.util.ReflectionUtils;
 import com.interface21.web.bind.annotation.RequestMapping;
@@ -28,7 +29,7 @@ public class BeanScanner {
       new ModelArgumentResolver()
   );
 
-  public Map<HandlerKey, HandlerExecution> scan(DefaultListableBeanFactory beanFactory) {
+  public Map<HandlerKey, HandlerExecution> scan(BeanFactory beanFactory) {
     final var handlers = new HashMap<HandlerKey, HandlerExecution>();
     final var controllers = beanFactory.getControllers();
 
