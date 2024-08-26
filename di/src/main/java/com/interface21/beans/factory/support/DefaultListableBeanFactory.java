@@ -3,11 +3,15 @@ package com.interface21.beans.factory.support;
 import com.interface21.beans.BeanCircularException;
 import com.interface21.beans.BeanInstantiationException;
 import com.interface21.beans.factory.BeanFactory;
+import com.interface21.context.annotation.Bean;
+import com.interface21.context.annotation.Configuration;
 import com.interface21.context.stereotype.Component;
 import com.interface21.context.stereotype.Controller;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import org.reflections.Reflections;
+import org.reflections.scanners.MethodAnnotationsScanner;
+import org.reflections.scanners.TypeAnnotationsScanner;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -40,16 +44,38 @@ public class DefaultListableBeanFactory implements BeanFactory {
   }
 
   public void initialize() {
-    Reflections reflections = new Reflections(STEREOTYPE_PACKAGE,
-        basePackages);
-    Set<Class<?>> components = reflections.getTypesAnnotatedWith(Component.class).stream()
-        .filter(Predicate.not(Class::isAnnotation))
-        .collect(Collectors.toSet());
+    var components = getComponentAnnotationClasses();
+
+    components.addAll(getConfigurationClassesWithBean());
+    // Configuration  어노테이션이 붙은 클래스들을 빈으로 등록
+
 
     for (Class<?> componentClass : components) {
       var bean = createBean(componentClass, components);
       singletonObjects.put(componentClass, bean);
     }
+  }
+
+  private Set<Class<?>> getComponentAnnotationClasses() {
+    Reflections reflections = new Reflections(STEREOTYPE_PACKAGE,
+        basePackages);
+    return reflections.getTypesAnnotatedWith(Component.class).stream()
+        .filter(Predicate.not(Class::isAnnotation))
+        .collect(Collectors.toSet());
+  }
+
+  private Set<Class<?>> getConfigurationClassesWithBean() {
+    Reflections reflections = new Reflections(STEREOTYPE_PACKAGE, basePackages);
+
+    return reflections.getTypesAnnotatedWith(Configuration.class).stream()
+        .filter(Predicate.not(Class::isAnnotation))
+        .filter(clazz -> hasBeanAnnotatedMethod(clazz))
+        .collect(Collectors.toSet());
+  }
+
+  private boolean hasBeanAnnotatedMethod(Class<?> clazz) {
+    return Arrays.stream(clazz.getDeclaredMethods())
+        .anyMatch(method -> method.isAnnotationPresent(Bean.class));
   }
 
   private Object createBean(Class<?> beanClass, Set<Class<?>> beanClasses) {
