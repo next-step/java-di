@@ -25,4 +25,15 @@ public abstract class StringUtils {
 
         return word.substring(0, 1).toUpperCase() + word.substring(1);
     }
+
+    /**
+     * 스프링 빈 이름 생성
+     * <p>
+     * <a href=https://docs.spring.io/spring-framework/docs/current/reference/html/core.html#beans-beanname>스프링 빈 네임 명명규칙</a>
+     * @param className
+     * @return
+     */
+    public static String makeBeanName(String className) {
+        return className.substring(0, 1).toLowerCase() + className.substring(1);
+    }
 }

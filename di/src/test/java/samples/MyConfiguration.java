@@ -1,13 +1,15 @@
 package samples;
 
 import com.interface21.context.annotation.Bean;
+import com.interface21.context.annotation.ComponentScan;
 import com.interface21.context.annotation.Configuration;
 import org.h2.jdbcx.JdbcDataSource;
 
 import javax.sql.DataSource;
 
 @Configuration
-public class ExampleConfig {
+@ComponentScan(basePackages = { "samples" })
+public class MyConfiguration {
 
     @Bean
     public DataSource dataSource() {
@@ -16,5 +18,10 @@ public class ExampleConfig {
         jdbcDataSource.setUser("");
         jdbcDataSource.setPassword("");
         return jdbcDataSource;
+    }
+
+    @Bean
+    public JdbcTemplate jdbcTemplate(final DataSource dataSource) {
+        return new JdbcTemplate(dataSource);
     }
 }

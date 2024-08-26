@@ -3,6 +3,8 @@ package com.interface21.beans.factory.support;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertAll;
 
+import com.interface21.beans.factory.config.BeanDefinition;
+import java.util.List;
 import java.util.Map;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -16,8 +18,15 @@ class DefaultListableBeanFactoryTest {
     @BeforeEach
     @SuppressWarnings("unchecked")
     void setUp() {
-        beanFactory = new DefaultListableBeanFactory("samples");
-        beanFactory.initialize();
+        final List<String> basePackages = List.of("samples");
+        final Map<Class<?>, BeanDefinition> configurationBeanDefinitionMap = ConfigurationBeanScanner.scan(basePackages);
+        final Map<Class<?>, BeanDefinition> genericBeanDefinitionMap = ClassPathBeanScanner.scan(basePackages);
+
+        final SimpleBeanDefinitionRegistry simpleBeanDefinitionRegistry = new SimpleBeanDefinitionRegistry();
+        simpleBeanDefinitionRegistry.registerAll(configurationBeanDefinitionMap, genericBeanDefinitionMap);
+
+        this.beanFactory = new DefaultListableBeanFactory(simpleBeanDefinitionRegistry);
+        this.beanFactory.initialize();
     }
 
     @Test
