@@ -35,9 +35,21 @@
 ### 프로토타입 스코프
 <img src="docs/images/prototype.png" alt="prototype">
 
-### 🚀 2단계 - DI 컨테이너 구현하기(힌트) 
+### 🚀 @Configuration 구현하기
 
- - [x] 재귀호출 활용하여 빈 생성
-    - [x] 순환 참조 문제 고민해보기
- - [x] BeanScanner 패키지 구조 변경
-    - [x] BeanScanner가 BeanFactory를 사용하도록 변경
+ - [ ] @Configuration 애노테이션을 사용하여 Bean을 등록할 수 있어야 한다.
+    - [ ] Bean등록 설정은 @Bean 애노테이션을 사용한다.
+    - [ ] ComponentScan을 사용하여 패키지 경로를 지정할 수 있다.
+    - [ ] BeanScanner가 BeanFactory를 사용하도록 변경
+
+- [ ] ConfigurationBeanScannerTest 테스트를 성공시킨다.
+   - [ ] BeanSanner를 ClasspathBeanSacnner로 변경하고 설정 파일로 등록한 Bean과 통합한다.
+
+- [ ] ConfigurationBeanScanner와 ClasspathBeanScanner을 통합하는 ApplicationContext 추가한다.
+   - [ ] @ComponentScan 애노테이션의 경로 정보를 가져와 ClasspathBeanScanner을 초기화 한다 
+   - [ ] 설정 파일의 @Bean 정보를 바탕으로 ConfigurationBeanScanner을 초기화한다
+  
+``java
+ApplicationContext ac = new ApplicationContext(MyConfiguration.class);
+AnnotationHandlerMapping ahm = new AnnotationHandlerMapping(ac);
+ahm.initialize();``
