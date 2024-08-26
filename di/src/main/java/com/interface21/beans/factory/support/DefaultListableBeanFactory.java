@@ -45,10 +45,8 @@ public class DefaultListableBeanFactory implements BeanFactory {
 
   public void initialize() {
     var components = getComponentAnnotationClasses();
-
-    components.addAll(getConfigurationClassesWithBean());
     // Configuration  어노테이션이 붙은 클래스들을 빈으로 등록
-
+    components.addAll(getConfigurationClassesWithBean());
 
     for (Class<?> componentClass : components) {
       var bean = createBean(componentClass, components);
@@ -92,8 +90,6 @@ public class DefaultListableBeanFactory implements BeanFactory {
     } catch (InstantiationException | IllegalAccessException | InvocationTargetException e) {
       log.info(e.getMessage());
       throw new BeanInstantiationException(constructor, "bean생성을 실패했습니다 : +", e.getCause());
-    } finally {
-      beansCircularTracker.remove(beanClass);
     }
   }
 
