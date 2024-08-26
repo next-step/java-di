@@ -17,9 +17,10 @@ import samples.SampleController;
 import samples.SampleService;
 
 public class ConfigurationBeanScannerTest {
+/*
+  4단계 리팩토링 후 테스트 성공 확인
 
-
-/*    @Test
+    @Test
     public void register_simple() {
         BeanFactory beanFactory = new DefaultListableBeanFactory();
         BeanScanner cbs = new BeanScanner(beanFactory);
