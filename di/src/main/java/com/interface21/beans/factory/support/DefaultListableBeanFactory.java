@@ -10,8 +10,6 @@ import com.interface21.context.stereotype.Controller;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import org.reflections.Reflections;
-import org.reflections.scanners.MethodAnnotationsScanner;
-import org.reflections.scanners.TypeAnnotationsScanner;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

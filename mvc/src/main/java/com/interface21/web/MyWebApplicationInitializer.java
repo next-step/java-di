@@ -12,24 +12,24 @@ import org.slf4j.LoggerFactory;
 
 public class MyWebApplicationInitializer implements WebApplicationInitializer {
 
-    private static final Logger log = LoggerFactory.getLogger(MyWebApplicationInitializer.class);
+  private static final Logger log = LoggerFactory.getLogger(MyWebApplicationInitializer.class);
 
-    @Override
-    public void onStartup(final ServletContext container) {
-        final var applicationContext = new WebApplicationContext(
-            (Class<?>) container.getAttribute("ConfigClass"));
+  @Override
+  public void onStartup(final ServletContext container) {
+    final var applicationContext = new WebApplicationContext(
+        (Class<?>) container.getAttribute("ConfigClass"));
 
-        final var dispatcherServlet = new DispatcherServlet();
-        dispatcherServlet.addHandlerMapping(new AnnotationHandlerMapping(applicationContext));
-        dispatcherServlet.addHandlerMapping(new ManualHandlerMapping());
+    final var dispatcherServlet = new DispatcherServlet();
+    dispatcherServlet.addHandlerMapping(new AnnotationHandlerMapping(applicationContext));
+    dispatcherServlet.addHandlerMapping(new ManualHandlerMapping());
 
-        dispatcherServlet.addHandlerAdapter(new ControllerHandlerAdapter());
-        dispatcherServlet.addHandlerAdapter(new HandlerExecutionHandlerAdapter());
+    dispatcherServlet.addHandlerAdapter(new ControllerHandlerAdapter());
+    dispatcherServlet.addHandlerAdapter(new HandlerExecutionHandlerAdapter());
 
-        final var dispatcher = container.addServlet("dispatcher", dispatcherServlet);
-        dispatcher.setLoadOnStartup(1);
-        dispatcher.addMapping("/");
+    final var dispatcher = container.addServlet("dispatcher", dispatcherServlet);
+    dispatcher.setLoadOnStartup(1);
+    dispatcher.addMapping("/");
 
-        log.info("Start AppWebApplication Initializer");
-    }
+    log.info("Start AppWebApplication Initializer");
+  }
 }
