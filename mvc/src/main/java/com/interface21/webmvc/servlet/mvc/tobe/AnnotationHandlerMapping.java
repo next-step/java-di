@@ -36,11 +36,11 @@ public class AnnotationHandlerMapping implements HandlerMapping {
   }
 
   private HandlerExecution getHandlerInternal(final HandlerKey requestHandlerKey) {
-    for (HandlerKey handlerKey : handlerExecutions.keySet()) {
-      if (handlerKey.isMatch(requestHandlerKey)) {
-        return handlerExecutions.get(handlerKey);
-      }
-    }
-    return null;
+
+    return handlerExecutions.entrySet().stream()
+        .filter(entry -> entry.getKey().isMatch(requestHandlerKey))
+        .map(Map.Entry::getValue)
+        .findFirst()
+        .orElse(null);
   }
 }
