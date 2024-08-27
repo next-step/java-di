@@ -27,7 +27,7 @@ class SimpleBeanDefinitionRegistryTest {
   }
 
   @Test
-  @DisplayName("BeanDefinition 객체를 등록한다")
+  @DisplayName("SampleController.class 를 BeanDefinition 객체로 BeanRegistry 에 등록한다")
   void register() {
     final GenericBeanDefinition beanDefinition = GenericBeanDefinition.from(SampleController.class);
     beanDefinitionRegistry.register(SampleController.class, beanDefinition);
@@ -37,6 +37,21 @@ class SimpleBeanDefinitionRegistryTest {
     assertAll(
         () -> assertThat(result).containsKey(SampleController.class),
         () -> assertThat(result).hasSize(1)
+    );
+  }
+
+  @Test
+  @DisplayName("DataSource.class 를 BeanDefinition 객체로 BeanRegistry 에 등록한다")
+  void registerDataSource() throws NoSuchMethodException {
+    final Method method = MyConfiguration.class.getMethod("dataSource");
+    final ConfigurationBeanDefinition beanDefinition = new ConfigurationBeanDefinition(DataSource.class, method);
+    beanDefinitionRegistry.register(DataSource.class, beanDefinition);
+
+    final BeanDefinition result = beanDefinitionRegistry.get(DataSource.class);
+
+    assertAll(
+        () -> assertThat(result).isInstanceOf(ConfigurationBeanDefinition.class),
+        () -> assertThat(result.getType()).isEqualTo(DataSource.class)
     );
   }
 
