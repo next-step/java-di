@@ -1,13 +1,11 @@
 package com.interface21.beans.factory.support;
 
 import com.interface21.beans.factory.config.BeanDefinition;
-import com.interface21.beans.factory.config.GenericBeanDefinition;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
-import java.util.stream.Collectors;
-import org.apache.commons.lang3.ObjectUtils;
 
 public class SimpleBeanDefinitionRegistry implements BeanDefinitionRegistry {
 
@@ -50,12 +48,15 @@ public class SimpleBeanDefinitionRegistry implements BeanDefinitionRegistry {
   public final void registerAll(Map<Class<?>, BeanDefinition>... maps) {
     Arrays.stream(maps)
         .flatMap(map -> map.entrySet().stream())
-        .forEach(entry -> {
-          Class<?> beanClass = entry.getKey();
-          BeanDefinition beanDefinition = entry.getValue();
-          validateExistBeanName(beanDefinition);
-          beanDefinitionMap.put(beanClass, beanDefinition);
-        });
+        .forEach(this::registerBeanDefinitionMap);
+  }
+
+  private void registerBeanDefinitionMap(Entry<Class<?>, BeanDefinition> entry) {
+    final Class<?> beanClass = entry.getKey();
+    final BeanDefinition beanDefinition = entry.getValue();
+
+    validateExistBeanName(beanDefinition);
+    beanDefinitionMap.put(beanClass, beanDefinition);
   }
 
   private void validateExistBeanName(final BeanDefinition newBeanDefinition) {
