@@ -23,7 +23,7 @@ class ConfigurationBeanDefinitionScannerTest {
 
         int scanned = scanner.scan(new String[]{"samples.config"});
 
-        assertThat(scanned).isEqualTo(2);
+        assertThat(scanned).isEqualTo(4);
     }
 
 

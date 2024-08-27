@@ -60,9 +60,9 @@
 
 
 ### 3단계
-- [ ] 데이터베이스 설정을 관리하는 책임을 맡은 빈을 생성하기 위해 `@Configuration`을 추가하자.
+- [x] 데이터베이스 설정을 관리하는 책임을 맡은 빈을 생성하기 위해 `@Configuration`을 추가하자.
   - `ApplicationContext#refresh()` 동작 순서
-    - [ ] `BeanDefinitionScanner`은 `BeanDefinition`을 로딩한다
+    - [x] `BeanDefinitionScanner`은 `BeanDefinition`을 로딩한다
       - [x] `AnnotationBeanDefinitionScanner`이 `@Component`을 스캔한다
       - [x] `ConfigurationBeanDefinitionScanner`가 `@Configuration`을 스캔한다
     - 빈 생성 및 등록한다
@@ -71,12 +71,12 @@
         - @Component
           - [x] `@Autowired`를선언한 생성자가 있으면 해당 생성자를 사용해서 빈 인스턴스를 생성한다
         - @Bean
-          - [ ] 메서드로 빈 인스턴스를 생성한다
+          - [x] 메서드로 빈 인스턴스를 생성한다
+          - [x] `@Configuration` 설정 파일을 통해 등록한 빈과 `BeanScanner`를 통해 등록한 빈 간에도 DI가 가능해야 한다.
     - 의존성 주입한다
 - [ ] `BeanScanner`에서 사용할 기본 패키지에 대한 설정을 하드코딩했는데 `@ComponentScan`으로 패키지 경로를 설정할 수 있도록 지원하자.
   - [ ] `@ComponentScan`을 스캔한다
   - [ ] `@ComponentScan` 속성을 기반으로 빈을 스캔한다
-- [ ] `@Configuration` 설정 파일을 통해 등록한 빈과 `BeanScanner`를 통해 등록한 빈 간에도 DI가 가능해야 한다.
 
 ----
 

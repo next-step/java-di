@@ -90,6 +90,6 @@ public class BeanFactoryUtils {
             }
         }
 
-        return Optional.empty();
+        return Optional.of(injectedClazz);
     }
 }

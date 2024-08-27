@@ -1,11 +1,10 @@
 package com.interface21.beans.factory.config;
 
-import com.interface21.beans.factory.BeanFactory;
 import com.interface21.beans.factory.support.ConstructorHolder;
 import com.interface21.beans.factory.support.ConstructorResolver;
 
 import java.lang.reflect.Constructor;
-import java.util.Arrays;
+import java.lang.reflect.Executable;
 
 public class AnnotationBeanDefinition implements BeanDefinition {
 
@@ -27,13 +26,8 @@ public class AnnotationBeanDefinition implements BeanDefinition {
         return beanType;
     }
 
-    @Override
-    public String getBeanClassName() {
-        return beanType.getSimpleName();
-    }
 
-
-    public Constructor<?> getConstructor() {
+    public Executable getExecutable() {
         return constructor;
     }
 
@@ -42,7 +36,7 @@ public class AnnotationBeanDefinition implements BeanDefinition {
     }
 
     @Override
-    public Object[] resolveArguments(BeanFactory beanFactory) {
-        return Arrays.stream(argumentTypes).map(beanFactory::getBean).toArray(Object[]::new);
+    public AutowireStrategy autowireStrategy() {
+        return new ConstructorAutowireStrategy();
     }
 }

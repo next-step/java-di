@@ -5,6 +5,7 @@ import java.util.Optional;
 import java.util.Set;
 
 import com.interface21.beans.BeanInstantiationException;
+import com.interface21.beans.factory.config.AutowireStrategy;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -70,14 +71,14 @@ public class DefaultListableBeanFactory implements BeanFactory, BeanDefinitionRe
 
 
     private Object doGetBean(Class<?> clazz) {
-
         Class<?> concreteClazz = resolveBeanClass(clazz);
+        BeanDefinition beanDefinition = beanDefinitions.getBeanDefinition(concreteClazz);
 
         Object instance = Optional.ofNullable(beanRegistry.getBean(concreteClazz))
-                .orElseGet(() -> createBeanInstance(beanDefinitions.getBeanDefinition(concreteClazz)));
-
+                .orElseGet(() -> createBeanInstance(beanDefinition));
         return concreteClazz.cast(instance);
     }
+
 
     private Object createBeanInstance(BeanDefinition beanDefinition) {
 
@@ -85,11 +86,12 @@ public class DefaultListableBeanFactory implements BeanFactory, BeanDefinitionRe
         if (beanInstantiationCache.isCircularDependency(beanClass)) {
             throw new BeanInstantiationException(beanClass, "Circular dependency detected");
         }
+        beanInstantiationCache.addInitializingBean(beanClass);
 
         try {
-            beanInstantiationCache.addInitializingBean(beanClass);
-            return new ConstructorResolver(this).autowireConstructor(beanDefinition);
-        } catch (IllegalArgumentException e) {
+            AutowireStrategy autowireStrategy = beanDefinition.autowireStrategy();
+            return autowireStrategy.autowire(beanDefinition, this);
+        } catch (IllegalArgumentException | ClassCastException e) {
             throw new BeanInstantiationException(beanClass, e.getMessage());
         } finally {
             beanInstantiationCache.removeInitializingBean(beanClass);

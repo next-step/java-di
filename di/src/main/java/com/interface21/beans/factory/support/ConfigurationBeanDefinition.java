@@ -1,19 +1,20 @@
 package com.interface21.beans.factory.support;
 
-import com.interface21.beans.factory.BeanFactory;
+import com.interface21.beans.factory.config.AutowireStrategy;
 import com.interface21.beans.factory.config.BeanDefinition;
+import com.interface21.beans.factory.config.FactoryMethodAutowireStrategy;
 
-import java.lang.reflect.Constructor;
+import java.lang.reflect.Executable;
+import java.lang.reflect.Method;
 
 public class ConfigurationBeanDefinition implements BeanDefinition {
 
     private final Class<?> beanClass;
-    private final Constructor<?> constructor;
-    
-    public ConfigurationBeanDefinition(Class<?> beanClass) {
+    private final Method beanMethod;
+
+    public ConfigurationBeanDefinition(Class<?> beanClass, Method beanMethod) {
         this.beanClass = beanClass;
-        ConstructorHolder constructorHolder = ConstructorResolver.resolve(beanClass);
-        this.constructor = constructorHolder.constructor();
+        this.beanMethod = beanMethod;
     }
 
     @Override
@@ -22,23 +23,17 @@ public class ConfigurationBeanDefinition implements BeanDefinition {
     }
 
     @Override
-    public String getBeanClassName() {
-        return beanClass.getSimpleName();
-    }
-
-    @Override
-    public Constructor<?> getConstructor() {
-        return constructor;
+    public Executable getExecutable() {
+        return beanMethod;
     }
 
     @Override
     public Class<?>[] getParameterTypes() {
-        return new Class[0];
+        return beanMethod.getParameterTypes();
     }
 
-    // TODO: 이상하다
     @Override
-    public Object[] resolveArguments(BeanFactory beanFactory) {
-        return new Object[0];
+    public AutowireStrategy autowireStrategy() {
+        return new FactoryMethodAutowireStrategy();
     }
 }
