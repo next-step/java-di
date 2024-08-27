@@ -71,11 +71,12 @@ public class DefaultListableBeanFactory implements BeanFactory, BeanDefinitionRe
 
 
     private Object doGetBean(Class<?> clazz) {
+
         Class<?> concreteClazz = resolveBeanClass(clazz);
-        BeanDefinition beanDefinition = beanDefinitions.getBeanDefinition(concreteClazz);
 
         Object instance = Optional.ofNullable(beanRegistry.getBean(concreteClazz))
-                .orElseGet(() -> createBeanInstance(beanDefinition));
+                .orElseGet(() -> createBeanInstance(beanDefinitions.getBeanDefinition(concreteClazz)));
+
         return concreteClazz.cast(instance);
     }
 
