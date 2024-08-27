@@ -4,7 +4,7 @@ import com.interface21.core.MethodParameter;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
-public interface HandlerMethodArgumentResolver {
+public interface ArgumentResolver {
 
     boolean supportsParameter(MethodParameter parameter);
 

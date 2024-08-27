@@ -1,11 +1,9 @@
 package com.interface21.webmvc.servlet.mvc.tobe;
 
 import com.interface21.beans.factory.BeanFactory;
-import com.interface21.beans.factory.support.DefaultListableBeanFactory;
 import com.interface21.core.util.ReflectionUtils;
 import com.interface21.web.bind.annotation.RequestMapping;
 import com.interface21.web.bind.annotation.RequestMethod;
-import com.interface21.web.method.support.HandlerMethodArgumentResolver;
 import com.interface21.webmvc.servlet.mvc.tobe.support.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -20,14 +18,16 @@ import java.util.stream.Collectors;
 public class BeanScanner {
 
   private static final Logger log = LoggerFactory.getLogger(BeanScanner.class);
-
-  private static final List<HandlerMethodArgumentResolver> argumentResolvers = List.of(
-      new HttpRequestArgumentResolver(),
-      new HttpResponseArgumentResolver(),
-      new RequestParamArgumentResolver(),
-      new PathVariableArgumentResolver(),
-      new ModelArgumentResolver()
-  );
+  private final ArgumentResolvers argumentResolvers;
+  public BeanScanner() {
+    this.argumentResolvers = ArgumentResolvers.of(List.of(
+        new HttpRequestArgumentResolver(),
+        new HttpResponseArgumentResolver(),
+        new RequestParamArgumentResolver(),
+        new PathVariableArgumentResolver(),
+        new ModelArgumentResolver()
+    ));
+  }
 
   public Map<HandlerKey, HandlerExecution> scan(BeanFactory beanFactory) {
     final var handlers = new HashMap<HandlerKey, HandlerExecution>();
