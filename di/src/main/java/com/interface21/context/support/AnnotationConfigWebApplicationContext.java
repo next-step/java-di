@@ -17,8 +17,8 @@ public class AnnotationConfigWebApplicationContext
     private final List<String> basePackages = new ArrayList<>();
     private final DefaultListableBeanFactory beanFactory;
 
-    public AnnotationConfigWebApplicationContext(String basePackage) {
-        Collections.addAll(this.basePackages, basePackage);
+    public AnnotationConfigWebApplicationContext(Class<?> configuration) {
+        Collections.addAll(this.basePackages, BeanScanner.scanBasePackages(configuration));
         this.beanFactory = new DefaultListableBeanFactory();
         scan(basePackages.toArray(String[]::new));
         initializeBeanFactory();

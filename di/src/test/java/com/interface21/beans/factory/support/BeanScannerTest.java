@@ -10,6 +10,7 @@ import org.junit.jupiter.api.Test;
 import samples.JdbcSampleRepository;
 import samples.SampleController;
 import samples.SampleService;
+import samples.TestSpringApplicationConfiguration;
 
 class BeanScannerTest {
 
@@ -22,4 +23,13 @@ class BeanScannerTest {
         assertThat(beans)
                 .contains(SampleController.class, SampleService.class, JdbcSampleRepository.class);
     }
+
+    @Test
+    @DisplayName("@ComponentScan 을 스캔하여 basePackages 를 반환한다")
+    public void basePackageScanTest() {
+
+        String[] basePackages = BeanScanner.scanBasePackages(TestSpringApplicationConfiguration.class);
+        assertThat(basePackages).contains("samples");
+    }
+
 }

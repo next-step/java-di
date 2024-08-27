@@ -7,6 +7,7 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 import samples.SampleController;
+import samples.TestSpringApplicationConfiguration;
 
 class AnnotationConfigWebApplicationContextTest {
 
@@ -14,7 +15,7 @@ class AnnotationConfigWebApplicationContextTest {
 
     @BeforeEach
     void setUp() {
-        sut = new AnnotationConfigWebApplicationContext("samples");
+        sut = new AnnotationConfigWebApplicationContext(TestSpringApplicationConfiguration.class);
     }
 
     @Test

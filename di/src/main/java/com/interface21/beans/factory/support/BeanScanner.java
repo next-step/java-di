@@ -4,6 +4,7 @@ import java.lang.annotation.Annotation;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import com.interface21.context.annotation.ComponentScan;
 import com.interface21.context.annotation.Configuration;
 import org.reflections.Reflections;
 
@@ -31,4 +32,8 @@ public final class BeanScanner {
         return scanBeans(Configuration.class, basePackages);
     }
 
+    public static String[] scanBasePackages(Class<?> configuration) {
+        ComponentScan componentScan = configuration.getAnnotation(ComponentScan.class);
+        return componentScan.value();
+    }
 }

@@ -74,9 +74,9 @@
           - [x] 메서드로 빈 인스턴스를 생성한다
           - [x] `@Configuration` 설정 파일을 통해 등록한 빈과 `BeanScanner`를 통해 등록한 빈 간에도 DI가 가능해야 한다.
     - 의존성 주입한다
-- [ ] `BeanScanner`에서 사용할 기본 패키지에 대한 설정을 하드코딩했는데 `@ComponentScan`으로 패키지 경로를 설정할 수 있도록 지원하자.
-  - [ ] `@ComponentScan`을 스캔한다
-  - [ ] `@ComponentScan` 속성을 기반으로 빈을 스캔한다
+- [x] `BeanScanner`에서 사용할 기본 패키지에 대한 설정을 하드코딩했는데 `@ComponentScan`으로 패키지 경로를 설정할 수 있도록 지원하자.
+  - [x] `@ComponentScan`을 스캔한다
+  - [x] `@ComponentScan` 속성을 기반으로 빈을 스캔한다
 
 ----
 
