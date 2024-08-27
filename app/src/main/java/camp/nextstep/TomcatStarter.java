@@ -1,5 +1,6 @@
 package camp.nextstep;
 
+import jakarta.servlet.ServletContext;
 import org.apache.catalina.Context;
 import org.apache.catalina.LifecycleException;
 import org.apache.catalina.connector.Connector;
@@ -20,16 +21,20 @@ public class TomcatStarter {
 
     private final Tomcat tomcat;
 
-    public TomcatStarter(final int port) {
-        this(WEBAPP_DIR_LOCATION, port);
+    public TomcatStarter(Class<?> entryPoint,final int port) {
+        this(entryPoint,WEBAPP_DIR_LOCATION, port);
     }
 
-    public TomcatStarter(final String webappDirLocation, final int port) {
+    public TomcatStarter(Class<?> entryPoint,final String webappDirLocation, final int port) {
         this.tomcat = new Tomcat();
         tomcat.setConnector(createConnector(port));
 
         final var docBase = new File(webappDirLocation).getAbsolutePath();
         final var context = (StandardContext) tomcat.addWebapp("", docBase);
+
+        ServletContext servletContext = context.getServletContext();
+        servletContext.setAttribute("entryPoint", entryPoint);
+
         skipTldScan(context);
         skipClearReferences(context);
     }
