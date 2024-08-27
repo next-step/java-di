@@ -9,6 +9,7 @@ import java.util.Map;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import samples.MyConfiguration;
 import samples.SampleController;
 
 class DefaultListableBeanFactoryTest {
@@ -18,14 +19,15 @@ class DefaultListableBeanFactoryTest {
     @BeforeEach
     @SuppressWarnings("unchecked")
     void setUp() {
-        final List<String> basePackages = List.of("samples");
-        final Map<Class<?>, BeanDefinition> configurationBeanDefinitionMap = ConfigurationBeanScanner.scan(basePackages);
-        final Map<Class<?>, BeanDefinition> genericBeanDefinitionMap = ClassPathBeanScanner.scan(basePackages);
+        final List<String> basePackages = ComponentScanBasePackageResolver.getBasePackages(MyConfiguration.class);
+        SimpleBeanDefinitionRegistry beanDefinitionRegistry = new SimpleBeanDefinitionRegistry();
+        new ConfigurationBeanScanner(beanDefinitionRegistry).scan(basePackages);
+        new ClassPathBeanScanner(beanDefinitionRegistry).scan(basePackages);
 
-        final SimpleBeanDefinitionRegistry simpleBeanDefinitionRegistry = new SimpleBeanDefinitionRegistry();
-        simpleBeanDefinitionRegistry.registerAll(configurationBeanDefinitionMap, genericBeanDefinitionMap);
+//        final SimpleBeanDefinitionRegistry simpleBeanDefinitionRegistry = new SimpleBeanDefinitionRegistry();
+//        simpleBeanDefinitionRegistry.registerAll(configurationBeanDefinitionMap, genericBeanDefinitionMap);
 
-        this.beanFactory = new DefaultListableBeanFactory(simpleBeanDefinitionRegistry);
+        this.beanFactory = new DefaultListableBeanFactory(beanDefinitionRegistry);
         this.beanFactory.initialize();
     }
 

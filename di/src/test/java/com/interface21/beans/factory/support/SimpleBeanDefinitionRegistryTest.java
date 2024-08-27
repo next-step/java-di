@@ -79,14 +79,13 @@ class SimpleBeanDefinitionRegistryTest {
   @Test
   @DisplayName("BeanDefinition 객체 map 들을 하나로 합쳐 내부 map 에 저장한다")
   void registerAll() throws NoSuchMethodException {
+    beanDefinitionRegistry.register(SampleController.class, GenericBeanDefinition.from(SampleController.class));
+
     Map<Class<?>, BeanDefinition> map1 = new HashMap<>();
     Method method = MyConfiguration.class.getMethod("dataSource");
     map1.put(DataSource.class, new ConfigurationBeanDefinition(DataSource.class, method));
 
-    Map<Class<?>, BeanDefinition> map2 = new HashMap<>();
-    map2.put(SampleController.class, GenericBeanDefinition.from(SampleController.class));
-
-    beanDefinitionRegistry.registerAll(map1, map2);
+    beanDefinitionRegistry.registerAll(map1);
     Map<Class<?>, BeanDefinition> result = beanDefinitionRegistry.getBeanDefinitions();
 
     assertAll(
@@ -99,14 +98,12 @@ class SimpleBeanDefinitionRegistryTest {
   @Test
   @DisplayName("BeanDefinition 객체들 중 동일한 bean 네임이 존재할 경우 에러를 던진다")
   void registerAllThrowBeanCreationException() throws NoSuchMethodException {
+    beanDefinitionRegistry.register(SampleController.class, GenericBeanDefinition.from(SampleController.class));
     Map<Class<?>, BeanDefinition> map1 = new HashMap<>();
     Method method = MyConfiguration.class.getMethod("dataSource");
     map1.put(DataSource.class, new ConfigurationBeanDefinition(SampleController.class, method));
 
-    Map<Class<?>, BeanDefinition> map2 = new HashMap<>();
-    map2.put(SampleController.class, GenericBeanDefinition.from(SampleController.class));
-
     assertThrows(BeanCreationException.class,
-        () -> beanDefinitionRegistry.registerAll(map1, map2));
+        () -> beanDefinitionRegistry.registerAll(map1));
   }
 }

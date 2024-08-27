@@ -13,4 +13,6 @@ public interface BeanDefinitionRegistry {
     BeanDefinition get(Class<?> clazz);
 
     Map<Class<?>, BeanDefinition> getBeanDefinitions();
+
+    BeanDefinitionRegistry registerAll(Map<Class<?>, BeanDefinition> beanDefinitions);
 }
