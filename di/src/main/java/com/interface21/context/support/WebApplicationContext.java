@@ -34,13 +34,4 @@ public class WebApplicationContext implements ApplicationContext {
     return beanFactory;
   }
 
-  @Override
-  public <T> T getBean(final Class<T> clazz) {
-    return null;
-  }
-
-  @Override
-  public Set<Class<?>> getBeanClasses() {
-    return Set.of();
-  }
 }
