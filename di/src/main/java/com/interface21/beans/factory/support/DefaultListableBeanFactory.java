@@ -5,7 +5,7 @@ import java.util.Optional;
 import java.util.Set;
 
 import com.interface21.beans.BeanInstantiationException;
-import com.interface21.beans.factory.config.AutowireStrategy;
+import com.interface21.beans.factory.config.Injector;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -90,8 +90,8 @@ public class DefaultListableBeanFactory implements BeanFactory, BeanDefinitionRe
         beanInstantiationCache.addInitializingBean(beanClass);
 
         try {
-            AutowireStrategy autowireStrategy = beanDefinition.autowireStrategy();
-            return autowireStrategy.autowire(beanDefinition, this);
+            Injector injector = beanDefinition.getInjector();
+            return injector.inject(beanDefinition, this);
         } catch (IllegalArgumentException | ClassCastException e) {
             throw new BeanInstantiationException(beanClass, e.getMessage());
         } finally {

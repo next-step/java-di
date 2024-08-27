@@ -5,10 +5,10 @@ import com.interface21.beans.factory.BeanFactory;
 
 import java.lang.reflect.Constructor;
 
-public class ConstructorAutowireStrategy implements AutowireStrategy {
+public class ConstructorInjector implements Injector {
 
     @Override
-    public Object autowire(BeanDefinition beanDefinition, BeanFactory beanFactory) {
+    public Object inject(BeanDefinition beanDefinition, BeanFactory beanFactory) {
         return BeanUtils.instantiateClass(
                 (Constructor<?>) beanDefinition.getExecutable(),
                 resolveDependencies(beanDefinition, beanFactory)

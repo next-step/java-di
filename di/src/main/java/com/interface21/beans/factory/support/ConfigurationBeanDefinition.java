@@ -1,8 +1,8 @@
 package com.interface21.beans.factory.support;
 
-import com.interface21.beans.factory.config.AutowireStrategy;
+import com.interface21.beans.factory.config.Injector;
 import com.interface21.beans.factory.config.BeanDefinition;
-import com.interface21.beans.factory.config.FactoryMethodAutowireStrategy;
+import com.interface21.beans.factory.config.FactoryMethodInjector;
 
 import java.lang.reflect.Executable;
 import java.lang.reflect.Method;
@@ -33,7 +33,7 @@ public class ConfigurationBeanDefinition implements BeanDefinition {
     }
 
     @Override
-    public AutowireStrategy autowireStrategy() {
-        return new FactoryMethodAutowireStrategy();
+    public Injector getInjector() {
+        return new FactoryMethodInjector();
     }
 }

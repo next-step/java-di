@@ -11,5 +11,5 @@ public interface BeanDefinition {
 
     Class<?>[] getParameterTypes();
 
-    AutowireStrategy autowireStrategy();
+    Injector getInjector();
 }

@@ -7,10 +7,10 @@ import com.interface21.beans.factory.support.ConfigurationBeanDefinition;
 
 import java.lang.reflect.Method;
 
-public class FactoryMethodAutowireStrategy implements AutowireStrategy {
+public class FactoryMethodInjector implements Injector {
 
     @Override
-    public Object autowire(BeanDefinition beanDefinition, BeanFactory beanFactory) {
+    public Object inject(BeanDefinition beanDefinition, BeanFactory beanFactory) {
 
         if (beanDefinition instanceof ConfigurationBeanDefinition bd) {
             Object caller = beanFactory.getBean(bd.getExecutable().getDeclaringClass());

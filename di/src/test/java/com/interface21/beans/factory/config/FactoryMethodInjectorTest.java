@@ -12,7 +12,7 @@ import java.lang.reflect.Method;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-class FactoryMethodAutowireStrategyTest {
+class FactoryMethodInjectorTest {
 
     @Test
     @DisplayName("팩토리 메서드로 빈 생성을 지원한다")
@@ -26,8 +26,8 @@ class FactoryMethodAutowireStrategyTest {
         factory.registerBeanDefinition(ExampleConfig.class, new AnnotationBeanDefinition(ExampleConfig.class));
 
         
-        var strategy = sut.autowireStrategy();
-        Object instance = strategy.autowire(sut, factory);
+        var strategy = sut.getInjector();
+        Object instance = strategy.inject(sut, factory);
 
         assertInstanceOf(DataSource.class, instance);
     }

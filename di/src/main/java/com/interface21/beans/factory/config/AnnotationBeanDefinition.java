@@ -36,7 +36,7 @@ public class AnnotationBeanDefinition implements BeanDefinition {
     }
 
     @Override
-    public AutowireStrategy autowireStrategy() {
-        return new ConstructorAutowireStrategy();
+    public Injector getInjector() {
+        return new ConstructorInjector();
     }
 }
