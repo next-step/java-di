@@ -1,13 +1,10 @@
 package com.interface21.beans.factory.support;
 
 import com.interface21.beans.factory.config.BeanDefinition;
-import com.interface21.beans.factory.config.GenericBeanDefinition;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
-import java.util.stream.Collectors;
-import org.apache.commons.lang3.ObjectUtils;
 
 public class SimpleBeanDefinitionRegistry implements BeanDefinitionRegistry {
 
@@ -15,7 +12,7 @@ public class SimpleBeanDefinitionRegistry implements BeanDefinitionRegistry {
 
   @Override
   public void register(Class<?> clazz, BeanDefinition beanDefinition) {
-    beanDefinitionMap.put(clazz, beanDefinition);
+    registerBeanDefinitionMap(clazz, beanDefinition);
   }
 
   @Override
@@ -46,16 +43,18 @@ public class SimpleBeanDefinitionRegistry implements BeanDefinitionRegistry {
     return beanDefinitionMap;
   }
 
-  @SafeVarargs
-  public final void registerAll(Map<Class<?>, BeanDefinition>... maps) {
-    Arrays.stream(maps)
-        .flatMap(map -> map.entrySet().stream())
-        .forEach(entry -> {
-          Class<?> beanClass = entry.getKey();
-          BeanDefinition beanDefinition = entry.getValue();
-          validateExistBeanName(beanDefinition);
-          beanDefinitionMap.put(beanClass, beanDefinition);
-        });
+  @Override
+  public BeanDefinitionRegistry registerAll(Map<Class<?>, BeanDefinition> beanDefinitions) {
+    for(Entry<Class<?>, BeanDefinition> entry : beanDefinitions.entrySet()) {
+      this.registerBeanDefinitionMap(entry.getKey(), entry.getValue());
+    }
+
+    return this;
+  }
+
+  private void registerBeanDefinitionMap(Class<?> clazz, BeanDefinition beanDefinition) {
+    validateExistBeanName(beanDefinition);
+    beanDefinitionMap.put(clazz, beanDefinition);
   }
 
   private void validateExistBeanName(final BeanDefinition newBeanDefinition) {

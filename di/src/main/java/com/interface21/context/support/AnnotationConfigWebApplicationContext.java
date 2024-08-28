@@ -1,13 +1,11 @@
 package com.interface21.context.support;
 
-import com.interface21.beans.factory.config.BeanDefinition;
 import com.interface21.beans.factory.support.ClassPathBeanScanner;
 import com.interface21.beans.factory.support.ComponentScanBasePackageResolver;
 import com.interface21.beans.factory.support.ConfigurationBeanScanner;
 import com.interface21.beans.factory.support.DefaultListableBeanFactory;
 import com.interface21.beans.factory.support.SimpleBeanDefinitionRegistry;
 import com.interface21.context.ApplicationContext;
-
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -18,13 +16,11 @@ public class AnnotationConfigWebApplicationContext implements ApplicationContext
 
     public AnnotationConfigWebApplicationContext(Class<?>... configurationClasses) {
         final List<String> basePackages = ComponentScanBasePackageResolver.getBasePackages(configurationClasses);
-        final Map<Class<?>, BeanDefinition> configurationBeanDefinitionMap = ConfigurationBeanScanner.scan(basePackages);
-        final Map<Class<?>, BeanDefinition> genericBeanDefinitionMap = ClassPathBeanScanner.scan(basePackages);
+        SimpleBeanDefinitionRegistry beanDefinitionRegistry = new SimpleBeanDefinitionRegistry();
+        new ConfigurationBeanScanner(beanDefinitionRegistry).scan(basePackages);
+        new ClassPathBeanScanner(beanDefinitionRegistry).scan(basePackages);
 
-        final SimpleBeanDefinitionRegistry simpleBeanDefinitionRegistry = new SimpleBeanDefinitionRegistry();
-        simpleBeanDefinitionRegistry.registerAll(configurationBeanDefinitionMap, genericBeanDefinitionMap);
-
-        this.beanFactory = new DefaultListableBeanFactory(simpleBeanDefinitionRegistry);
+        this.beanFactory = new DefaultListableBeanFactory(beanDefinitionRegistry);
         this.beanFactory.initialize();
     }
 

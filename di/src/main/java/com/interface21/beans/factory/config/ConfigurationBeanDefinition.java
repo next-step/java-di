@@ -1,5 +1,6 @@
 package com.interface21.beans.factory.config;
 
+import com.interface21.core.util.StringUtils;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.function.Function;
@@ -12,7 +13,7 @@ public class ConfigurationBeanDefinition implements BeanDefinition{
 
   public ConfigurationBeanDefinition(final Class<?> beanClass, final Method beanMethod) {
     this.beanClass = beanClass;
-    this.beanClassName = beanClass.getName();
+    this.beanClassName = StringUtils.makeBeanName(beanClass.getSimpleName());
     this.beanMethod = beanMethod;
   }
 

@@ -13,20 +13,25 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import org.reflections.Reflections;
 
-public final class ClassPathBeanScanner {
+public class ClassPathBeanScanner {
+
+  private final BeanDefinitionRegistry beanDefinitionRegistry;
 
   private static final List<Class<? extends Annotation>> beanAnnotations =
       List.of(Controller.class, Service.class, Repository.class, Configuration.class);
 
-  private ClassPathBeanScanner() {
+  public ClassPathBeanScanner(BeanDefinitionRegistry beanDefinitionRegistry) {
+    this.beanDefinitionRegistry = beanDefinitionRegistry;
   }
 
-  public static Map<Class<?>, BeanDefinition> scan(List<String> basePackages) {
+  public BeanDefinitionRegistry scan(List<String> basePackages) {
     Reflections reflections = new Reflections(basePackages);
 
-    return beanAnnotations.stream()
+    Map<Class<?>, BeanDefinition> beanDefinitionMap = beanAnnotations.stream()
         .map(reflections::getTypesAnnotatedWith)
         .flatMap(Set::stream)
         .collect(Collectors.toMap(clazz -> clazz, GenericBeanDefinition::from));
+
+    return beanDefinitionRegistry.registerAll(beanDefinitionMap);
   }
 }
