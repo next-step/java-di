@@ -13,12 +13,10 @@ import com.interface21.context.stereotype.Service;
 import org.reflections.Reflections;
 
 import com.interface21.context.stereotype.Component;
-import org.reflections.Store;
-import org.reflections.util.ConfigurationBuilder;
 
 public final class BeanScanner {
 
-    private static List<Class<? extends Annotation>> beanAnnotations = List.of(Component.class, Service.class, Controller.class, Repository.class);
+    private static List<Class<? extends Annotation>> beanAnnotations = List.of(Component.class, Service.class, Controller.class, Repository.class, Configuration.class);
 
     private BeanScanner() {}
 

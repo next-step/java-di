@@ -92,20 +92,18 @@ class DefaultListableBeanFactoryTest {
     }
 
     @Test
-    @DisplayName("Configuration 은 클래스와 팩토리 메서드 빈 정보를 등록한다")
+    @DisplayName("ConfigurationBeanDefinitionScanner는 @Bean 빈 정보를 등록한다")
     public void configurationBeanTest() {
 
         DefaultListableBeanFactory factory = new DefaultListableBeanFactory();
         int scan = new ConfigurationBeanDefinitionScanner(factory).scan(new String[]{"samples.config"});
 
         assertAll(() -> {
-            assertThat(scan).isEqualTo(4);
+            assertThat(scan).isEqualTo(2);
             assertThat(factory.getBeanClasses())
                     .containsExactlyInAnyOrder(
-                            IntegrationConfig.class,
                             JdbcTemplate.class,
-                            DataSource.class,
-                            ExampleConfig.class);
+                            DataSource.class);
 
         });
     }

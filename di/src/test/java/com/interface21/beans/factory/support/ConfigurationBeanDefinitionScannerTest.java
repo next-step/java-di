@@ -16,14 +16,14 @@ class ConfigurationBeanDefinitionScannerTest {
     }
 
     @Test
-    @DisplayName("@Configuration을 스캔한다")
+    @DisplayName("@Configuration 클래스에 선언된 @Bean 을 스캔한다")
     public void scanTest() {
 
         var scanner = new ConfigurationBeanDefinitionScanner(registry);
 
         int scanned = scanner.scan(new String[]{"samples.config"});
 
-        assertThat(scanned).isEqualTo(4);
+        assertThat(scanned).isEqualTo(2);
     }
 
 
