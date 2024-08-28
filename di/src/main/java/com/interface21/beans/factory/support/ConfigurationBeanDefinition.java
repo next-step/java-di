@@ -2,17 +2,18 @@ package com.interface21.beans.factory.support;
 
 import com.interface21.beans.factory.config.Injector;
 import com.interface21.beans.factory.config.BeanDefinition;
-import com.interface21.beans.factory.config.FactoryMethodInjector;
 
 import java.lang.reflect.Executable;
 import java.lang.reflect.Method;
 
 public class ConfigurationBeanDefinition implements BeanDefinition {
 
+    private final InjectionType injectionType;
     private final Class<?> beanClass;
     private final Method beanMethod;
 
     public ConfigurationBeanDefinition(Class<?> beanClass, Method beanMethod) {
+        injectionType = InjectionType.METHOD;
         this.beanClass = beanClass;
         this.beanMethod = beanMethod;
     }
@@ -34,6 +35,6 @@ public class ConfigurationBeanDefinition implements BeanDefinition {
 
     @Override
     public Injector getInjector() {
-        return new FactoryMethodInjector();
+        return injectionType.getInjector();
     }
 }
