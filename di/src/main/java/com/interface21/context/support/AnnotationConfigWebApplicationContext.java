@@ -4,32 +4,30 @@ import java.lang.annotation.Annotation;
 import java.util.*;
 
 import com.interface21.beans.factory.support.*;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import com.interface21.context.ApplicationContext;
 import com.interface21.context.annotation.AnnotationConfigRegistry;
 
 public class AnnotationConfigWebApplicationContext
+        extends GenericApplicationContext
         implements ApplicationContext, AnnotationConfigRegistry {
 
-    private final Logger log = LoggerFactory.getLogger(AnnotationConfigWebApplicationContext.class);
-
-    private final List<String> basePackages = new ArrayList<>();
     private final DefaultListableBeanFactory beanFactory;
 
     public AnnotationConfigWebApplicationContext(Class<?> configuration) {
-        Collections.addAll(this.basePackages, BeanScanner.scanBasePackages(configuration));
         this.beanFactory = new DefaultListableBeanFactory();
-        scan(basePackages.toArray(String[]::new));
+        scan(configuration);
         initializeBeanFactory();
     }
 
 
     @Override
-    public void scan(String[] basePackages) {
-        var scanners = getBeanScanner(beanFactory);
-        scanners.forEach(scanner -> scanner.scan(basePackages));
+    public void scan(Class<?> configuration) {
+        ConfigurationBeanScanner configurationBeanScanner = new ConfigurationBeanScanner(beanFactory);
+        configurationBeanScanner.register(configuration);
+
+        ClasspathBeanScanner classpathBeanScanner = new ClasspathBeanScanner(beanFactory);
+        classpathBeanScanner.scan(BeanScanner.scanBasePackages(configuration));
     }
 
     @Override
@@ -51,9 +49,4 @@ public class AnnotationConfigWebApplicationContext
         this.beanFactory.initialize();
     }
 
-    private List<BeanDefinitionScanner> getBeanScanner(BeanDefinitionRegistry beanFactory) {
-        return List.of(
-                new AnnotationBeanDefinitionScanner(beanFactory),
-                new ConfigurationBeanDefinitionScanner(beanFactory));
-    }
 }

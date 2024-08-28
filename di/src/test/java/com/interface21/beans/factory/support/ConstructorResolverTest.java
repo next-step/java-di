@@ -6,22 +6,19 @@ import static org.junit.jupiter.api.Assertions.*;
 import java.lang.reflect.Constructor;
 import javax.sql.DataSource;
 
-import com.interface21.MockBeanFactory;
-import com.interface21.beans.factory.BeanFactory;
-import com.interface21.beans.factory.config.AnnotationBeanDefinition;
+import com.interface21.context.support.AnnotationConfigWebApplicationContext;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 import samples.*;
+import samples.config.IntegrationConfig;
 
 class ConstructorResolverTest {
 
-    private BeanFactory factory;
-
     @BeforeEach
     void setUp() {
-        factory = MockBeanFactory.createBeanFactory();
+        new AnnotationConfigWebApplicationContext(IntegrationConfig.class);
     }
 
     @Test
@@ -45,7 +42,7 @@ class ConstructorResolverTest {
         Constructor<?> constructor = constructorHolder.constructor();
 
         assertNotNull(constructor);
-        assertThat(constructor.getParameterCount()).isEqualTo(0);
-//        assertThat(constructor.getParameters()[0].getType()).isEqualTo(DataSource.class);
+        assertThat(constructor.getParameterCount()).isEqualTo(1);
+        assertThat(constructor.getParameters()[0].getType()).isEqualTo(DataSource.class);
     }
 }

@@ -5,7 +5,7 @@ public interface AnnotationConfigRegistry {
     /**
      * Perform a scan within the specified base packages.
      *
-     * @param basePackages the packages to scan for component classes
+     * @param configuration the configuration to scan for component classes
      */
-    void scan(String... basePackages);
+    void scan(Class<?> configuration);
 }
