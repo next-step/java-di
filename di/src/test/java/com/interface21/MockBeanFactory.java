@@ -5,7 +5,6 @@ import com.interface21.beans.factory.config.AnnotationBeanDefinition;
 import com.interface21.beans.factory.support.DefaultListableBeanFactory;
 import samples.JdbcSampleRepository;
 import samples.SampleController;
-import samples.SampleDataSource;
 import samples.SampleService;
 
 public class MockBeanFactory {
@@ -20,8 +19,6 @@ public class MockBeanFactory {
         factory.registerBeanDefinition(
                 JdbcSampleRepository.class,
                 new AnnotationBeanDefinition(JdbcSampleRepository.class));
-        factory.registerBeanDefinition(
-                SampleDataSource.class, new AnnotationBeanDefinition(SampleDataSource.class));
 
         factory.initialize();
 

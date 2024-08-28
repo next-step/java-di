@@ -1,20 +1,22 @@
 package com.interface21.beans.factory.config;
 
-import com.interface21.beans.factory.BeanFactory;
 import com.interface21.beans.factory.support.ConstructorHolder;
 import com.interface21.beans.factory.support.ConstructorResolver;
+import com.interface21.beans.factory.support.InjectionType;
 
 import java.lang.reflect.Constructor;
-import java.util.Arrays;
+import java.lang.reflect.Executable;
 
 public class AnnotationBeanDefinition implements BeanDefinition {
 
+    private final InjectionType injectionType;
     private final Class<?> beanType;
     private final boolean autowireMode;
     private final Constructor<?> constructor;
     private final Class<?>[] argumentTypes;
 
     public AnnotationBeanDefinition(Class<?> beanType) {
+        injectionType = InjectionType.CONSTRUCTOR;
         this.beanType = beanType;
         ConstructorHolder constructorHolder = ConstructorResolver.resolve(beanType);
         this.constructor = constructorHolder.constructor();
@@ -27,13 +29,8 @@ public class AnnotationBeanDefinition implements BeanDefinition {
         return beanType;
     }
 
-    @Override
-    public String getBeanClassName() {
-        return beanType.getSimpleName();
-    }
 
-
-    public Constructor<?> getConstructor() {
+    public Executable getExecutable() {
         return constructor;
     }
 
@@ -42,7 +39,7 @@ public class AnnotationBeanDefinition implements BeanDefinition {
     }
 
     @Override
-    public Object[] resolveArguments(BeanFactory beanFactory) {
-        return Arrays.stream(argumentTypes).map(beanFactory::getBean).toArray(Object[]::new);
+    public Injector getInjector() {
+        return injectionType.getInjector();
     }
 }

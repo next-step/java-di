@@ -58,8 +58,29 @@
     - [x] `BeanFactory`은 빈을 생성할 때 `@Autowired`로 선언한 생성자가 있으면 빈을 검색해서 의존성을 주입해준다
     - [x] `BeanFactory`은 `@Autowired`로 선언한 생성자가 없는 경우 기본 생성자로 인스턴스를 생성한다
 
+
+### 3단계
+- [x] 데이터베이스 설정을 관리하는 책임을 맡은 빈을 생성하기 위해 `@Configuration`을 추가하자.
+  - `ApplicationContext#refresh()` 동작 순서
+    - [x] `BeanDefinitionScanner`은 `BeanDefinition`을 로딩한다
+      - [x] `AnnotationBeanDefinitionScanner`이 `@Component`을 스캔한다
+      - [x] `ConfigurationBeanDefinitionScanner`가 `@Configuration`을 스캔한다
+    - 빈 생성 및 등록한다
+      - 빈 생성한다
+        - 생성자를 호출해 빈을 생성한다
+        - @Component
+          - [x] `@Autowired`를선언한 생성자가 있으면 해당 생성자를 사용해서 빈 인스턴스를 생성한다
+        - @Bean
+          - [x] 메서드로 빈 인스턴스를 생성한다
+          - [x] `@Configuration` 설정 파일을 통해 등록한 빈과 `BeanScanner`를 통해 등록한 빈 간에도 DI가 가능해야 한다.
+    - 의존성 주입한다
+- [x] `BeanScanner`에서 사용할 기본 패키지에 대한 설정을 하드코딩했는데 `@ComponentScan`으로 패키지 경로를 설정할 수 있도록 지원하자.
+  - [x] `@ComponentScan`을 스캔한다
+  - [x] `@ComponentScan` 속성을 기반으로 빈을 스캔한다
+
 ----
 
+### 정의
 - Bean
   - 스프링 프레임워크에 의해 생성되고 의존성 및 라이프 사이클이 관리되는 객체를 의미한다
 - BeanDefinition
@@ -69,3 +90,8 @@
   - `BeanDefinition`을 등록하고 조회하는 기능을 제공한다
 - BeanRegistry
   - `Bean`을 등록하고 조회하는 기능을 제공한다
+
+### 보완할 점
+
+1. 의존성 주입 생성자 매개변수 추출 부분
+2. BeanDefinition 정리

@@ -1,24 +1,26 @@
 package com.interface21.beans.factory.support;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.*;
-
-import java.util.Set;
-
+import circular.MockCircularComponentA;
+import circular.MockCircularComponentB;
 import com.interface21.MockBeanFactory;
 import com.interface21.beans.BeanInstantiationException;
 import com.interface21.beans.factory.BeanFactory;
+import com.interface21.beans.factory.config.AnnotationBeanDefinition;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-
-import com.interface21.beans.factory.config.AnnotationBeanDefinition;
-
 import samples.JdbcSampleRepository;
+import samples.JdbcTemplate;
 import samples.SampleController;
 import samples.SampleService;
-import samples.MockCircularComponentA;
-import samples.MockCircularComponentB;
+import samples.config.ExampleConfig;
+import samples.config.IntegrationConfig;
+
+import javax.sql.DataSource;
+import java.util.Set;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.*;
 
 class DefaultListableBeanFactoryTest {
 
@@ -89,5 +91,21 @@ class DefaultListableBeanFactoryTest {
                 "Circular reference detected");
     }
 
+    @Test
+    @DisplayName("ConfigurationBeanDefinitionScanner는 @Bean 빈 정보를 등록한다")
+    public void configurationBeanTest() {
+
+        DefaultListableBeanFactory factory = new DefaultListableBeanFactory();
+        int scan = new ConfigurationBeanDefinitionScanner(factory).scan(new String[]{"samples.config"});
+
+        assertAll(() -> {
+            assertThat(scan).isEqualTo(2);
+            assertThat(factory.getBeanClasses())
+                    .containsExactlyInAnyOrder(
+                            JdbcTemplate.class,
+                            DataSource.class);
+
+        });
+    }
 
 }

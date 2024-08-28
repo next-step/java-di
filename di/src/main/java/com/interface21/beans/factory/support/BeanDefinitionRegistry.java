@@ -12,5 +12,7 @@ public interface BeanDefinitionRegistry {
 
     List<BeanDefinition> getBeanDefinitions();
 
+    BeanDefinition getBeanDefinition(Class<?> clazz);
+
     int getBeanDefinitionCount();
 }

@@ -14,7 +14,7 @@ public class BeanDefinitions {
 
     private static final Logger log = LoggerFactory.getLogger(BeanDefinitions.class);
 
-    private Map<Class<?>, BeanDefinition> beanDefinitions = new ConcurrentHashMap<>();
+    private final Map<Class<?>, BeanDefinition> beanDefinitions = new ConcurrentHashMap<>();
 
     public void registerBeanDefinition(Class<?> clazz, BeanDefinition beanDefinition) {
         beanDefinitions.put(clazz, beanDefinition);

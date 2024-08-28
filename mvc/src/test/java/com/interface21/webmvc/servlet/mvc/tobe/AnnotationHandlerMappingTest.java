@@ -4,6 +4,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
+import com.interface21.context.support.AppConfiguration;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
@@ -11,6 +12,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import com.interface21.context.support.AnnotationConfigWebApplicationContext;
+import samples.TestConfig;
 
 class AnnotationHandlerMappingTest {
 
@@ -18,11 +20,9 @@ class AnnotationHandlerMappingTest {
 
     @BeforeEach
     void setUp() {
-        String scanPackage = "samples";
-
         handlerMapping =
                 new AnnotationHandlerMapping(
-                        new AnnotationConfigWebApplicationContext(scanPackage), scanPackage);
+                        new AnnotationConfigWebApplicationContext(TestConfig.class));
         handlerMapping.initialize();
     }
 

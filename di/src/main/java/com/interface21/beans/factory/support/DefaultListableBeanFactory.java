@@ -1,10 +1,12 @@
 package com.interface21.beans.factory.support;
 
+import java.lang.annotation.Annotation;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
 import com.interface21.beans.BeanInstantiationException;
+import com.interface21.beans.factory.config.Injector;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -26,7 +28,7 @@ public class DefaultListableBeanFactory implements BeanFactory, BeanDefinitionRe
     }
 
     public void initialize() {
-        initializeBeans();
+        instantiateBeans();
     }
 
     @Override
@@ -50,6 +52,11 @@ public class DefaultListableBeanFactory implements BeanFactory, BeanDefinitionRe
     }
 
     @Override
+    public BeanDefinition getBeanDefinition(Class<?> clazz) {
+        return beanDefinitions.getBeanDefinition(clazz);
+    }
+
+    @Override
     public <T> T getBean(final Class<T> clazz) {
         return clazz.cast(doGetBean(clazz));
     }
@@ -58,9 +65,9 @@ public class DefaultListableBeanFactory implements BeanFactory, BeanDefinitionRe
     public void clear() {}
 
 
-    private void initializeBeans() {
-       beanDefinitions.getBeanDefinitions()
-            .forEach(beanDefinition -> getBean(beanDefinition.getType()));
+    private void instantiateBeans() {
+        beanDefinitions.getBeanDefinitions()
+                .forEach(beanDefinition -> beanRegistry.registeredBean(getBean(beanDefinition.getType())));
     }
 
 
@@ -69,22 +76,24 @@ public class DefaultListableBeanFactory implements BeanFactory, BeanDefinitionRe
         Class<?> concreteClazz = resolveBeanClass(clazz);
 
         Object instance = Optional.ofNullable(beanRegistry.getBean(concreteClazz))
-                .orElseGet(() -> createBean(beanDefinitions.getBeanDefinition(concreteClazz)));
+                .orElseGet(() -> createBeanInstance(beanDefinitions.getBeanDefinition(concreteClazz)));
 
         return concreteClazz.cast(instance);
     }
 
-    private Object createBean(BeanDefinition beanDefinition) {
+
+    private Object createBeanInstance(BeanDefinition beanDefinition) {
 
         Class<?> beanClass = beanDefinition.getType();
         if (beanInstantiationCache.isCircularDependency(beanClass)) {
             throw new BeanInstantiationException(beanClass, "Circular dependency detected");
         }
+        beanInstantiationCache.addInitializingBean(beanClass);
 
         try {
-            beanInstantiationCache.addInitializingBean(beanClass);
-            return new ConstructorResolver(this).autowireConstructor(beanDefinition);
-        } catch (IllegalArgumentException e) {
+            Injector injector = beanDefinition.getInjector();
+            return injector.inject(beanDefinition, this);
+        } catch (IllegalArgumentException | ClassCastException e) {
             throw new BeanInstantiationException(beanClass, e.getMessage());
         } finally {
             beanInstantiationCache.removeInitializingBean(beanClass);
@@ -99,5 +108,9 @@ public class DefaultListableBeanFactory implements BeanFactory, BeanDefinitionRe
     @Override
     public BeanInstantiationCache getBeanInstantiationCache() {
         return beanInstantiationCache;
+    }
+
+    public Object[] getBeanWithAnnotation(Class<? extends Annotation> annotationType) {
+        return beanRegistry.getBeanWithAnnotation(annotationType);
     }
 }

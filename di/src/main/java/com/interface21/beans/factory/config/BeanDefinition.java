@@ -1,18 +1,15 @@
 package com.interface21.beans.factory.config;
 
-import com.interface21.beans.factory.BeanFactory;
 
-import java.lang.reflect.Constructor;
+import java.lang.reflect.Executable;
 
 public interface BeanDefinition {
 
     Class<?> getType();
 
-    String getBeanClassName();
-
-    Constructor<?> getConstructor();
+    Executable getExecutable();
 
     Class<?>[] getParameterTypes();
 
-    Object[] resolveArguments(BeanFactory beanFactory);
+    Injector getInjector();
 }

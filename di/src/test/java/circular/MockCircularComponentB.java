@@ -1,13 +1,13 @@
-package samples;
+package circular;
 
 import com.interface21.beans.factory.annotation.Autowired;
 import com.interface21.context.stereotype.Component;
 
 @Component
-public class MockCircularComponentA {
+public class MockCircularComponentB {
 
     @Autowired
-    public MockCircularComponentA(MockCircularComponentB mockCircularComponentB) {
+    public MockCircularComponentB(MockCircularComponentA mockCircularComponentA) {
 
     }
 }

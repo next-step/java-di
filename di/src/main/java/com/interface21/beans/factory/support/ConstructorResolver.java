@@ -25,8 +25,4 @@ public final class ConstructorResolver {
 
         return new ConstructorHolder(clazz.getDeclaredConstructors()[FIRST_CONSTRUCTOR_INDEX], false);
     }
-
-    public Object autowireConstructor(BeanDefinition beanDefinition) {
-        return BeanUtils.instantiateClass(beanDefinition.getConstructor(), beanDefinition.resolveArguments(beanFactory));
-    }
 }

@@ -1,6 +1,5 @@
 package com.interface21.webmvc.servlet.mvc.tobe;
 
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -10,7 +9,6 @@ import jakarta.servlet.http.HttpServletRequest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.interface21.beans.factory.support.BeanScanner;
 import com.interface21.context.ApplicationContext;
 import com.interface21.context.stereotype.Controller;
 import com.interface21.web.bind.annotation.RequestMethod;
@@ -21,13 +19,11 @@ public class AnnotationHandlerMapping implements HandlerMapping {
     private static final Logger log = LoggerFactory.getLogger(AnnotationHandlerMapping.class);
 
     private final ApplicationContext applicationContext;
-    private final Object[] basePackage;
     private final Map<HandlerKey, HandlerExecution> handlerExecutions;
 
     public AnnotationHandlerMapping(
-            final ApplicationContext applicationContext, final Object... basePackage) {
+            final ApplicationContext applicationContext) {
         this.applicationContext = applicationContext;
-        this.basePackage = basePackage;
         this.handlerExecutions = new HashMap<>();
     }
 
@@ -55,10 +51,6 @@ public class AnnotationHandlerMapping implements HandlerMapping {
     }
 
     private List<Object> retrieveControllers() {
-        return Arrays.stream(basePackage)
-                .flatMap(it -> BeanScanner.scanBeans(Controller.class, (String) it).stream())
-                .map(applicationContext::getBean)
-                .map(it -> (Object) it)
-                .toList();
+        return List.of(applicationContext.getBeanWithAnnotation(Controller.class));
     }
 }

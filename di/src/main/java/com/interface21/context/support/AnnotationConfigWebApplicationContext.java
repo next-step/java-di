@@ -1,14 +1,12 @@
 package com.interface21.context.support;
 
+import java.lang.annotation.Annotation;
 import java.util.*;
 
+import com.interface21.beans.factory.support.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.interface21.beans.factory.support.AnnotationBeanDefinitionScanner;
-import com.interface21.beans.factory.support.BeanDefinitionRegistry;
-import com.interface21.beans.factory.support.BeanDefinitionScanner;
-import com.interface21.beans.factory.support.DefaultListableBeanFactory;
 import com.interface21.context.ApplicationContext;
 import com.interface21.context.annotation.AnnotationConfigRegistry;
 
@@ -20,19 +18,18 @@ public class AnnotationConfigWebApplicationContext
     private final List<String> basePackages = new ArrayList<>();
     private final DefaultListableBeanFactory beanFactory;
 
-    public AnnotationConfigWebApplicationContext(String basePackage) {
-        Collections.addAll(this.basePackages, basePackage);
+    public AnnotationConfigWebApplicationContext(Class<?> configuration) {
+        Collections.addAll(this.basePackages, BeanScanner.scanBasePackages(configuration));
         this.beanFactory = new DefaultListableBeanFactory();
         scan(basePackages.toArray(String[]::new));
         initializeBeanFactory();
     }
 
+
     @Override
     public void scan(String[] basePackages) {
-        BeanDefinitionScanner scanner = getBeanScanner(beanFactory);
-        int count = scanner.scan(basePackages);
-
-        log.info("{} beans found in {}", count, Arrays.toString(basePackages));
+        var scanners = getBeanScanner(beanFactory);
+        scanners.forEach(scanner -> scanner.scan(basePackages));
     }
 
     @Override
@@ -45,11 +42,18 @@ public class AnnotationConfigWebApplicationContext
         return beanFactory.getBeanClasses();
     }
 
+    @Override
+    public Object[] getBeanWithAnnotation(Class<? extends Annotation> controllerClass) {
+        return beanFactory.getBeanWithAnnotation(controllerClass);
+    }
+
     private void initializeBeanFactory() {
         this.beanFactory.initialize();
     }
 
-    private BeanDefinitionScanner getBeanScanner(BeanDefinitionRegistry beanFactory) {
-        return new AnnotationBeanDefinitionScanner(beanFactory);
+    private List<BeanDefinitionScanner> getBeanScanner(BeanDefinitionRegistry beanFactory) {
+        return List.of(
+                new AnnotationBeanDefinitionScanner(beanFactory),
+                new ConfigurationBeanDefinitionScanner(beanFactory));
     }
 }

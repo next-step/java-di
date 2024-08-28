@@ -1,5 +1,6 @@
 package com.interface21.web;
 
+import com.interface21.context.support.AppConfiguration;
 import jakarta.servlet.ServletContext;
 
 import org.slf4j.Logger;
@@ -15,16 +16,16 @@ import com.interface21.webmvc.servlet.mvc.tobe.HandlerExecutionHandlerAdapter;
 public class MyWebApplicationInitializer implements WebApplicationInitializer {
 
     private static final Logger log = LoggerFactory.getLogger(MyWebApplicationInitializer.class);
-    public static final String DEFAULT_PACKAGE = "camp.nextstep.controller";
 
     @Override
     public void onStartup(final ServletContext container) {
-        final var applicationContext = new AnnotationConfigWebApplicationContext(DEFAULT_PACKAGE);
+
+        final var applicationContext = new AnnotationConfigWebApplicationContext(AppConfiguration.class);
 
         final var dispatcherServlet = new DispatcherServlet();
         dispatcherServlet.addHandlerMapping(new ManualHandlerMapping());
         dispatcherServlet.addHandlerMapping(
-                new AnnotationHandlerMapping(applicationContext, DEFAULT_PACKAGE));
+                new AnnotationHandlerMapping(applicationContext));
 
         dispatcherServlet.addHandlerAdapter(new ControllerHandlerAdapter());
         dispatcherServlet.addHandlerAdapter(new HandlerExecutionHandlerAdapter());
