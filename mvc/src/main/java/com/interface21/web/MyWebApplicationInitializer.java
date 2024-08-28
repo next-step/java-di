@@ -16,7 +16,6 @@ import com.interface21.webmvc.servlet.mvc.tobe.HandlerExecutionHandlerAdapter;
 public class MyWebApplicationInitializer implements WebApplicationInitializer {
 
     private static final Logger log = LoggerFactory.getLogger(MyWebApplicationInitializer.class);
-    public static final String DEFAULT_PACKAGE = "camp.nextstep.controller";
 
     @Override
     public void onStartup(final ServletContext container) {
@@ -26,7 +25,7 @@ public class MyWebApplicationInitializer implements WebApplicationInitializer {
         final var dispatcherServlet = new DispatcherServlet();
         dispatcherServlet.addHandlerMapping(new ManualHandlerMapping());
         dispatcherServlet.addHandlerMapping(
-                new AnnotationHandlerMapping(applicationContext, DEFAULT_PACKAGE));
+                new AnnotationHandlerMapping(applicationContext));
 
         dispatcherServlet.addHandlerAdapter(new ControllerHandlerAdapter());
         dispatcherServlet.addHandlerAdapter(new HandlerExecutionHandlerAdapter());

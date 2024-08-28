@@ -1,5 +1,6 @@
 package com.interface21.beans.factory.support;
 
+import java.lang.annotation.Annotation;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -65,8 +66,8 @@ public class DefaultListableBeanFactory implements BeanFactory, BeanDefinitionRe
 
 
     private void instantiateBeans() {
-       beanDefinitions.getBeanDefinitions()
-            .forEach(beanDefinition -> getBean(beanDefinition.getType()));
+        beanDefinitions.getBeanDefinitions()
+                .forEach(beanDefinition -> beanRegistry.registeredBean(getBean(beanDefinition.getType())));
     }
 
 
@@ -107,5 +108,9 @@ public class DefaultListableBeanFactory implements BeanFactory, BeanDefinitionRe
     @Override
     public BeanInstantiationCache getBeanInstantiationCache() {
         return beanInstantiationCache;
+    }
+
+    public Object[] getBeanWithAnnotation(Class<? extends Annotation> annotationType) {
+        return beanRegistry.getBeanWithAnnotation(annotationType);
     }
 }

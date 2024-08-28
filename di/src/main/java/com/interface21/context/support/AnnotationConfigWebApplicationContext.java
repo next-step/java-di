@@ -1,5 +1,6 @@
 package com.interface21.context.support;
 
+import java.lang.annotation.Annotation;
 import java.util.*;
 
 import com.interface21.beans.factory.support.*;
@@ -39,6 +40,11 @@ public class AnnotationConfigWebApplicationContext
     @Override
     public Set<Class<?>> getBeanClasses() {
         return beanFactory.getBeanClasses();
+    }
+
+    @Override
+    public Object[] getBeanWithAnnotation(Class<? extends Annotation> controllerClass) {
+        return beanFactory.getBeanWithAnnotation(controllerClass);
     }
 
     private void initializeBeanFactory() {

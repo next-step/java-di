@@ -1,5 +1,6 @@
 package com.interface21.beans.factory.support;
 
+import java.lang.annotation.Annotation;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -27,5 +28,12 @@ public class DefaultBeanRegistry implements BeanRegistry {
             return null;
         }
         return singletonObjects.get(clazz);
+    }
+
+    @Override
+    public Object[] getBeanWithAnnotation(Class<? extends Annotation> annotationType) {
+        return singletonObjects.values().stream()
+                .filter(bean -> bean.getClass().isAnnotationPresent(annotationType))
+                .toArray();
     }
 }
