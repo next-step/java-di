@@ -10,7 +10,7 @@ import com.interface21.context.annotation.Configuration;
 import samples.JdbcTemplate;
 
 @Configuration
-@ComponentScan({ "camp.nextstep", "com.interface21" })
+@ComponentScan({"samples"})
 public class IntegrationConfig {
 
     @Bean

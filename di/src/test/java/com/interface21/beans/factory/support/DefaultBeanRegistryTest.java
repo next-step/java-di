@@ -3,6 +3,7 @@ package com.interface21.beans.factory.support;
 import static org.assertj.core.api.Assertions.*;
 import static org.junit.jupiter.api.Assertions.*;
 
+import org.h2.jdbcx.JdbcDataSource;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
@@ -14,7 +15,7 @@ class DefaultBeanRegistryTest {
 
     private SampleController controller =
             new SampleController(
-                    new SampleService(new JdbcSampleRepository()));
+                    new SampleService(new JdbcSampleRepository(new JdbcDataSource())));
 
     @Test
     @DisplayName("빈을 등록한다")
@@ -34,7 +35,7 @@ class DefaultBeanRegistryTest {
         defaultBeanRegistry.registeredBean(controller);
         defaultBeanRegistry.registeredBean(
                 new SampleController(
-                        new SampleService(new JdbcSampleRepository())));
+                        new SampleService(new JdbcSampleRepository(new JdbcDataSource()))));
 
         assertThat(defaultBeanRegistry.getBean(SampleController.class)).isEqualTo(controller);
     }

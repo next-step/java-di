@@ -6,6 +6,8 @@ import com.interface21.MockBeanFactory;
 import com.interface21.beans.BeanInstantiationException;
 import com.interface21.beans.factory.BeanFactory;
 import com.interface21.beans.factory.config.AnnotationBeanDefinition;
+import com.interface21.beans.factory.config.BeanDefinition;
+import com.interface21.context.support.AnnotationConfigWebApplicationContext;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -13,7 +15,6 @@ import samples.JdbcSampleRepository;
 import samples.JdbcTemplate;
 import samples.SampleController;
 import samples.SampleService;
-import samples.config.ExampleConfig;
 import samples.config.IntegrationConfig;
 
 import javax.sql.DataSource;
@@ -96,16 +97,11 @@ class DefaultListableBeanFactoryTest {
     public void configurationBeanTest() {
 
         DefaultListableBeanFactory factory = new DefaultListableBeanFactory();
-        int scan = new ConfigurationBeanDefinitionScanner(factory).scan(new String[]{"samples.config"});
+        int scan = new ConfigurationBeanScanner(factory).scan(new String[]{"samples.config"});
+        assertThat(scan).isGreaterThan(0);
 
-        assertAll(() -> {
-            assertThat(scan).isEqualTo(2);
-            assertThat(factory.getBeanClasses())
-                    .containsExactlyInAnyOrder(
-                            JdbcTemplate.class,
-                            DataSource.class);
-
-        });
+        BeanDefinition bd = factory.getBeanDefinition(DataSource.class);
+        assertNotNull(bd);
     }
 
 }

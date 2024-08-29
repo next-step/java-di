@@ -16,12 +16,11 @@ import com.interface21.context.stereotype.Component;
 
 public final class BeanScanner {
 
-    private static List<Class<? extends Annotation>> beanAnnotations = List.of(Component.class, Service.class, Controller.class, Repository.class, Configuration.class);
+    private static final List<Class<? extends Annotation>> BEAN_ANNOTATIONS = List.of(Component.class, Service.class, Controller.class, Repository.class);
 
-    private BeanScanner() {}
 
     public static Set<Class<?>> scanBeans(String[] baskPackage) {
-        return beanAnnotations.stream()
+        return BEAN_ANNOTATIONS.stream()
                 .flatMap(annotation -> scanBeans(annotation, baskPackage).stream())
                 .collect(Collectors.toSet());
     }

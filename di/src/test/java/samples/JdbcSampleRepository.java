@@ -9,9 +9,9 @@ public class JdbcSampleRepository implements SampleRepository {
 
     private DataSource dataSource;
 
-//    public JdbcSampleRepository(final DataSource dataSource) {
-//        this.dataSource = dataSource;
-//    }
+    public JdbcSampleRepository(final DataSource dataSource) {
+        this.dataSource = dataSource;
+    }
 
     public DataSource getDataSource() {
         return dataSource;
