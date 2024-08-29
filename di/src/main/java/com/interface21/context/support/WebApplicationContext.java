@@ -10,7 +10,7 @@ import java.util.Set;
 
 public class WebApplicationContext implements ApplicationContext {
 
-  private final DefaultListableBeanFactory beanFactory;
+  private final BeanFactory beanFactory;
 
   public WebApplicationContext(Class<?> configClass) {
 
