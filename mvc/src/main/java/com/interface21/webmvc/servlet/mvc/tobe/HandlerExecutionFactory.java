@@ -15,11 +15,11 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-public class BeanScanner {
+public class HandlerExecutionFactory {
 
-  private static final Logger log = LoggerFactory.getLogger(BeanScanner.class);
+  private static final Logger log = LoggerFactory.getLogger(HandlerExecutionFactory.class);
   private final ArgumentResolvers argumentResolvers;
-  public BeanScanner() {
+  public HandlerExecutionFactory() {
     this.argumentResolvers = ArgumentResolvers.of(List.of(
         new HttpRequestArgumentResolver(),
         new HttpResponseArgumentResolver(),
@@ -29,7 +29,7 @@ public class BeanScanner {
     ));
   }
 
-  public Map<HandlerKey, HandlerExecution> scan(BeanFactory beanFactory) {
+  public Map<HandlerKey, HandlerExecution> createHandlerExecution(BeanFactory beanFactory) {
     final var handlers = new HashMap<HandlerKey, HandlerExecution>();
     final var controllers = beanFactory.getControllers();
 
