@@ -16,6 +16,9 @@ public class WebApplicationContext implements ApplicationContext {
 
     String[] basePackages = getBasePackages(configClass);
     beanFactory = new DefaultListableBeanFactory(basePackages);
+  }
+
+  public void initialize() {
     beanFactory.initialize();
   }
 
