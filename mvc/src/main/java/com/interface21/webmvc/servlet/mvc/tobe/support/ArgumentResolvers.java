@@ -4,6 +4,7 @@ import com.interface21.core.MethodParameter;
 import com.interface21.web.method.support.ArgumentResolver;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
@@ -19,7 +20,7 @@ public class ArgumentResolvers implements ArgumentResolver {
 
     return Optional.ofNullable(argumentResolvers)
         .map(ArgumentResolvers::new)
-        .orElseThrow(() -> new IllegalArgumentException("Argument resolvers cannot be empty"));
+        .orElseThrow(() -> new IllegalArgumentException("Argument resolvers cannot be empty. Args: " + argumentResolvers));
   }
 
   @Override

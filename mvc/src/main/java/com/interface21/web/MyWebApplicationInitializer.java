@@ -18,6 +18,7 @@ public class MyWebApplicationInitializer implements WebApplicationInitializer {
   public void onStartup(final ServletContext container) {
     final var applicationContext = new WebApplicationContext(
         (Class<?>) container.getAttribute("entryPoint"));
+    applicationContext.initialize();
 
     final var dispatcherServlet = new DispatcherServlet();
     dispatcherServlet.addHandlerMapping(new AnnotationHandlerMapping(applicationContext));
