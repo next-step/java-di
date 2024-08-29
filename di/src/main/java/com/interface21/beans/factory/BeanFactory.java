@@ -1,5 +1,6 @@
 package com.interface21.beans.factory;
 
+import java.util.Map;
 import java.util.Set;
 
 public interface BeanFactory {
@@ -8,5 +9,6 @@ public interface BeanFactory {
 
     <T> T getBean(Class<T> clazz);
 
+    Map<Class<?>,Object> getControllers();
     void clear();
 }

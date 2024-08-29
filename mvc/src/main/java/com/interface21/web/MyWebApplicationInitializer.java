@@ -1,6 +1,6 @@
 package com.interface21.web;
 
-import com.interface21.context.support.AnnotationConfigWebApplicationContext;
+import com.interface21.context.support.WebApplicationContext;
 import com.interface21.webmvc.servlet.mvc.DispatcherServlet;
 import com.interface21.webmvc.servlet.mvc.asis.ControllerHandlerAdapter;
 import com.interface21.webmvc.servlet.mvc.asis.ManualHandlerMapping;
@@ -12,23 +12,24 @@ import org.slf4j.LoggerFactory;
 
 public class MyWebApplicationInitializer implements WebApplicationInitializer {
 
-    private static final Logger log = LoggerFactory.getLogger(MyWebApplicationInitializer.class);
+  private static final Logger log = LoggerFactory.getLogger(MyWebApplicationInitializer.class);
 
-    @Override
-    public void onStartup(final ServletContext container) {
-        final var applicationContext = new AnnotationConfigWebApplicationContext();
+  @Override
+  public void onStartup(final ServletContext container) {
+    final var applicationContext = new WebApplicationContext(
+        (Class<?>) container.getAttribute("entryPoint"));
 
-        final var dispatcherServlet = new DispatcherServlet();
-        dispatcherServlet.addHandlerMapping(new ManualHandlerMapping());
-        dispatcherServlet.addHandlerMapping(new AnnotationHandlerMapping("camp.nextstep.controller"));
+    final var dispatcherServlet = new DispatcherServlet();
+    dispatcherServlet.addHandlerMapping(new AnnotationHandlerMapping(applicationContext));
+    dispatcherServlet.addHandlerMapping(new ManualHandlerMapping());
 
-        dispatcherServlet.addHandlerAdapter(new ControllerHandlerAdapter());
-        dispatcherServlet.addHandlerAdapter(new HandlerExecutionHandlerAdapter());
+    dispatcherServlet.addHandlerAdapter(new ControllerHandlerAdapter());
+    dispatcherServlet.addHandlerAdapter(new HandlerExecutionHandlerAdapter());
 
-        final var dispatcher = container.addServlet("dispatcher", dispatcherServlet);
-        dispatcher.setLoadOnStartup(1);
-        dispatcher.addMapping("/");
+    final var dispatcher = container.addServlet("dispatcher", dispatcherServlet);
+    dispatcher.setLoadOnStartup(1);
+    dispatcher.addMapping("/");
 
-        log.info("Start AppWebApplication Initializer");
-    }
+    log.info("Start AppWebApplication Initializer");
+  }
 }

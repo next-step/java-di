@@ -3,7 +3,7 @@ package com.interface21.webmvc.servlet.mvc.tobe.support;
 import com.interface21.core.MethodParameter;
 import com.interface21.core.util.ReflectionUtils;
 import com.interface21.core.util.StringUtils;
-import com.interface21.web.method.support.HandlerMethodArgumentResolver;
+import com.interface21.web.method.support.ArgumentResolver;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.apache.commons.lang3.ClassUtils;
@@ -12,7 +12,7 @@ import java.lang.reflect.*;
 import java.util.Arrays;
 
 
-public class ModelArgumentResolver implements HandlerMethodArgumentResolver {
+public class ModelArgumentResolver implements ArgumentResolver {
 
     @Override
     public boolean supportsParameter(MethodParameter methodParameter) {

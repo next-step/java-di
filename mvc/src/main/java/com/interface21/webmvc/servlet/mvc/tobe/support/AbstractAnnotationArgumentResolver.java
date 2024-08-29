@@ -1,11 +1,11 @@
 package com.interface21.webmvc.servlet.mvc.tobe.support;
 
 import com.interface21.core.MethodParameter;
-import com.interface21.web.method.support.HandlerMethodArgumentResolver;
+import com.interface21.web.method.support.ArgumentResolver;
 
 import java.util.Arrays;
 
-public abstract class AbstractAnnotationArgumentResolver implements HandlerMethodArgumentResolver {
+public abstract class AbstractAnnotationArgumentResolver implements ArgumentResolver {
 
     protected boolean supportAnnotation(MethodParameter methodParameter, Class<?> annotation) {
         return Arrays.stream(methodParameter.getAnnotations())
