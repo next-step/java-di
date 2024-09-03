@@ -13,7 +13,8 @@ public class ComponentAnnotationBeanScanner extends BeanScanner {
     super(basePackages);
   }
 
-  public Set<Class<?>> getComponentAnnotationClasses() {
+  @Override
+  protected Set<Class<?>> scanForBeans() {
     Reflections reflections = createReflections();
     return reflections.getTypesAnnotatedWith(Component.class).stream()
         .filter(Predicate.not(Class::isAnnotation))

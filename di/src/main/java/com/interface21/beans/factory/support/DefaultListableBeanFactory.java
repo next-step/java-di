@@ -4,6 +4,7 @@ import com.interface21.beans.BeanCircularException;
 import com.interface21.beans.BeanInstantiationException;
 import com.interface21.beans.factory.BeanFactory;
 import com.interface21.context.stereotype.Controller;
+import java.util.stream.Collectors;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -36,15 +37,18 @@ public class DefaultListableBeanFactory implements BeanFactory {
   @Override
   public void initialize() {
 
-    var componentScanner = new ComponentAnnotationBeanScanner(basePackages);
-    Set<Class<?>> components = componentScanner.getComponentAnnotationClasses();
-    var configurationScanner = new ConfigurationBeanScanner(basePackages);
-    Set<Class<?>> configurations = configurationScanner.getConfigurationClassesWithBean();
-    components.addAll(configurations);
+    List<BeanScanner> scanners = Arrays.asList(
+        new ComponentAnnotationBeanScanner(basePackages),
+        new ConfigurationBeanScanner(basePackages)
+    );
 
-    for (Class<?> componentClass : components) {
-      var bean = createBean(componentClass, components);
-      singletonObjects.put(componentClass, bean);
+    Set<Class<?>> beanClasses = scanners.stream()
+        .flatMap(scanner -> scanner.scanForBeans().stream())
+        .collect(Collectors.toSet());
+
+    for (Class<?> beanClass : beanClasses) {
+      var bean = createBean(beanClass, beanClasses);
+      singletonObjects.put(beanClass, bean);
     }
   }
 

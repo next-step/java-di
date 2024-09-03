@@ -14,7 +14,8 @@ public class ConfigurationBeanScanner extends BeanScanner {
     super(basePackages);
   }
 
-  public Set<Class<?>> getConfigurationClassesWithBean() {
+  @Override
+  public Set<Class<?>> scanForBeans() {
     Reflections reflections = createReflections();
 
     return reflections.getTypesAnnotatedWith(Configuration.class).stream()
@@ -22,7 +23,6 @@ public class ConfigurationBeanScanner extends BeanScanner {
         .filter(this::hasBeanAnnotatedMethod)
         .collect(Collectors.toSet());
   }
-
   private boolean hasBeanAnnotatedMethod(Class<?> clazz) {
     return Arrays.stream(clazz.getDeclaredMethods())
         .anyMatch(method -> method.isAnnotationPresent(Bean.class));

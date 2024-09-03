@@ -20,4 +20,5 @@ public abstract class BeanScanner {
   protected Reflections createReflections() {
     return new Reflections(STEREOTYPE_PACKAGE, basePackages);
   }
+  protected abstract Set<Class<?>> scanForBeans();
 }
