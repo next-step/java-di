@@ -11,7 +11,7 @@ class ComponentAnnotationBeanScannerTest{
     @Test
     void Component_어노테이션을_포함한_클래스만_반환해야_한다() {
       ComponentAnnotationBeanScanner scanner = new ComponentAnnotationBeanScanner("samples");
-      Set<Class<?>> configClasses = scanner.getComponentAnnotationClasses();
+      Set<Class<?>> configClasses = scanner.scanForBeans();
 
       assertNotNull(configClasses);
       assertTrue(configClasses.contains(JdbcSampleRepository.class));
