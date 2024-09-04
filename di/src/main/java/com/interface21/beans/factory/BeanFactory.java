@@ -11,4 +11,5 @@ public interface BeanFactory {
 
     Map<Class<?>,Object> getControllers();
     void clear();
+    void initialize();
 }

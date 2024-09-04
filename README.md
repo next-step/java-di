@@ -46,9 +46,11 @@
 
 ### 🚀 4단계 @Configuration 구현하기
 
-- [ ] ConfigurationBeanScannerTest 테스트를 성공시킨다.
-   - [ ] BeanSanner를 ClasspathBeanSacnner로 변경하고 설정 파일로 등록한 Bean과 통합한다.
+- [x] ConfigurationBeanScannerTest 테스트를 성공시킨다.
 
-- [ ] 클래스에 대한 책임을 분리한다.
-   - [ ] @ComponentScan 애노테이션의 경로 정보를 가져와 ClasspathBeanScanner을 초기화 한다 
-   - [ ] 설정 파일의 @Bean 정보를 바탕으로 ConfigurationBeanScanner을 초기화한다
+- [x] 클래스에 대한 책임을 분리한다.
+   - [x] @ComponentScan 애노테이션의 경로 정보를 가져와 ComponentAnnotationBeanScanner 초기화 한다 
+   - [x] 설정 파일의 @Bean 정보를 바탕으로 ConfigurationBeanScanner을 초기화한다
+
+- [x] BeanScanner의 위치를 DI로 변경하고, 모듈 의존성을 해결한다.
+

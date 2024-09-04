@@ -1,4 +1,4 @@
-package com.interface21.webmvc.servlet.mvc.tobe;
+  package com.interface21.webmvc.servlet.mvc.tobe;
 
 import com.interface21.context.ApplicationContext;
 import com.interface21.web.bind.annotation.RequestMethod;
@@ -23,8 +23,8 @@ public class AnnotationHandlerMapping implements HandlerMapping {
   }
 
   public void initialize() {
-    final var beanScanner = new BeanScanner();
-    handlerExecutions.putAll(beanScanner.scan(applicationContext.getBeanFactory()));
+    final var handlerExecutionFactory = new HandlerExecutionFactory();
+    handlerExecutions.putAll(handlerExecutionFactory.createHandlerExecution(applicationContext.getBeanFactory()));
     log.info("Initialized AnnotationHandlerMapping!");
   }
 
