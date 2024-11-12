@@ -21,7 +21,7 @@ class DefaultListableBeanFactoryTest {
     void setUp() {
         reflections = new Reflections("samples");
         beanFactory = new DefaultListableBeanFactory();
-        beanFactory.initialize();
+        beanFactory.initialize("samples");
     }
 
     @Test

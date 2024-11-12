@@ -13,22 +13,32 @@ public class DefaultListableBeanFactory implements BeanFactory {
 
     private static final Logger log = LoggerFactory.getLogger(DefaultListableBeanFactory.class);
 
-    private final Map<String, BeanDefinition> beanDefinitionMap = new HashMap<>();
+    private Map<String, BeanDefinition> beanDefinitionMap;
 
     private final Map<Class<?>, Object> singletonObjects = new HashMap<>();
 
+    private final BeanScanner beanScanner = new BeanScanner();
+
     @Override
     public Set<Class<?>> getBeanClasses() {
-        return Set.of();
+        return singletonObjects.keySet();
     }
 
     @Override
     public <T> T getBean(final Class<T> clazz) {
-        return null;
+        if (!singletonObjects.containsKey(clazz)) {
+            throw new RuntimeException("빈이 없습니다");
+        }
+
+        return (T) singletonObjects.get(clazz);
     }
 
-    public void initialize() {
+    public void initialize(String... packages) {
+        beanDefinitionMap = beanScanner.scan(packages);
+        BeanInjector beanInjector = new BeanInjector(beanDefinitionMap);
+        beanInjector.injectBeans(singletonObjects);
     }
+
 
     @Override
     public void clear() {
