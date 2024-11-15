@@ -1,7 +1,7 @@
 package com.interface21.beans.factory.support;
 
 import com.interface21.beans.factory.config.BeanDefinition;
-import com.interface21.beans.factory.config.BeanDefinitionImpl;
+import com.interface21.beans.factory.config.DefaultBeanDefinition;
 import com.interface21.beans.factory.config.MethodBeanDefinitionImpl;
 import com.interface21.context.annotation.Bean;
 import com.interface21.context.stereotype.Component;
@@ -53,7 +53,7 @@ public class BeanScanner {
     ) {
         for (Class<?> clazz : beanClasses) {
             String name = decapitalize(clazz.getName());
-            BeanDefinition beanDefinition = new BeanDefinitionImpl(
+            BeanDefinition beanDefinition = new DefaultBeanDefinition(
                     clazz.getName(),
                     clazz
             );
@@ -76,13 +76,10 @@ public class BeanScanner {
     }
 
     private String decapitalize(String string) {
-        if (string == null || string.length() == 0) {
+        if (string == null || string.isBlank()) {
             return string;
         }
 
-        char c[] = string.toCharArray();
-        c[0] = Character.toLowerCase(c[0]);
-
-        return new String(c);
+        return Character.toLowerCase(string.charAt(0)) + string.substring(1);
     }
 }
