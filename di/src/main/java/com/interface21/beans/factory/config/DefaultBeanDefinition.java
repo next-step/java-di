@@ -1,10 +1,10 @@
 package com.interface21.beans.factory.config;
 
-public class BeanDefinitionImpl implements BeanDefinition {
+public class DefaultBeanDefinition implements BeanDefinition {
     private String beanClassName;
     private Class<?> type;
 
-    public BeanDefinitionImpl(String beanClassName, Class<?> type) {
+    public DefaultBeanDefinition(String beanClassName, Class<?> type) {
         this.beanClassName = beanClassName;
         this.type = type;
     }

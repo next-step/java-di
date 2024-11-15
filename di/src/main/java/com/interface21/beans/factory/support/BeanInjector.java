@@ -2,8 +2,9 @@ package com.interface21.beans.factory.support;
 
 import com.interface21.beans.BeanUtils;
 import com.interface21.beans.factory.config.BeanDefinition;
-import com.interface21.beans.factory.config.BeanDefinitionImpl;
 import com.interface21.beans.factory.config.MethodBeanDefinitionImpl;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
@@ -11,6 +12,8 @@ import java.lang.reflect.Method;
 import java.util.*;
 
 public class BeanInjector {
+    private final Logger logger = LoggerFactory.getLogger(BeanInjector.class);
+
     private Map<String, BeanDefinition> beanDefinitionMap;
 
     public BeanInjector(Map<String, BeanDefinition> beanDefinitionMap) {
@@ -55,20 +58,7 @@ public class BeanInjector {
         // TODO 일단은 생성자가 하나만 있다고 가정하는데 여러개 있는걸 다음스텝으로
         Constructor<?> constructor = BeanFactoryUtils.getInjectedConstructor(targetClass);
         if (constructor == null) {
-            try {
-                objectByClass.put(
-                        targetClass,
-                        targetClass.getDeclaredConstructor().newInstance()
-                );
-            } catch (InstantiationException e) {
-                e.printStackTrace();
-            } catch (IllegalAccessException e) {
-                e.printStackTrace();
-            } catch (InvocationTargetException e) {
-                e.printStackTrace();
-            } catch (NoSuchMethodException e) {
-                e.printStackTrace();
-            }
+            createInstanceWithoutConstructor(targetClass, objectByClass);
             return;
         }
 
@@ -77,11 +67,25 @@ public class BeanInjector {
                 instantiateConstructor(
                         constructor,
                         objectByClass,
-                        visited,
-                        beanDefinition
+                        visited
                 )
         );
     }
+
+    private void createInstanceWithoutConstructor(
+            Class<?> targetClass,
+            Map<Class<?>, Object> objectByClass
+    ) {
+        try {
+            objectByClass.put(
+                    targetClass,
+                    targetClass.getDeclaredConstructor().newInstance()
+            );
+        } catch (InstantiationException | IllegalAccessException | InvocationTargetException | NoSuchMethodException e) {
+            logger.error(e.getMessage(), e);
+        }
+    }
+
 
     private void generateBeanFromMethod(
             Map<Class<?>, Object> objectByClass,
@@ -99,11 +103,10 @@ public class BeanInjector {
     private Object instantiateConstructor(
             Constructor<?> constructor,
             Map<Class<?>, Object> objectByClass,
-            Set<BeanDefinition> visited,
-            BeanDefinition targetBeanDefinition
+            Set<BeanDefinition> visited
     ) {
         Class<?>[] parameterTypes = constructor.getParameterTypes();
-        List<Object> args = new ArrayList();
+        List<Object> args = new ArrayList<>();
         for (Class<?> clazz : parameterTypes) {
             Object object = getBean(clazz, objectByClass);
             if (object == null) {
